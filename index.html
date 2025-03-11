@@ -1,51 +1,105 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>染劑稀釋計算器</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>染劑稀釋計算器</title>
 </head>
 <body>
-    <h1>染劑稀釋計算器</h1>
-    <form id="dilutionForm">
-        <label for="originalConcentration">原始濃度:</label>
-        <input type="number" id="originalConcentration" step="0.01" required>
-        <br><br>
-        <label for="targetConcentration">目標濃度:</label>
-        <input type="number" id="targetConcentration" step="0.01" required>
-        <br><br>
-        <label for="totalAmount">染劑總重量 (克):</label>
-        <input type="number" id="totalAmount" step="0.01" required>
-        <br><br>
-        <button type="button" onclick="calculateDiluent()">計算染劑與稀釋劑的重量</button>
-    </form>
-    <h2>結果</h2>
-    <p id="result"></p>
+  <h1>染劑稀釋計算器</h1>
+  <form id="dilutionForm">
+    <!-- 模式選擇 -->
+    <div>
+      <input type="radio" name="mode" id="modeTraditional" value="traditional" checked onchange="toggleMode()">
+      <label for="modeTraditional">傳統模式 (稀釋劑濃度為 0)</label>
+      <input type="radio" name="mode" id="modeCustom" value="custom" onchange="toggleMode()">
+      <label for="modeCustom">自訂模式 (稀釋劑濃度大於 0)</label>
+    </div>
+    <br>
+    <!-- 傳統模式輸入 -->
+    <div id="traditionalInputs">
+      <label for="originalConcentration">原始濃度:</label>
+      <input type="number" id="originalConcentration" step="0.01" required>
+      <br><br>
+    </div>
+    <!-- 自訂模式輸入 -->
+    <div id="customInputs" style="display: none;">
+      <label for="highConcentration">較高濃度:</label>
+      <input type="number" id="highConcentration" step="0.01" required>
+      <br><br>
+      <label for="lowConcentration">較淺濃度:</label>
+      <input type="number" id="lowConcentration" step="0.01" required>
+      <br><br>
+    </div>
+    <!-- 共同輸入欄位 -->
+    <label for="targetConcentration">目標濃度:</label>
+    <input type="number" id="targetConcentration" step="0.01" required>
+    <br><br>
+    <label for="totalAmount">染劑總重量 (克):</label>
+    <input type="number" id="totalAmount" step="0.01" required>
+    <br><br>
+    <button type="button" onclick="calculateDiluent()">計算</button>
+  </form>
+  <h2>結果</h2>
+  <p id="result"></p>
 
-    <script>
-        function calculateDiluent() {
-            // 取得用戶輸入的值
-            let originalConcentration = parseFloat(document.getElementById('originalConcentration').value);
-            let targetConcentration = parseFloat(document.getElementById('targetConcentration').value);
-            let totalAmount = parseFloat(document.getElementById('totalAmount').value);
+  <script>
+    // 切換模式：根據選擇顯示對應的輸入欄位
+    function toggleMode() {
+      if(document.getElementById('modeTraditional').checked) {
+        document.getElementById('traditionalInputs').style.display = '';
+        document.getElementById('customInputs').style.display = 'none';
+      } else {
+        document.getElementById('traditionalInputs').style.display = 'none';
+        document.getElementById('customInputs').style.display = '';
+      }
+    }
+    
+    // 確保頁面載入時根據預設狀態呼叫切換模式函數
+    window.onload = function() {
+      toggleMode();
+    };
 
-            // 確認輸入值是否有效
-            if (originalConcentration <= 0 || targetConcentration <= 0 || totalAmount <= 0 || targetConcentration >= originalConcentration) {
-                document.getElementById('result').innerText = "請確保輸入的值有效且目標濃度小於原始濃度。";
-                return;
-            }
+    function calculateDiluent() {
+      let totalAmount = parseFloat(document.getElementById('totalAmount').value);
+      let targetConcentration = parseFloat(document.getElementById('targetConcentration').value);
 
-            // 計算稀釋倍數
-            let dilutionFactor = originalConcentration / targetConcentration;
+      // 檢查共同輸入是否有效
+      if (totalAmount <= 0 || targetConcentration <= 0) {
+        document.getElementById('result').innerText = "請確保染劑總重量與目標濃度為正數。";
+        return;
+      }
 
-            // 計算需要的染劑和稀釋劑的重量
-            let dyeAmount = totalAmount / dilutionFactor;
-            let diluentAmount = totalAmount - dyeAmount;
-
-            // 顯示結果
-            document.getElementById('result').innerText = 
-                `染劑重量: ${dyeAmount.toFixed(2)} 克, 稀釋劑重量: ${diluentAmount.toFixed(2)} 克`;
+      // 傳統模式計算 (稀釋劑濃度假設為 0)
+      if (document.getElementById('modeTraditional').checked) {
+        let originalConcentration = parseFloat(document.getElementById('originalConcentration').value);
+        if (originalConcentration <= 0 || targetConcentration >= originalConcentration) {
+          document.getElementById('result').innerText = "請確保原始濃度為正且目標濃度小於原始濃度。";
+          return;
         }
-    </script>
+        let dilutionFactor = originalConcentration / targetConcentration;
+        let dyeAmount = totalAmount / dilutionFactor;
+        let diluentAmount = totalAmount - dyeAmount;
+        document.getElementById('result').innerText = 
+          `染劑重量: ${dyeAmount.toFixed(2)} 克, 稀釋劑重量: ${diluentAmount.toFixed(2)} 克`;
+      }
+      // 自訂模式計算 (稀釋劑濃度 > 0)
+      else {
+        let highConcentration = parseFloat(document.getElementById('highConcentration').value);
+        let lowConcentration = parseFloat(document.getElementById('lowConcentration').value);
+        if (highConcentration <= 0 || lowConcentration < 0 || targetConcentration <= lowConcentration || targetConcentration >= highConcentration) {
+          document.getElementById('result').innerText = "請確保輸入的較高濃度、較淺濃度及目標濃度有效，且目標濃度介於兩者之間。";
+          return;
+        }
+        // 依據公式計算比例
+        let ratio = (highConcentration - targetConcentration) / (targetConcentration - lowConcentration);
+        // 較高濃度染劑重量為 totalAmount/(1+ratio)
+        let highAmount = totalAmount / (1 + ratio);
+        let lowAmount = totalAmount - highAmount;
+        document.getElementById('result').innerText = 
+          `較高濃度染劑重量: ${highAmount.toFixed(2)} 克, 較淺濃度染劑重量: ${lowAmount.toFixed(2)} 克 (比例 1:${ratio.toFixed(2)})`;
+      }
+    }
+  </script>
 </body>
 </html>
