@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>顧客商品預訂登記</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #333;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #ffffff;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        input[type="date"] {
+            appearance: none;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        td {
+            color: #333;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .edit-date {
+            width: 150px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>顧客商品預訂登記</h1>
+        <form id="reservationForm">
+            <div class="form-group">
+                <label for="reservationDate">預訂日期</label>
+                <input type="date" id="reservationDate" name="reservationDate" required min="2025-05-26" max="2025-06-25">
+            </div>
+            <div class="form-group">
+                <label for="customerName">顧客姓名</label>
+                <input type="text" id="customerName" name="customerName" required>
+            </div>
+            <div class="form-group">
+                <label for="contactPlatform">聯絡平台</label>
+                <select id="contactPlatform" name="contactPlatform" required>
+                    <option value="" disabled selected>請選擇</option>
+                    <option value="臉書">臉書</option>
+                    <option value="IG">IG</option>
+                    <option value="Google">Google</option>
+                    <option value="脆">脆</option>
+                    <option value="Line@">Line@</option>
+                    <option value="電話">電話</option>
+                    <option value="臨店">臨店</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="product">預訂商品</label>
+                <input type="text" id="product" name="product" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">聯絡電話</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            <button type="submit">提交登記</button>
+        </form>
+
+        <h2>登記結果</h2>
+        <table id="reservationTable">
+            <thead>
+                <tr>
+                    <th>預訂日期</th>
+                    <th>顧客姓名</th>
+                    <th>聯絡平台</th>
+                    <th>預訂商品</th>
+                    <th>聯絡電話</th>
+                    <th>取貨日期</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="reservationList"></tbody>
+        </table>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 預訂資料儲存
+            let reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+
+            // 表單提交
+            document.getElementById('reservationForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                // 初始取貨日期設為預訂日期（可手動修改）
+                const reservationDate = document.getElementById('reservationDate').value;
+                const reservation = {
+                    id: Date.now(),
+                    reservationDate: reservationDate,
+                    customerName: document.getElementById('customerName').value,
+                    contactPlatform: document.getElementById('contactPlatform').value,
+                    product: document.getElementById('product').value,
+                    phone: document.getElementById('phone').value,
+                    pickupDate: reservationDate // 初始值與預訂日期相同
+                };
+
+                reservations.push(reservation);
+                localStorage.setItem('reservations', JSON.stringify(reservations));
+                renderReservations();
+                e.target.reset();
+            });
+
+            // 渲染預訂記錄
+            function renderReservations() {
+                const reservationList = document.getElementById('reservationList');
+                reservationList.innerHTML = '';
+
+                reservations.forEach(reservation => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${reservation.reservationDate}</td>
+                        <td>${reservation.customerName}</td>
+                        <td>${reservation.contactPlatform}</td>
+                        <td>${reservation.product}</td>
+                        <td>${reservation.phone}</td>
+                        <td>
+                            <input type="date" class="edit-date" value="${reservation.pickupDate}" min="2025-05-26" max="2025-06-25" data-id="${reservation.id}">
+                        </td>
+                        <td><button class="delete-btn" data-id="${reservation.id}">X</button></td>
+                    `;
+                    reservationList.appendChild(row);
+                });
+
+                // 日期編輯事件
+                document.querySelectorAll('.edit-date').forEach(input => {
+                    input.addEventListener('change', (e) => {
+                        const id = parseInt(e.target.getAttribute('data-id'));
+                        const newPickupDate = e.target.value;
+                        const reservation = reservations.find(res => res.id === id);
+                        if (reservation) {
+                            reservation.pickupDate = newPickupDate;
+                            localStorage.setItem('reservations', JSON.stringify(reservations));
+                            renderReservations(); // 重新渲染以更新顯示
+                        }
+                    });
+                });
+
+                // 刪除按鈕事件
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const id = parseInt(button.getAttribute('data-id'));
+                        reservations = reservations.filter(res => res.id !== id);
+                        localStorage.setItem('reservations', JSON.stringify(reservations));
+                        renderReservations();
+                    });
+                });
+            }
+
+            // 初始渲染
+            renderReservations();
+
+            // 設定日期輸入框的默認值為當前日期
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('reservationDate').value = today;
+        });
+    </script>
+</body>
+</html>
