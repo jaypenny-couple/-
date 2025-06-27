@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<!-- saved from url=(0102)file:///C:/Users/JAY%20PENNY/Desktop/%E7%BC%BA%E8%B2%A8%E7%99%BB%E8%A8%98%E7%A8%8B%E5%BC%8F/index.html -->
+<html lang="zh-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>缺貨登記</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .form-container, .result-container {
+            width: 45%;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        select, input[type="text"], input[type="submit"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        #result {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .result-item {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>缺貨登記</h1>
+        <form id="stockForm">
+            <label for="vendor">廠商:</label>
+            <select id="vendor" name="vendor" required="">
+                <option value="">請選擇廠商</option>
+                <option value="肯邦">肯邦</option>
+                <option value="fiole">fiole</option>
+                <option value="蕾娜塔">蕾娜塔</option>
+                <option value="明佳麗">明佳麗</option>
+                <option value="TOB">TOB</option>
+                <option value="萊肯">萊肯</option>
+                <option value="中野">中野</option>
+                <option value="寶齡">寶齡</option>
+                <option value="桑多麗">桑多麗</option>
+                <option value="蘊洛">蘊洛</option>
+                <option value="其他">其他</option>
+            </select>
+
+            <label for="item">品項:</label>
+            <input type="text" id="item" name="item" required="" placeholder="請輸入缺貨品項">
+
+            <input type="submit" value="提交登記">
+        </form>
+    </div>
+    
+    <div class="result-container">
+        <h2>登記結果</h2>
+        <div id="result"><div class="result-item" id="result-3">
+                    <p><strong>廠商:</strong> 其他</p>
+                    <p><strong>品項:</strong> 冷燙紙</p>
+                    <button class="delete-btn" onclick="deleteResult(&#39;result-3&#39;)">X</button>
+                </div><div class="result-item" id="result-2">
+                    <p><strong>廠商:</strong> 肯邦</p>
+                    <p><strong>品項:</strong> LB燙髮保養</p>
+                    <button class="delete-btn" onclick="deleteResult(&#39;result-2&#39;)">X</button>
+                </div><div class="result-item" id="result-3">
+                    <p><strong>廠商:</strong> 肯邦</p>
+                    <p><strong>品項:</strong> AWG豐盈乳霜</p>
+                    <button class="delete-btn" onclick="deleteResult(&#39;result-3&#39;)">X</button>
+                </div><div class="result-item" id="result-4">
+                    <p><strong>廠商:</strong> 肯邦</p>
+                    <p><strong>品項:</strong> 427三支志康調</p>
+                    <button class="delete-btn" onclick="deleteResult(&#39;result-4&#39;)">X</button>
+                </div></div>
+    </div>
+
+    <script>
+        let resultCount = 0;
+        let results = [];
+
+        // 頁面加載時從 localStorage 讀取數據
+        window.addEventListener('load', function() {
+            const savedResults = localStorage.getItem('stockResults');
+            if (savedResults) {
+                results = JSON.parse(savedResults);
+                resultCount = results.length;
+                displayResults();
+            }
+        });
+
+        document.getElementById('stockForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var vendor = document.getElementById('vendor').value;
+            var item = document.getElementById('item').value;
+            
+            resultCount++;
+            const newResult = {
+                id: 'result-' + resultCount,
+                vendor: vendor,
+                item: item
+            };
+            results.push(newResult);
+            
+            // 保存到 localStorage
+            localStorage.setItem('stockResults', JSON.stringify(results));
+            
+            displayResults();
+            
+            // 清空表單
+            document.getElementById('vendor').value = '';
+            document.getElementById('item').value = '';
+        });
+
+        function displayResults() {
+            var result = document.getElementById('result');
+            result.innerHTML = ''; // 清空現有結果
+            results.forEach(function(item) {
+                var resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.id = item.id;
+                resultItem.innerHTML = `
+                    <p><strong>廠商:</strong> ${item.vendor}</p>
+                    <p><strong>品項:</strong> ${item.item}</p>
+                    <button class="delete-btn" onclick="deleteResult('${item.id}')">X</button>
+                `;
+                result.appendChild(resultItem);
+            });
+        }
+
+        function deleteResult(id) {
+            results = results.filter(item => item.id !== id);
+            localStorage.setItem('stockResults', JSON.stringify(results));
+            displayResults();
+        }
+    </script>
+
+
+</body></html>
