@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0102)file:///C:/Users/JAY%20PENNY/Desktop/%E7%BC%BA%E8%B2%A8%E7%99%BB%E8%A8%98%E7%A8%8B%E5%BC%8F/index.html -->
-<html lang="zh-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>缺貨登記</title>
     <style>
@@ -45,6 +45,10 @@
         input[type="submit"]:hover {
             background-color: #45a049;
         }
+        input[type="submit"]:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
         #result {
             background-color: #f0f0f0;
             padding: 20px;
@@ -52,11 +56,12 @@
             margin-top: 20px;
         }
         .result-item {
-            background-color: #f0f0f0;
+            background-color: white;
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 10px;
             position: relative;
+            border-left: 4px solid #4CAF50;
         }
         .delete-btn {
             position: absolute;
@@ -71,14 +76,44 @@
             font-size: 12px;
             cursor: pointer;
         }
+        .delete-btn:hover {
+            background-color: #ff3333;
+        }
+        .status {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.loading {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .timestamp {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="form-container">
         <h1>缺貨登記</h1>
+        <div id="status" class="status loading">正在連接 Firebase...</div>
         <form id="stockForm">
             <label for="vendor">廠商:</label>
-            <select id="vendor" name="vendor" required="">
+            <select id="vendor" name="vendor" required>
                 <option value="">請選擇廠商</option>
                 <option value="肯邦">肯邦</option>
                 <option value="fiole">fiole</option>
@@ -94,92 +129,148 @@
             </select>
 
             <label for="item">品項:</label>
-            <input type="text" id="item" name="item" required="" placeholder="請輸入缺貨品項">
+            <input type="text" id="item" name="item" required placeholder="請輸入缺貨品項">
 
-            <input type="submit" value="提交登記">
+            <input type="submit" id="submitBtn" value="提交登記">
         </form>
     </div>
     
     <div class="result-container">
         <h2>登記結果</h2>
-        <div id="result"><div class="result-item" id="result-3">
-                    <p><strong>廠商:</strong> 其他</p>
-                    <p><strong>品項:</strong> 冷燙紙</p>
-                    <button class="delete-btn" onclick="deleteResult(&#39;result-3&#39;)">X</button>
-                </div><div class="result-item" id="result-2">
-                    <p><strong>廠商:</strong> 肯邦</p>
-                    <p><strong>品項:</strong> LB燙髮保養</p>
-                    <button class="delete-btn" onclick="deleteResult(&#39;result-2&#39;)">X</button>
-                </div><div class="result-item" id="result-3">
-                    <p><strong>廠商:</strong> 肯邦</p>
-                    <p><strong>品項:</strong> AWG豐盈乳霜</p>
-                    <button class="delete-btn" onclick="deleteResult(&#39;result-3&#39;)">X</button>
-                </div><div class="result-item" id="result-4">
-                    <p><strong>廠商:</strong> 肯邦</p>
-                    <p><strong>品項:</strong> 427三支志康調</p>
-                    <button class="delete-btn" onclick="deleteResult(&#39;result-4&#39;)">X</button>
-                </div></div>
+        <div id="result">
+            <div class="status loading">載入中...</div>
+        </div>
     </div>
 
-    <script>
-        let resultCount = 0;
-        let results = [];
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, push, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-        // 頁面加載時從 localStorage 讀取數據
-        window.addEventListener('load', function() {
-            const savedResults = localStorage.getItem('stockResults');
-            if (savedResults) {
-                results = JSON.parse(savedResults);
-                resultCount = results.length;
-                displayResults();
-            }
-        });
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyAkNgKjtbDiD_1l4wgvt9GPPMuGQouVGgA",
+            authDomain: "restocking-list.firebaseapp.com",
+            databaseURL: "https://restocking-list-default-rtdb.firebaseio.com",
+            projectId: "restocking-list",
+            storageBucket: "restocking-list.firebasestorage.app",
+            messagingSenderId: "1070128829792",
+            appId: "1:1070128829792:web:2ee97f72d545ddd3193a05",
+            measurementId: "G-BKXQ46K8HV"
+        };
 
-        document.getElementById('stockForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            var vendor = document.getElementById('vendor').value;
-            var item = document.getElementById('item').value;
-            
-            resultCount++;
-            const newResult = {
-                id: 'result-' + resultCount,
-                vendor: vendor,
-                item: item
-            };
-            results.push(newResult);
-            
-            // 保存到 localStorage
-            localStorage.setItem('stockResults', JSON.stringify(results));
-            
-            displayResults();
-            
-            // 清空表單
-            document.getElementById('vendor').value = '';
-            document.getElementById('item').value = '';
-        });
+        // 檢查 Firebase 配置並初始化
+        try {
+            // 初始化 Firebase
+            const app = initializeApp(firebaseConfig);
+            const database = getDatabase(app);
+            const stockRef = ref(database, 'stockItems');
 
-        function displayResults() {
-            var result = document.getElementById('result');
-            result.innerHTML = ''; // 清空現有結果
-            results.forEach(function(item) {
-                var resultItem = document.createElement('div');
-                resultItem.className = 'result-item';
-                resultItem.id = item.id;
-                resultItem.innerHTML = `
-                    <p><strong>廠商:</strong> ${item.vendor}</p>
-                    <p><strong>品項:</strong> ${item.item}</p>
-                    <button class="delete-btn" onclick="deleteResult('${item.id}')">X</button>
-                `;
-                result.appendChild(resultItem);
+            let isConnected = false;
+
+            // 監聽資料變化
+            onValue(stockRef, (snapshot) => {
+                if (!isConnected) {
+                    document.getElementById('status').innerHTML = '<div class="status connected">✓ 已連接到 Firebase</div>';
+                    isConnected = true;
+                }
+                
+                const data = snapshot.val();
+                displayResults(data);
+            }, (error) => {
+                document.getElementById('status').innerHTML = '<div class="status error">❌ Firebase 連接失敗: ' + error.message + '</div>';
+                console.error('Firebase error:', error);
             });
-        }
 
-        function deleteResult(id) {
-            results = results.filter(item => item.id !== id);
-            localStorage.setItem('stockResults', JSON.stringify(results));
-            displayResults();
+            // 表單提交
+            document.getElementById('stockForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const vendor = document.getElementById('vendor').value;
+                const item = document.getElementById('item').value;
+                const submitBtn = document.getElementById('submitBtn');
+                
+                // 停用按鈕防止重複提交
+                submitBtn.disabled = true;
+                submitBtn.value = '提交中...';
+                
+                // 新增資料到 Firebase
+                const newItem = {
+                    vendor: vendor,
+                    item: item,
+                    timestamp: Date.now(),
+                    date: new Date().toLocaleString('zh-TW')
+                };
+                
+                push(stockRef, newItem)
+                    .then(() => {
+                        // 清空表單
+                        document.getElementById('vendor').value = '';
+                        document.getElementById('item').value = '';
+                        
+                        // 重新啟用按鈕
+                        submitBtn.disabled = false;
+                        submitBtn.value = '提交登記';
+                    })
+                    .catch((error) => {
+                        console.error('Error adding document: ', error);
+                        alert('提交失敗，請稍後再試');
+                        
+                        // 重新啟用按鈕
+                        submitBtn.disabled = false;
+                        submitBtn.value = '提交登記';
+                    });
+            });
+
+            // 顯示結果
+            function displayResults(data) {
+                const resultDiv = document.getElementById('result');
+                
+                if (!data) {
+                    resultDiv.innerHTML = '<div style="text-align: center; color: #666;">暫無缺貨登記</div>';
+                    return;
+                }
+                
+                // 轉換為陣列並按時間排序（最新的在前）
+                const items = Object.keys(data).map(key => ({
+                    id: key,
+                    ...data[key]
+                })).sort((a, b) => b.timestamp - a.timestamp);
+                
+                resultDiv.innerHTML = '';
+                
+                items.forEach(item => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+                    resultItem.innerHTML = `
+                        <p><strong>廠商:</strong> ${item.vendor}</p>
+                        <p><strong>品項:</strong> ${item.item}</p>
+                        <div class="timestamp">登記時間: ${item.date}</div>
+                        <button class="delete-btn" onclick="deleteResult('${item.id}')">×</button>
+                    `;
+                    resultDiv.appendChild(resultItem);
+                });
+            }
+
+            // 刪除項目
+            window.deleteResult = function(id) {
+                if (confirm('確定要刪除此項目嗎？')) {
+                    const itemRef = ref(database, `stockItems/${id}`);
+                    remove(itemRef)
+                        .then(() => {
+                            console.log('Item deleted successfully');
+                        })
+                        .catch((error) => {
+                            console.error('Error deleting item:', error);
+                            alert('刪除失敗，請稍後再試');
+                        });
+                }
+            };
+        } catch (error) {
+            document.getElementById('status').innerHTML = '<div class="status error">❌ Firebase 初始化失敗: ' + error.message + '</div>';
+            console.error('Firebase initialization error:', error);
         }
     </script>
-
-
-</body></html>
+</body>
+</html>
