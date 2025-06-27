@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALICE 美髮沙龍報價系統</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+        }
+        h1 {
+            text-align: center;
+            color: #d4a373;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: #2b2b2b;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .service-category {
+            margin-bottom: 15px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .category-header {
+            background-color: #3c3c3c;
+            padding: 10px 15px;
+            font-size: 18px;
+            color: #e6ccb2;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .category-header:hover {
+            background-color: #4c4c4c;
+        }
+        .category-header:after {
+            content: '▼';
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+        .category-header.collapsed:after {
+            transform: rotate(-90deg);
+        }
+        .service-options {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+            padding: 10px 15px;
+        }
+        .service-options.collapsed {
+            max-height: 0;
+            padding: 0 15px;
+        }
+        .service-item {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .service-item label {
+            display: inline-block;
+            margin-right: 10px;
+            font-size: 16px;
+            flex: 1;
+            min-width: 200px;
+        }
+        select, input[type="number"] {
+            background-color: #3c3c3c;
+            color: #f0f0f0;
+            border: 1px solid #555;
+            padding: 5px;
+            border-radius: 5px;
+            width: 120px;
+            font-size: 14px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #3c3c3c;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        #result input[type="number"] {
+            width: 80px;
+            margin-left: 5px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        button {
+            background-color: #d4a373;
+            color: #1a1a1a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            max-width: 150px;
+        }
+        button#clear-btn {
+            background-color: #e6ccb2;
+        }
+        button#recalculate-btn {
+            background-color: #a3bffa;
+            margin-top: 10px;
+            width: auto;
+        }
+        button:hover {
+            background-color: #e6ccb2;
+        }
+        button#clear-btn:hover {
+            background-color: #d4a373;
+        }
+        button#recalculate-btn:hover {
+            background-color: #c3e0ff;
+        }
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px;
+            }
+            h1 {
+                font-size: 28px;
+            }
+            .service-item label {
+                font-size: 18px;
+            }
+            select, input[type="number"] {
+                width: 150px;
+                font-size: 16px;
+            }
+            #result {
+                font-size: 16px;
+            }
+            #result input[type="number"] {
+                width: 100px;
+            }
+            button {
+                width: auto;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ALICE 美髮沙龍報價系統</h1>
+        
+        <div class="service-category">
+            <div class="category-header" onclick="toggleCategory('perm')">燙髮</div>
+            <div id="perm-options" class="service-options">
+                <div class="service-item">
+                    <label>冷燙 (120 分鐘)</label>
+                    <select id="price-0" onchange="toggleCustomInput(0)">
+                        <option value="0">不選擇</option>
+                        <option value="2500">2500 元</option>
+                        <option value="2800">2800 元</option>
+                        <option value="3200">3200 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-0" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+                <div class="service-item">
+                    <label>溫塑燙 (180 分鐘)</label>
+                    <select id="price-1" onchange="toggleCustomInput(1)">
+                        <option value="0">不選擇</option>
+                        <option value="3500">3500 元</option>
+                        <option value="4000">4000 元</option>
+                        <option value="4500">4500 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-1" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+                <div class="service-item">
+                    <label>縮毛矯正 (180 分鐘)</label>
+                    <select id="price-2" onchange="toggleCustomInput(2)">
+                        <option value="0">不選擇</option>
+                        <option value="3500">3500 元</option>
+                        <option value="4000">4000 元</option>
+                        <option value="4500">4500 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-2" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+            </div>
+        </div>
+        
+        <div class="service-category">
+            <div class="category-header" onclick="toggleCategory('dye')">染髮</div>
+            <div id="dye-options" class="service-options collapsed">
+                <div class="service-item">
+                    <label>染髮 (120 分鐘)</label>
+                    <select id="price-3" onchange="toggleCustomInput(3)">
+                        <option value="0">不選擇</option>
+                        <option value="1800">1800 元</option>
+                        <option value="2100">2100 元</option>
+                        <option value="2400">2400 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-3" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+                <div class="service-item">
+                    <label>挑染 (90 分鐘)</label>
+                    <select id="price-4" onchange="toggleCustomInput(4)">
+                        <option value="0">不選擇</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-4" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+                <div class="service-item">
+                    <label>漂髮 (120 分鐘)</label>
+                    <select id="price-5" onchange="toggleCustomInput(5)">
+                        <option value="0">不選擇</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-5" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+                <div class="service-item">
+                    <label>設計染髮 (120 分鐘)</label>
+                    <select id="price-6" onchange="toggleCustomInput(6)">
+                        <option value="0">不選擇</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-6" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+            </div>
+        </div>
+        
+        <div class="service-category">
+            <div class="category-header" onclick="toggleCategory('care')">護髮</div>
+            <div id="care-options" class="service-options collapsed">
+                <div class="service-item">
+                    <label>白金瞬效護髮 (60 分鐘)</label>
+                    <select id="price-7" onchange="toggleCustomInput(7)">
+                        <option value="0">不選擇</option>
+                        <option value="1000">1000 元</option>
+                        <option value="1200">1200 元</option>
+                        <option value="1500">1500 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-7" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+                <div class="service-item">
+                    <label>柔漾三劑式護髮 (60 分鐘)</label>
+                    <select id="price-8" onchange="toggleCustomInput(8)">
+                        <option value="0">不選擇</option>
+                        <option value="1500">1500 元</option>
+                        <option value="1800">1800 元</option>
+                        <option value="2100">2100 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-8" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+                <div class="service-item">
+                    <label>Bond RX 超鏈結護髮 (60 分鐘)</label>
+                    <select id="price-9" onchange="toggleCustomInput(9)">
+                        <option value="0">不選擇</option>
+                        <option value="1500">1500 元</option>
+                        <option value="1800">1800 元</option>
+                        <option value="2100">2100 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-9" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+                <div class="service-item">
+                    <label>水舞鑽結構護髮 (60 分鐘)</label>
+                    <select id="price-10" onchange="toggleCustomInput(10)">
+                        <option value="0">不選擇</option>
+                        <option value="1800">1800 元</option>
+                        <option value="2100">2100 元</option>
+                        <option value="2400">2400 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-10" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+                <div class="service-item">
+                    <label>IAU 細胞修護 (60 分鐘)</label>
+                    <select id="price-11" onchange="toggleCustomInput(11)">
+                        <option value="0">不選擇</option>
+                        <option value="1800">1800 元</option>
+                        <option value="2100">2100 元</option>
+                        <option value="2400">2400 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-11" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+            </div>
+        </div>
+        
+        <div class="service-category">
+            <div class="category-header" onclick="toggleCategory('scalp')">頭皮護理</div>
+            <div id="scalp-options" class="service-options collapsed">
+                <div class="service-item">
+                    <label>頭皮角質淨化 (60 分鐘)</label>
+                    <select id="price-12" onchange="toggleCustomInput(12)">
+                        <option value="0">不選擇</option>
+                        <option value="1200">1200 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-12" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+                <div class="service-item">
+                    <label>冷橘頭皮護理 (60 分鐘)</label>
+                    <select id="price-13" onchange="toggleCustomInput(13)">
+                        <option value="0">不選擇</option>
+                        <option value="600">600 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-13" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+                <div class="service-item">
+                    <label>寶齡頭皮護理 (60 分鐘)</label>
+                    <select id="price-14" onchange="toggleCustomInput(14)">
+                        <option value="0">不選擇</option>
+                        <option value="800">800 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-14" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+                <div class="service-item">
+                    <label>IAU 膠原泡泡 (60 分鐘)</label>
+                    <select id="price-15" onchange="toggleCustomInput(15)">
+                        <option value="0">不選擇</option>
+                        <option value="800">800 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-15" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+            </div>
+        </div>
+        
+        <div class="service-category">
+            <div class="category-header" onclick="toggleCategory('shampoo')">洗髮</div>
+            <div id="shampoo-options" class="service-options collapsed">
+                <div class="service-item">
+                    <label>健康洗髮 (45 分鐘)</label>
+                    <select id="price-16" onchange="toggleCustomInput(16)">
+                        <option value="0">不選擇</option>
+                        <option value="500">500 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-16" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+                <div class="service-item">
+                    <label>SPA 洗髮 (90 分鐘)</label>
+                    <select id="price-17" onchange="toggleCustomInput(17)">
+                        <option value="0">不選擇</option>
+                        <option value="1800">1800 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-17" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+            </div>
+        </div>
+        
+        <div class="service-category">
+            <div class="category-header" onclick="toggleCategory('haircut')">剪髮</div>
+            <div id="haircut-options" class="service-options collapsed">
+                <div class="service-item">
+                    <label>剪髮 (60 分鐘)</label>
+                    <select id="price-18" onchange="toggleCustomInput(18)">
+                        <option value="0">不選擇</option>
+                        <option value="600">600 元</option>
+                        <option value="800">800 元</option>
+                        <option value="1000">1000 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-18" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
+            </div>
+        </div>
+        
+        <div class="button-container">
+            <button onclick="calculate()">計算報價</button>
+            <button id="clear-btn" onclick="clearAll()">清除</button>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // 頁面載入時，確保第一個類別是展開的，其他類別是收起的
+        document.addEventListener('DOMContentLoaded', function() {
+            // 將所有類別標題添加 collapsed 類別
+            const headers = document.querySelectorAll('.category-header');
+            headers.forEach((header, index) => {
+                if (index > 0) {
+                    header.classList.add('collapsed');
+                }
+            });
+            
+            // 只展開第一個類別的選項
+            const options = document.querySelectorAll('.service-options');
+            options.forEach((option, index) => {
+                if (index > 0) {
+                    option.classList.add('collapsed');
+                }
+            });
+        });
+        
+        function toggleCategory(category) {
+            const header = document.querySelector(`#${category}-options`).previousElementSibling;
+            const options = document.getElementById(`${category}-options`);
+            
+            header.classList.toggle('collapsed');
+            options.classList.toggle('collapsed');
+        }
+
+        function toggleCustomInput(index) {
+            const select = document.getElementById(`price-${index}`);
+            const customInput = document.getElementById(`custom-${index}`);
+            if (customInput) {
+                customInput.style.display = select.value === "custom" ? "inline" : "none";
+                if (select.value === "custom") {
+                    customInput.focus();
+                }
+            }
+        }
+
+        function clearAll() {
+            const selects = document.querySelectorAll('select');
+            selects.forEach(select => {
+                select.value = "0";
+            });
+
+            const customInputs = document.querySelectorAll('input[type="number"]');
+            customInputs.forEach(input => {
+                input.style.display = "none";
+                input.value = "";
+            });
+
+            document.getElementById("result").innerHTML = "";
+        }
+
+        const services = [
+            { name: "冷燙", time: 120, prices: [2500, 2800, 3200], custom: true },
+            { name: "溫塑燙", time: 180, prices: [3500, 4000, 4500], custom: true },
+            { name: "縮毛矯正", time: 180, prices: [3500, 4000, 4500], custom: true },
+            { name: "染髮", time: 120, prices: [1800, 2100, 2400], custom: true },
+            { name: "挑染", time: 90, prices: [], custom: true },
+            { name: "漂髮", time: 120, prices: [], custom: true },
+            { name: "設計染髮", time: 120, prices: [], custom: true },
+            { name: "白金瞬效護髮", time: 60, prices: [1000, 1200, 1500], custom: true },
+            { name: "柔漾三劑式護髮", time: 60, prices: [1500, 1800, 2100], custom: true },
+            { name: "Bond RX 超鏈結護髮", time: 60, prices: [1500, 1800, 2100], custom: true },
+            { name: "水舞鑽結構護髮", time: 60, prices: [1800, 2100, 2400], custom: true },
+            { name: "IAU 細胞修護", time: 60, prices: [1800, 2100, 2400], custom: true },
+            { name: "頭皮角質淨化", time: 60, prices: [1200], custom: true },
+            { name: "冷橘頭皮護理", time: 60, prices: [600], custom: true },
+            { name: "寶齡頭皮護理", time: 60, prices: [800], custom: true },
+            { name: "IAU 膠原泡泡", time: 60, prices: [800], custom: true },
+            { name: "健康洗髮", time: 45, prices: [500], custom: true },
+            { name: "SPA 洗髮", time: 90, prices: [1800], custom: true },
+            { name: "剪髮", time: 60, prices: [600, 800, 1000], custom: true }
+        ];
+
+        let lastTotalPrice = 0; // 儲存原始總價以供重新計算使用
+
+        function calculate() {
+            let totalTime = 0;
+            let totalPrice = 0;
+            let selectedServices = [];
+
+            services.forEach((service, index) => {
+                const select = document.getElementById(`price-${index}`);
+                const customInput = document.getElementById(`custom-${index}`);
+                let price = parseInt(select.value);
+                if (select.value === "custom" && customInput) {
+                    price = parseInt(customInput.value) || 0;
+                }
+                if (price > 0) {
+                    totalTime += service.time;
+                    totalPrice += price;
+                    selectedServices.push({ name: service.name, price });
+                }
+            });
+
+            let discount = 0;
+            const hasHaircut = selectedServices.some(s => s.name === "剪髮");
+            const hasPerm = selectedServices.some(s => ["冷燙", "溫塑燙", "縮毛矯正"].includes(s.name));
+            const hasDye = selectedServices.some(s => ["染髮", "挑染", "漂髮", "設計染髮"].includes(s.name));
+            const hasCare = selectedServices.some(s => [
+                "柔漾三劑式護髮", "Bond RX 超鏈結護髮", "水舞鑽結構護髮", "IAU 細胞修護"
+            ].includes(s.name) && s.name !== "白金瞬效護髮");
+            const hasScalpPurify = selectedServices.some(s => s.name === "頭皮角質淨化");
+            const hasScalpCare = selectedServices.some(s => ["冷橘頭皮護理", "寶齡頭皮護理"].includes(s.name));
+            const hasShampoo = selectedServices.some(s => ["健康洗髮", "SPA 洗髮"].includes(s.name));
+            const hasIAUCollagen = selectedServices.some(s => s.name === "IAU 膠原泡泡");
+
+            if (hasHaircut && hasCare) discount = 300;
+            else if (hasHaircut && (hasScalpPurify || hasScalpCare)) discount = 300;
+            else if (hasHaircut && hasIAUCollagen) discount = 300;
+            else if (hasPerm && hasCare) discount = 300;
+            else if (hasDye && hasCare) discount = 300;
+            else if (hasShampoo && hasIAUCollagen) discount = 300;
+            else if ((hasScalpPurify || hasScalpCare) && hasIAUCollagen) discount = 300;
+
+            lastTotalPrice = totalPrice; // 儲存原始總價
+            const finalPrice = totalPrice - discount;
+            
+            // 生成明細列表
+            let detailsHtml = '<ul style="list-style-type: none; padding-left: 0;">';
+            selectedServices.forEach(service => {
+                detailsHtml += `<li>${service.name}: ${service.price} 元</li>`;
+            });
+            detailsHtml += '</ul>';
+            
+            const result = `
+                <h3>報價結果</h3>
+                ${selectedServices.length > 0 ? '<p>已選擇的服務:</p>' + detailsHtml : '<p>尚未選擇任何服務</p>'}
+                <p>總服務時間: <input type="number" id="total-time" value="${totalTime}" min="0"> 分鐘 (<span id="total-hours">${(totalTime / 60).toFixed(1)}</span> 小時)</p>
+                <p>原始總價: ${totalPrice} 元</p>
+                <p>優惠: <input type="number" id="discount-amount" value="${discount}" min="0"> 元</p>
+                <p><strong>最終總價: <span id="final-price">${finalPrice}</span> 元</strong></p>
+                ${selectedServices.length > 0 ? '<button id="recalculate-btn" onclick="recalculate()">重新計算</button>' : ''}
+            `;
+            document.getElementById("result").innerHTML = result;
+        }
+
+        function recalculate() {
+            const totalTime = parseInt(document.getElementById("total-time").value) || 0;
+            const discount = parseInt(document.getElementById("discount-amount").value) || 0;
+            const finalPrice = lastTotalPrice - discount;
+
+            // 更新顯示
+            document.getElementById("total-hours").innerText = (totalTime / 60).toFixed(1);
+            document.getElementById("final-price").innerText = finalPrice;
+        }
+    </script>
+</body>
+</html>
