@@ -343,6 +343,15 @@
                     </select>
                     <input type="number" id="custom-15" placeholder="輸入自訂價格" style="display:none;" min="0">
                 </div>
+                <div class="service-item">
+                    <label>茶樹微生態養膚 (30 分鐘)</label>
+                    <select id="price-16" onchange="toggleCustomInput(16)">
+                        <option value="0">不選擇</option>
+                        <option value="1500">1500 元</option>
+                        <option value="custom">自訂價格</option>
+                    </select>
+                    <input type="number" id="custom-16" placeholder="輸入自訂價格" style="display:none;" min="0">
+                </div>
             </div>
         </div>
         
@@ -351,21 +360,21 @@
             <div id="shampoo-options" class="service-options collapsed">
                 <div class="service-item">
                     <label>健康洗髮 (45 分鐘)</label>
-                    <select id="price-16" onchange="toggleCustomInput(16)">
+                    <select id="price-17" onchange="toggleCustomInput(17)">
                         <option value="0">不選擇</option>
                         <option value="500">500 元</option>
                         <option value="custom">自訂價格</option>
                     </select>
-                    <input type="number" id="custom-16" placeholder="輸入自訂價格" style="display:none;" min="0">
+                    <input type="number" id="custom-17" placeholder="輸入自訂價格" style="display:none;" min="0">
                 </div>
                 <div class="service-item">
                     <label>SPA 洗髮 (90 分鐘)</label>
-                    <select id="price-17" onchange="toggleCustomInput(17)">
+                    <select id="price-18" onchange="toggleCustomInput(18)">
                         <option value="0">不選擇</option>
                         <option value="1800">1800 元</option>
                         <option value="custom">自訂價格</option>
                     </select>
-                    <input type="number" id="custom-17" placeholder="輸入自訂價格" style="display:none;" min="0">
+                    <input type="number" id="custom-18" placeholder="輸入自訂價格" style="display:none;" min="0">
                 </div>
             </div>
         </div>
@@ -375,14 +384,14 @@
             <div id="haircut-options" class="service-options collapsed">
                 <div class="service-item">
                     <label>剪髮 (60 分鐘)</label>
-                    <select id="price-18" onchange="toggleCustomInput(18)">
+                    <select id="price-19" onchange="toggleCustomInput(19)">
                         <option value="0">不選擇</option>
                         <option value="600">600 元</option>
                         <option value="800">800 元</option>
                         <option value="1000">1000 元</option>
                         <option value="custom">自訂價格</option>
                     </select>
-                    <input type="number" id="custom-18" placeholder="輸入自訂價格" style="display:none;" min="0">
+                    <input type="number" id="custom-19" placeholder="輸入自訂價格" style="display:none;" min="0">
                 </div>
             </div>
         </div>
@@ -465,6 +474,7 @@
             { name: "冷橘頭皮護理", time: 60, prices: [600], custom: true },
             { name: "寶齡頭皮護理", time: 60, prices: [800], custom: true },
             { name: "IAU 膠原泡泡", time: 60, prices: [800], custom: true },
+            { name: "茶樹微生態養膚", time: 30, prices: [1500], custom: true },
             { name: "健康洗髮", time: 45, prices: [500], custom: true },
             { name: "SPA 洗髮", time: 90, prices: [1800], custom: true },
             { name: "剪髮", time: 60, prices: [600, 800, 1000], custom: true }
