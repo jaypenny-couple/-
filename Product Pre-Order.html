@@ -44,6 +44,48 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
+        .sync-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .sync-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sync-indicator.connected {
+            background-color: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        .sync-indicator.disconnected {
+            background-color: #f44336;
+        }
+
+        .sync-indicator.syncing {
+            background-color: #ff9800;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .form-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -113,6 +155,12 @@
         .submit-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .table-container {
@@ -206,9 +254,14 @@
             white-space: nowrap;
         }
 
-        .delete-btn:hover {
+        .delete-btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .delete-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .confirm-delete-btn {
@@ -264,9 +317,14 @@
             transition: all 0.3s ease;
         }
 
-        .edit-date:focus {
+        .edit-date:focus:not(:disabled) {
             border-color: #667eea;
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .edit-date:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .quantity-display {
@@ -309,112 +367,45 @@
             letter-spacing: 1px;
         }
 
-        /* 手機版本優化 */
+        .loading {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            font-size: 16px;
+        }
+
+        .error-message {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
         @media (max-width: 768px) {
-            body {
-                padding: 5px;
-            }
-            
-            .container {
-                padding: 5px;
-            }
-            
-            .form-card {
-                padding: 15px;
-                margin-bottom: 20px;
-            }
-            
-            .form-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-            
-            input, select {
-                padding: 10px;
-                font-size: 16px; /* 防止iOS縮放 */
-            }
-            
-            .submit-btn {
-                padding: 15px;
-                font-size: 16px;
-            }
-            
-            table {
-                min-width: 600px;
-                font-size: 11px;
-            }
-            
-            th {
-                padding: 10px 6px;
-                font-size: 10px;
-            }
-            
-            td {
-                padding: 8px 4px;
-                font-size: 11px;
-                max-width: 80px;
-            }
-            
-            .edit-date {
-                width: 100px;
-                padding: 4px;
-                font-size: 10px;
-            }
-            
-            .delete-btn {
-                padding: 4px 6px;
-                font-size: 9px;
-            }
-            
-            .confirm-delete-btn, .cancel-delete-btn {
-                padding: 3px 5px;
-                font-size: 8px;
-            }
-            
-            .stats-container {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
-            }
-            
-            .stat-card {
-                padding: 10px;
-            }
+            body { padding: 5px; }
+            .container { padding: 5px; }
+            .form-card { padding: 15px; margin-bottom: 20px; }
+            .form-grid { grid-template-columns: 1fr; gap: 12px; }
+            input, select { padding: 10px; font-size: 16px; }
+            .submit-btn { padding: 15px; font-size: 16px; }
+            table { min-width: 600px; font-size: 11px; }
+            th { padding: 10px 6px; font-size: 10px; }
+            td { padding: 8px 4px; font-size: 11px; max-width: 80px; }
+            .edit-date { width: 100px; padding: 4px; font-size: 10px; }
+            .delete-btn { padding: 4px 6px; font-size: 9px; }
+            .confirm-delete-btn, .cancel-delete-btn { padding: 3px 5px; font-size: 8px; }
+            .stats-container { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .stat-card { padding: 10px; }
         }
 
-        /* 超小屏幕優化 */
         @media (max-width: 480px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            table {
-                min-width: 500px;
-            }
-            
-            th, td {
-                padding: 6px 3px;
-                font-size: 10px;
-            }
-            
-            .edit-date {
-                width: 80px;
-            }
-        }
-
-        /* 橫向手機優化 */
-        @media (max-width: 896px) and (orientation: landscape) {
-            body {
-                padding: 5px;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-                margin-bottom: 15px;
-            }
-            
-            .stats-container {
-                grid-template-columns: repeat(3, 1fr);
-            }
+            .form-grid { grid-template-columns: 1fr; }
+            table { min-width: 500px; }
+            th, td { padding: 6px 3px; font-size: 10px; }
+            .edit-date { width: 80px; }
         }
     </style>
 </head>
@@ -422,7 +413,14 @@
     <div class="container">
         <h1>顧客商品預訂登記系統</h1>
         
-        <div class="stats-container" id="statsContainer">
+        <div class="sync-status">
+            <div class="sync-indicator" id="syncIndicator"></div>
+            <span id="syncStatus">初始化中...</span>
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+        
+        <div class="stats-container">
             <div class="stat-card">
                 <div class="stat-number" id="totalReservations">0</div>
                 <div class="stat-label">總預訂數</div>
@@ -475,11 +473,12 @@
                         <input type="tel" id="phone" name="phone" required>
                     </div>
                 </div>
-                <button type="submit" class="submit-btn">新增預訂</button>
+                <button type="submit" class="submit-btn" id="submitBtn">新增預訂</button>
             </form>
         </div>
 
         <h2>預訂記錄</h2>
+        <div id="loadingMessage" class="loading">載入中...</div>
         <div class="table-container">
             <table id="reservationTable">
                 <thead>
@@ -500,219 +499,332 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            let reservations = JSON.parse(localStorage.getItem('reservations') || '[]');
-            let sortColumn = '';
-            let sortDirection = 'asc';
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, push, set, onValue, remove, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-            // 設定日期輸入框的默認值和限制
-            function initializeDateInputs() {
-                const today = new Date();
-                const todayString = today.toISOString().split('T')[0];
-                
-                // 設定預訂日期的默認值為今天
-                document.getElementById('reservationDate').value = todayString;
-                
-                // 設定日期範圍（可以根據需要調整）
-                const maxDate = new Date();
-                maxDate.setMonth(maxDate.getMonth() + 3); // 3個月後
-                const maxDateString = maxDate.toISOString().split('T')[0];
-                
-                // 允許選擇從3個月前到3個月後的日期
-                const minDate = new Date();
-                minDate.setMonth(minDate.getMonth() - 3); // 3個月前
-                const minDateString = minDate.toISOString().split('T')[0];
-                
-                document.getElementById('reservationDate').setAttribute('min', minDateString);
-                document.getElementById('reservationDate').setAttribute('max', maxDateString);
+        const firebaseConfig = {
+            apiKey: "AIzaSyBSCAo9bCzDK0p39STACEg6opiKttrNy4I",
+            authDomain: "pre-order-registration.firebaseapp.com",
+            databaseURL: "https://pre-order-registration-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "pre-order-registration",
+            storageBucket: "pre-order-registration.firebasestorage.app",
+            messagingSenderId: "211911682667",
+            appId: "1:211911682667:web:a8744e7cb96733219e1f2e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        let reservations = [];
+        let sortColumn = '';
+        let sortDirection = 'asc';
+        let isConnected = false;
+
+        const syncIndicator = document.getElementById('syncIndicator');
+        const syncStatus = document.getElementById('syncStatus');
+        const errorMessage = document.getElementById('errorMessage');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function updateSyncStatus(status, message) {
+            syncIndicator.className = `sync-indicator ${status}`;
+            syncStatus.textContent = message;
+            
+            if (status === 'connected') {
+                isConnected = true;
+                hideError();
+                enableControls();
+            } else if (status === 'disconnected') {
+                isConnected = false;
+                showError('連線中斷，請檢查網路連線');
+                disableControls();
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+
+        function enableControls() {
+            submitBtn.disabled = false;
+            document.querySelectorAll('.delete-btn').forEach(btn => btn.disabled = false);
+            document.querySelectorAll('.edit-date').forEach(input => input.disabled = false);
+        }
+
+        function disableControls() {
+            submitBtn.disabled = true;
+            document.querySelectorAll('.delete-btn').forEach(btn => btn.disabled = true);
+            document.querySelectorAll('.edit-date').forEach(input => input.disabled = true);
+        }
+
+        function initializeDateInputs() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('reservationDate').value = today;
+            
+            const maxDate = new Date();
+            maxDate.setMonth(maxDate.getMonth() + 3);
+            const maxDateString = maxDate.toISOString().split('T')[0];
+            
+            const minDate = new Date();
+            minDate.setMonth(minDate.getMonth() - 3);
+            const minDateString = minDate.toISOString().split('T')[0];
+            
+            document.getElementById('reservationDate').setAttribute('min', minDateString);
+            document.getElementById('reservationDate').setAttribute('max', maxDateString);
+        }
+
+        function setupFirebaseListener() {
+            const reservationsRef = ref(database, 'reservations');
+            
+            onValue(reservationsRef, (snapshot) => {
+                try {
+                    updateSyncStatus('connected', '已連線 - 即時同步');
+                    loadingMessage.style.display = 'none';
+                    
+                    const data = snapshot.val();
+                    reservations = [];
+                    
+                    if (data) {
+                        Object.keys(data).forEach(key => {
+                            reservations.push({
+                                firebaseKey: key,
+                                ...data[key]
+                            });
+                        });
+                    }
+                    
+                    migrateLocalData();
+                    renderReservations();
+                    updateStats();
+                } catch (error) {
+                    console.error('數據同步錯誤:', error);
+                    updateSyncStatus('disconnected', '同步失敗');
+                    showError('數據同步失敗，請重新整理頁面');
+                }
+            }, (error) => {
+                console.error('Firebase 連線錯誤:', error);
+                updateSyncStatus('disconnected', '連線失敗');
+                showError('無法連接到伺服器，請檢查網路連線');
+                loadingMessage.style.display = 'none';
+            });
+        }
+
+        function migrateLocalData() {
+            const localData = localStorage.getItem('reservations');
+            if (localData && reservations.length === 0) {
+                try {
+                    const localReservations = JSON.parse(localData);
+                    if (localReservations.length > 0) {
+                        updateSyncStatus('syncing', '同步本地數據中...');
+                        
+                        localReservations.forEach(reservation => {
+                            const reservationsRef = ref(database, 'reservations');
+                            push(reservationsRef, {
+                                ...reservation,
+                                createdAt: serverTimestamp(),
+                                updatedAt: serverTimestamp()
+                            });
+                        });
+                        
+                        localStorage.removeItem('reservations');
+                    }
+                } catch (error) {
+                    console.error('本地數據遷移錯誤:', error);
+                }
+            }
+        }
+
+        async function addReservation(reservation) {
+            if (!isConnected) {
+                showError('目前離線，無法新增預訂');
+                return false;
             }
 
-            // 保存數據
-            function saveReservations() {
-                localStorage.setItem('reservations', JSON.stringify(reservations));
+            try {
+                updateSyncStatus('syncing', '新增中...');
+                
+                const reservationsRef = ref(database, 'reservations');
+                await push(reservationsRef, {
+                    ...reservation,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+                
+                return true;
+            } catch (error) {
+                console.error('新增預訂錯誤:', error);
+                showError('新增預訂失敗，請稍後再試');
+                updateSyncStatus('disconnected', '新增失敗');
+                return false;
+            }
+        }
+
+        async function updateReservation(firebaseKey, updates) {
+            if (!isConnected) {
+                showError('目前離線，無法更新');
+                return false;
             }
 
-            // 表單提交
-            document.getElementById('reservationForm').addEventListener('submit', (e) => {
-                e.preventDefault();
+            try {
+                const reservationRef = ref(database, `reservations/${firebaseKey}`);
+                await set(reservationRef, {
+                    ...updates,
+                    updatedAt: serverTimestamp()
+                });
+                return true;
+            } catch (error) {
+                console.error('更新預訂錯誤:', error);
+                showError('更新失敗，請稍後再試');
+                return false;
+            }
+        }
 
-                const reservationDate = document.getElementById('reservationDate').value;
-                const reservation = {
-                    id: Date.now(),
-                    reservationDate: reservationDate,
-                    customerName: document.getElementById('customerName').value,
-                    contactPlatform: document.getElementById('contactPlatform').value,
-                    product: document.getElementById('product').value,
-                    quantity: parseInt(document.getElementById('quantity').value),
-                    phone: document.getElementById('phone').value,
-                    pickupDate: reservationDate
-                };
+        async function deleteReservation(firebaseKey) {
+            if (!isConnected) {
+                showError('目前離線，無法刪除');
+                return false;
+            }
 
-                reservations.push(reservation);
-                saveReservations();
-                renderReservations();
-                updateStats();
+            try {
+                updateSyncStatus('syncing', '刪除中...');
+                
+                const reservationRef = ref(database, `reservations/${firebaseKey}`);
+                await remove(reservationRef);
+                
+                return true;
+            } catch (error) {
+                console.error('刪除預訂錯誤:', error);
+                showError('刪除失敗，請稍後再試');
+                updateSyncStatus('disconnected', '刪除失敗');
+                return false;
+            }
+        }
+
+        document.getElementById('reservationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!isConnected) {
+                showError('目前離線，無法新增預訂');
+                return;
+            }
+
+            const reservationDate = document.getElementById('reservationDate').value;
+            const reservation = {
+                id: Date.now(),
+                reservationDate: reservationDate,
+                customerName: document.getElementById('customerName').value,
+                contactPlatform: document.getElementById('contactPlatform').value,
+                product: document.getElementById('product').value,
+                quantity: parseInt(document.getElementById('quantity').value),
+                phone: document.getElementById('phone').value,
+                pickupDate: reservationDate
+            };
+
+            const success = await addReservation(reservation);
+            if (success) {
                 e.target.reset();
-                
-                // 重設日期為今天
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('reservationDate').value = today;
                 document.getElementById('quantity').value = 1;
-            });
+            }
+        });
 
-            // 排序功能
-            function sortReservations(column) {
-                if (sortColumn === column) {
-                    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-                } else {
-                    sortColumn = column;
-                    sortDirection = 'asc';
+        function sortReservations(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+
+            reservations.sort((a, b) => {
+                let aVal = a[column];
+                let bVal = b[column];
+                
+                if (column === 'reservationDate') {
+                    aVal = new Date(aVal);
+                    bVal = new Date(bVal);
+                } else if (typeof aVal === 'string') {
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
                 }
 
-                reservations.sort((a, b) => {
-                    let aVal = a[column];
-                    let bVal = b[column];
-                    
-                    if (column === 'reservationDate') {
-                        aVal = new Date(aVal);
-                        bVal = new Date(bVal);
-                    } else if (typeof aVal === 'string') {
-                        aVal = aVal.toLowerCase();
-                        bVal = bVal.toLowerCase();
-                    }
-
-                    if (sortDirection === 'asc') {
-                        return aVal > bVal ? 1 : -1;
-                    } else {
-                        return aVal < bVal ? 1 : -1;
-                    }
-                });
-
-                updateSortHeaders();
-                renderReservations();
-            }
-
-            // 更新排序標題
-            function updateSortHeaders() {
-                document.querySelectorAll('.sortable').forEach(th => {
-                    th.classList.remove('asc', 'desc');
-                    if (th.dataset.column === sortColumn) {
-                        th.classList.add(sortDirection);
-                    }
-                });
-            }
-
-            // 統計數據
-            function updateStats() {
-                const today = new Date().toISOString().split('T')[0];
-                const todayReservations = reservations.filter(r => r.reservationDate === today).length;
-                const totalQuantity = reservations.reduce((sum, r) => sum + (r.quantity || 1), 0);
-
-                document.getElementById('totalReservations').textContent = reservations.length;
-                document.getElementById('todayReservations').textContent = todayReservations;
-                document.getElementById('totalQuantity').textContent = totalQuantity;
-            }
-
-            // 渲染預訂記錄
-            function renderReservations() {
-                const reservationList = document.getElementById('reservationList');
-                reservationList.innerHTML = '';
-
-                reservations.forEach(reservation => {
-                    const row = document.createElement('tr');
-                    const maxDate = new Date();
-                    maxDate.setMonth(maxDate.getMonth() + 3);
-                    const maxDateString = maxDate.toISOString().split('T')[0];
-                    
-                    // 取貨日期的最小值應該是預訂日期，而不是今天
-                    const minPickupDate = reservation.reservationDate;
-                    
-                    row.innerHTML = `
-                        <td>${reservation.reservationDate}</td>
-                        <td>${reservation.customerName}</td>
-                        <td>${reservation.contactPlatform}</td>
-                        <td>${reservation.product}</td>
-                        <td><span class="quantity-display">${reservation.quantity || 1}</span></td>
-                        <td>${reservation.phone}</td>
-                        <td>
-                            <input type="date" class="edit-date" value="${reservation.pickupDate}" 
-                                   min="${minPickupDate}" max="${maxDateString}" 
-                                   data-id="${reservation.id}">
-                        </td>
-                        <td>
-                            <div class="delete-actions">
-                                <button class="delete-btn" data-id="${reservation.id}">刪除</button>
-                                <div class="confirm-actions" style="display: none;" data-id="${reservation.id}">
-                                    <button class="confirm-delete-btn" data-id="${reservation.id}">確認刪除?</button>
-                                    <button class="cancel-delete-btn" data-id="${reservation.id}">取消</button>
-                                </div>
-                            </div>
-                        </td>
-                    `;
-                    reservationList.appendChild(row);
-                });
-
-                // 日期編輯事件
-                document.querySelectorAll('.edit-date').forEach(input => {
-                    input.addEventListener('change', (e) => {
-                        const id = parseInt(e.target.getAttribute('data-id'));
-                        const newPickupDate = e.target.value;
-                        const reservation = reservations.find(res => res.id === id);
-                        if (reservation) {
-                            reservation.pickupDate = newPickupDate;
-                            saveReservations();
-                        }
-                    });
-                });
-
-                // 刪除按鈕事件
-                document.querySelectorAll('.delete-btn').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const id = button.getAttribute('data-id');
-                        // 隱藏刪除按鈕，顯示確認按鈕
-                        button.style.display = 'none';
-                        const confirmActions = button.parentElement.querySelector(`.confirm-actions[data-id="${id}"]`);
-                        confirmActions.style.display = 'flex';
-                    });
-                });
-
-                // 確認刪除按鈕事件
-                document.querySelectorAll('.confirm-delete-btn').forEach(button => {
-                    button.addEventListener('click', () => {
-                        const id = parseInt(button.getAttribute('data-id'));
-                        reservations = reservations.filter(res => res.id !== id);
-                        saveReservations();
-                        renderReservations();
-                        updateStats();
-                    });
-                });
-
-                // 取消刪除按鈕事件
-                document.querySelectorAll('.cancel-delete-btn').forEach(button => {
-                    button.addEventListener('click', () => {
-                        const id = button.getAttribute('data-id');
-                        // 隱藏確認按鈕，顯示刪除按鈕
-                        const confirmActions = button.parentElement;
-                        const deleteBtn = confirmActions.parentElement.querySelector(`.delete-btn[data-id="${id}"]`);
-                        confirmActions.style.display = 'none';
-                        deleteBtn.style.display = 'inline-block';
-                    });
-                });
-            }
-
-            // 排序事件監聽
-            document.querySelectorAll('.sortable').forEach(th => {
-                th.addEventListener('click', () => {
-                    sortReservations(th.dataset.column);
-                });
+                return sortDirection === 'asc' ? (aVal > bVal ? 1 : -1) : (aVal < bVal ? 1 : -1);
             });
 
-            // 初始化
-            initializeDateInputs();
+            updateSortHeaders();
             renderReservations();
-            updateStats();
-        });
-    </script>
-</body>
-</html>
+        }
+
+        function updateSortHeaders() {
+            document.querySelectorAll('.sortable').forEach(th => {
+                th.classList.remove('asc', 'desc');
+                if (th.dataset.column === sortColumn) {
+                    th.classList.add(sortDirection);
+                }
+            });
+        }
+
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayReservations = reservations.filter(r => r.reservationDate === today).length;
+            const totalQuantity = reservations.reduce((sum, r) => sum + (r.quantity || 1), 0);
+
+            document.getElementById('totalReservations').textContent = reservations.length;
+            document.getElementById('todayReservations').textContent = todayReservations;
+            document.getElementById('totalQuantity').textContent = totalQuantity;
+        }
+
+        function renderReservations() {
+            const reservationList = document.getElementById('reservationList');
+            reservationList.innerHTML = '';
+
+            reservations.forEach(reservation => {
+                const row = document.createElement('tr');
+                const maxDate = new Date();
+                maxDate.setMonth(maxDate.getMonth() + 3);
+                const maxDateString = maxDate.toISOString().split('T')[0];
+                const minPickupDate = reservation.reservationDate;
+                
+                row.innerHTML = `
+                    <td>${reservation.reservationDate}</td>
+                    <td>${reservation.customerName}</td>
+                    <td>${reservation.contactPlatform}</td>
+                    <td>${reservation.product}</td>
+                    <td><span class="quantity-display">${reservation.quantity || 1}</span></td>
+                    <td>${reservation.phone}</td>
+                    <td>
+                        <input type="date" class="edit-date" value="${reservation.pickupDate}" 
+                               min="${minPickupDate}" max="${maxDateString}" 
+                               data-key="${reservation.firebaseKey}">
+                    </td>
+                    <td>
+                        <div class="delete-actions">
+                            <button class="delete-btn" data-key="${reservation.firebaseKey}">刪除</button>
+                            <div class="confirm-actions" style="display: none;" data-key="${reservation.firebaseKey}">
+                                <button class="confirm-delete-btn" data-key="${reservation.firebaseKey}">確認刪除?</button>
+                                <button class="cancel-delete-btn" data-key="${reservation.firebaseKey}">取消</button>
+                            </div>
+                        </div>
+                    </td>
+                `;
+                reservationList.appendChild(row);
+            });
+
+            document.querySelectorAll('.edit-date').forEach(input => {
+                input.addEventListener('change', async (e) => {
+                    const firebaseKey = e.target.getAttribute('data-key');
+                    const newPickupDate = e.target.value;
+                    const reservation = reservations.find(r => r.firebaseKey === firebaseKey);
+                    
+                    if (reservation) {
+                        const updatedReservation = { ...reservation, pickupDate: newPickupDate };
+                        delete updatedReservation.firebaseKey;
+                        await updateReservation(firebaseKey, updatedReservation);
+                    
