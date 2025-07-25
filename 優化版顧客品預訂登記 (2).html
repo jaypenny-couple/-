@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>顧客商品預訂登記</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            font-weight: 300;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            text-align: center;
+            color: #ffffff;
+            font-weight: 300;
+            font-size: 1.8rem;
+            margin: 40px 0 20px 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #ffffff;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            padding: 20px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .sortable:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sortable::after {
+            content: "↕";
+            position: absolute;
+            right: 10px;
+            opacity: 0.6;
+            font-size: 12px;
+        }
+
+        .sortable.asc::after {
+            content: "↑";
+            opacity: 1;
+        }
+
+        .sortable.desc::after {
+            content: "↓";
+            opacity: 1;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(102, 126, 234, 0.02);
+        }
+
+        tr:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+            transform: scale(1.001);
+            transition: all 0.2s ease;
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .confirm-delete-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+
+        .confirm-delete-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(220, 53, 69, 0.4);
+        }
+
+        .cancel-delete-btn {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .cancel-delete-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(108, 117, 125, 0.4);
+        }
+
+        .delete-actions {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .edit-date {
+            width: 140px;
+            padding: 8px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .edit-date:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .quantity-display {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>顧客商品預訂登記系統</h1>
+        
+        <div class="stats-container" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-number" id="totalReservations">0</div>
+                <div class="stat-label">總預訂數</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="todayReservations">0</div>
+                <div class="stat-label">今日預訂</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalQuantity">0</div>
+                <div class="stat-label">總數量</div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <form id="reservationForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="reservationDate">預訂日期</label>
+                        <input type="date" id="reservationDate" name="reservationDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerName">顧客姓名</label>
+                        <input type="text" id="customerName" name="customerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactPlatform">聯絡平台</label>
+                        <select id="contactPlatform" name="contactPlatform" required>
+                            <option value="" disabled selected>請選擇</option>
+                            <option value="臉書">臉書</option>
+                            <option value="IG">IG</option>
+                            <option value="Google">Google</option>
+                            <option value="脆">脆</option>
+                            <option value="Line@">Line@</option>
+                            <option value="電話">電話</option>
+                            <option value="臨店">臨店</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="product">預訂商品</label>
+                        <input type="text" id="product" name="product" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">數量</label>
+                        <input type="number" id="quantity" name="quantity" min="1" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">聯絡電話</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">新增預訂</button>
+            </form>
+        </div>
+
+        <h2>預訂記錄</h2>
+        <div class="table-container">
+            <table id="reservationTable">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-column="reservationDate">預訂日期</th>
+                        <th>顧客姓名</th>
+                        <th class="sortable" data-column="contactPlatform">聯絡平台</th>
+                        <th class="sortable" data-column="product">預訂商品</th>
+                        <th>數量</th>
+                        <th>聯絡電話</th>
+                        <th>取貨日期</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="reservationList">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let reservations = [];
+            let sortColumn = '';
+            let sortDirection = 'asc';
+
+            // 設定日期輸入框的默認值和限制
+            function initializeDateInputs() {
+                const today = new Date();
+                const todayString = today.toISOString().split('T')[0];
+                
+                // 設定預訂日期的默認值為今天
+                document.getElementById('reservationDate').value = todayString;
+                
+                // 設定日期範圍（可以根據需要調整）
+                const maxDate = new Date();
+                maxDate.setMonth(maxDate.getMonth() + 3); // 3個月後
+                const maxDateString = maxDate.toISOString().split('T')[0];
+                
+                // 允許選擇從3個月前到3個月後的日期
+                const minDate = new Date();
+                minDate.setMonth(minDate.getMonth() - 3); // 3個月前
+                const minDateString = minDate.toISOString().split('T')[0];
+                
+                document.getElementById('reservationDate').setAttribute('min', minDateString);
+                document.getElementById('reservationDate').setAttribute('max', maxDateString);
+            }
+
+            // 載入數據
+            function loadReservations() {
+                const stored = localStorage.getItem('reservations');
+                if (stored) {
+                    try {
+                        reservations = JSON.parse(stored);
+                    } catch (e) {
+                        reservations = [];
+                    }
+                }
+            }
+
+            // 保存數據
+            function saveReservations() {
+                localStorage.setItem('reservations', JSON.stringify(reservations));
+            }
+
+            // 表單提交
+            document.getElementById('reservationForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const reservationDate = document.getElementById('reservationDate').value;
+                const reservation = {
+                    id: Date.now(),
+                    reservationDate: reservationDate,
+                    customerName: document.getElementById('customerName').value,
+                    contactPlatform: document.getElementById('contactPlatform').value,
+                    product: document.getElementById('product').value,
+                    quantity: parseInt(document.getElementById('quantity').value),
+                    phone: document.getElementById('phone').value,
+                    pickupDate: reservationDate
+                };
+
+                reservations.push(reservation);
+                saveReservations();
+                renderReservations();
+                updateStats();
+                e.target.reset();
+                
+                // 重設日期為今天
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('reservationDate').value = today;
+                document.getElementById('quantity').value = 1;
+            });
+
+            // 排序功能
+            function sortReservations(column) {
+                if (sortColumn === column) {
+                    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortColumn = column;
+                    sortDirection = 'asc';
+                }
+
+                reservations.sort((a, b) => {
+                    let aVal = a[column];
+                    let bVal = b[column];
+                    
+                    if (column === 'reservationDate') {
+                        aVal = new Date(aVal);
+                        bVal = new Date(bVal);
+                    } else if (typeof aVal === 'string') {
+                        aVal = aVal.toLowerCase();
+                        bVal = bVal.toLowerCase();
+                    }
+
+                    if (sortDirection === 'asc') {
+                        return aVal > bVal ? 1 : -1;
+                    } else {
+                        return aVal < bVal ? 1 : -1;
+                    }
+                });
+
+                updateSortHeaders();
+                renderReservations();
+            }
+
+            // 更新排序標題
+            function updateSortHeaders() {
+                document.querySelectorAll('.sortable').forEach(th => {
+                    th.classList.remove('asc', 'desc');
+                    if (th.dataset.column === sortColumn) {
+                        th.classList.add(sortDirection);
+                    }
+                });
+            }
+
+            // 統計數據
+            function updateStats() {
+                const today = new Date().toISOString().split('T')[0];
+                const todayReservations = reservations.filter(r => r.reservationDate === today).length;
+                const totalQuantity = reservations.reduce((sum, r) => sum + (r.quantity || 1), 0);
+
+                document.getElementById('totalReservations').textContent = reservations.length;
+                document.getElementById('todayReservations').textContent = todayReservations;
+                document.getElementById('totalQuantity').textContent = totalQuantity;
+            }
+
+            // 渲染預訂記錄
+            function renderReservations() {
+                const reservationList = document.getElementById('reservationList');
+                reservationList.innerHTML = '';
+
+                reservations.forEach(reservation => {
+                    const row = document.createElement('tr');
+                    const maxDate = new Date();
+                    maxDate.setMonth(maxDate.getMonth() + 3);
+                    const maxDateString = maxDate.toISOString().split('T')[0];
+                    
+                    // 取貨日期的最小值應該是預訂日期，而不是今天
+                    const minPickupDate = reservation.reservationDate;
+                    
+                    row.innerHTML = `
+                        <td>${reservation.reservationDate}</td>
+                        <td>${reservation.customerName}</td>
+                        <td>${reservation.contactPlatform}</td>
+                        <td>${reservation.product}</td>
+                        <td><span class="quantity-display">${reservation.quantity || 1}</span></td>
+                        <td>${reservation.phone}</td>
+                        <td>
+                            <input type="date" class="edit-date" value="${reservation.pickupDate}" 
+                                   min="${minPickupDate}" max="${maxDateString}" 
+                                   data-id="${reservation.id}">
+                        </td>
+                        <td>
+                            <div class="delete-actions">
+                                <button class="delete-btn" data-id="${reservation.id}">刪除</button>
+                                <div class="confirm-actions" style="display: none;" data-id="${reservation.id}">
+                                    <button class="confirm-delete-btn" data-id="${reservation.id}">確認刪除?</button>
+                                    <button class="cancel-delete-btn" data-id="${reservation.id}">取消</button>
+                                </div>
+                            </div>
+                        </td>
+                    `;
+                    reservationList.appendChild(row);
+                });
+
+                // 日期編輯事件
+                document.querySelectorAll('.edit-date').forEach(input => {
+                    input.addEventListener('change', (e) => {
+                        const id = parseInt(e.target.getAttribute('data-id'));
+                        const newPickupDate = e.target.value;
+                        const reservation = reservations.find(res => res.id === id);
+                        if (reservation) {
+                            reservation.pickupDate = newPickupDate;
+                            saveReservations();
+                        }
+                    });
+                });
+
+                // 刪除按鈕事件
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const id = button.getAttribute('data-id');
+                        // 隱藏刪除按鈕，顯示確認按鈕
+                        button.style.display = 'none';
+                        const confirmActions = button.parentElement.querySelector(`.confirm-actions[data-id="${id}"]`);
+                        confirmActions.style.display = 'flex';
+                    });
+                });
+
+                // 確認刪除按鈕事件
+                document.querySelectorAll('.confirm-delete-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const id = parseInt(button.getAttribute('data-id'));
+                        reservations = reservations.filter(res => res.id !== id);
+                        saveReservations();
+                        renderReservations();
+                        updateStats();
+                    });
+                });
+
+                // 取消刪除按鈕事件
+                document.querySelectorAll('.cancel-delete-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const id = button.getAttribute('data-id');
+                        // 隱藏確認按鈕，顯示刪除按鈕
+                        const confirmActions = button.parentElement;
+                        const deleteBtn = confirmActions.parentElement.querySelector(`.delete-btn[data-id="${id}"]`);
+                        confirmActions.style.display = 'none';
+                        deleteBtn.style.display = 'inline-block';
+                    });
+                });
+            }
+
+            // 排序事件監聽
+            document.querySelectorAll('.sortable').forEach(th => {
+                th.addEventListener('click', () => {
+                    sortReservations(th.dataset.column);
+                });
+            });
+
+            // 初始化
+            initializeDateInputs();
+            loadReservations();
+            renderReservations();
+            updateStats();
+        });
+    </script>
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBSCAo9bCzDK0p39STACEg6opiKttrNy4I",
+  authDomain: "pre-order-registration.firebaseapp.com",
+  databaseURL: "https://pre-order-registration-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "pre-order-registration",
+  storageBucket: "pre-order-registration.firebasestorage.app",
+  messagingSenderId: "211911682667",
+  appId: "1:211911682667:web:a8744e7cb96733219e1f2e",
+  measurementId: "G-V10VT86DVZ"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+</body>
+</html>
+
