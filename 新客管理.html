@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>顧客管理系統</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    h2 {
+      color: #00e6e6;
+      margin-bottom: 25px;
+      font-size: 28px;
+      text-align: center;
+      text-shadow: 0 2px 10px rgba(0, 230, 230, 0.3);
+    }
+
+    h3 {
+      color: #00cccc;
+      margin: 30px 0 15px;
+      font-size: 20px;
+    }
+
+    .form-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 25px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 230, 230, 0.2);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #00e6e6;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="month"],
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 2px solid rgba(0, 230, 230, 0.3);
+      background: rgba(255, 255, 255, 0.95);
+      color: #000;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="month"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #00e6e6;
+      box-shadow: 0 0 0 3px rgba(0, 230, 230, 0.2);
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #fff;
+      font-weight: normal;
+    }
+
+    .checkbox-group label:hover {
+      background: rgba(0, 230, 230, 0.2);
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 25px 0;
+    }
+
+    button {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #00cccc, #00a3a3);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 204, 204, 0.3);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #00a3a3, #008080);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 204, 204, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-clear {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-clear:hover {
+      background: linear-gradient(135deg, #c0392b, #a93226);
+      box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+    }
+
+    .search-section {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+
+    .search-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.95);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      min-width: 900px;
+      border-collapse: collapse;
+      background: white;
+      color: #000;
+    }
+
+    th {
+      background: linear-gradient(135deg, #00cccc, #00a3a3);
+      color: white;
+      padding: 14px 10px;
+      text-align: left;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    td input[type="text"],
+    td input[type="date"] {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .stat-card {
+      background: rgba(0, 230, 230, 0.15);
+      padding: 20px;
+      border-radius: 12px;
+      border: 2px solid rgba(0, 230, 230, 0.3);
+      flex: 1;
+      min-width: 150px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: bold;
+      color: #00e6e6;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      .container {
+        padding: 15px;
+      }
+
+      h2 {
+        font-size: 22px;
+        margin-bottom: 15px;
+      }
+
+      h3 {
+        font-size: 18px;
+        margin: 20px 0 10px;
+      }
+
+      .form-section {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .form-group {
+        padding: 15px;
+      }
+
+      .stats {
+        gap: 10px;
+      }
+
+      .stat-card {
+        min-width: 120px;
+        padding: 15px;
+      }
+
+      .stat-number {
+        font-size: 24px;
+      }
+
+      .stat-label {
+        font-size: 12px;
+      }
+
+      .checkbox-group {
+        gap: 8px;
+      }
+
+      .checkbox-group label {
+        padding: 6px 10px;
+        font-size: 13px;
+      }
+
+      .button-group {
+        gap: 8px;
+      }
+
+      button {
+        padding: 10px 18px;
+        font-size: 14px;
+        flex: 1 1 auto;
+        min-width: 120px;
+      }
+
+      .search-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .search-section {
+        padding: 15px;
+      }
+
+      .table-container {
+        margin-top: 15px;
+      }
+
+      table {
+        font-size: 12px;
+      }
+
+      th, td {
+        padding: 8px 6px;
+        min-width: 80px;
+      }
+
+      th {
+        font-size: 12px;
+      }
+
+      td input[type="text"],
+      td input[type="date"] {
+        padding: 4px 6px;
+        font-size: 12px;
+      }
+
+      td button {
+        padding: 4px 8px;
+        font-size: 11px;
+        min-width: auto;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 20px;
+      }
+
+      .stat-card {
+        min-width: 100px;
+        padding: 12px;
+      }
+
+      .stat-number {
+        font-size: 20px;
+      }
+
+      button {
+        padding: 10px 16px;
+        font-size: 13px;
+        min-width: 100px;
+      }
+
+      input[type="text"],
+      input[type="date"],
+      input[type="month"],
+      select {
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+
+      .checkbox-group label {
+        padding: 5px 8px;
+        font-size: 12px;
+      }
+
+      table {
+        font-size: 11px;
+      }
+
+      th, td {
+        padding: 6px 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>💼 顧客管理系統</h2>
+
+    <div style="background: rgba(0, 230, 230, 0.15); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+      <label style="font-size: 18px; color: #00e6e6; margin-bottom: 10px;">選擇設計師</label>
+      <select id="currentDesigner" onchange="switchDesigner()" style="font-size: 16px; padding: 12px;">
+        <option value="">請選擇設計師</option>
+        <option value="JAY">JAY</option>
+        <option value="IRIS">IRIS</option>
+        <option value="SHERRY">SHERRY</option>
+        <option value="CINDY">CINDY</option>
+      </select>
+    </div>
+
+    <div id="designerSection" style="display: none;">
+      <div class="stats" id="stats">
+        <div class="stat-card">
+          <div class="stat-number" id="totalRecords">0</div>
+          <div class="stat-label">總顧客數</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="thisMonth">0</div>
+          <div class="stat-label">本月新增</div>
+        </div>
+      </div>
+
+    <div class="form-section">
+      <div class="form-group">
+        <label>顧客姓名 *</label>
+        <input type="text" id="name" placeholder="請輸入顧客姓名" required>
+
+        <label style="margin-top: 15px;">設計師 *</label>
+        <input type="text" id="designer" readonly style="background: #e0e0e0; cursor: not-allowed;">
+
+        <label style="margin-top: 15px;">消費項目</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="service" value="剪髮">剪髮</label>
+          <label><input type="checkbox" name="service" value="燙髮">燙髮</label>
+          <label><input type="checkbox" name="service" value="染髮">染髮</label>
+          <label><input type="checkbox" name="service" value="護髮">護髮</label>
+          <label><input type="checkbox" name="service" value="頭皮護理">頭皮護理</label>
+          <label><input type="checkbox" name="service" value="其他">其他</label>
+        </div>
+        <input type="text" id="otherService" placeholder="其他服務項目" style="margin-top: 10px;">
+
+        <label style="margin-top: 15px;">購買產品</label>
+        <input type="text" id="product" placeholder="購買的產品名稱">
+      </div>
+
+      <div class="form-group">
+        <label>消費日期</label>
+        <input type="date" id="visitDate">
+
+        <label style="margin-top: 15px;">來店原因</label>
+        <select id="reason">
+          <option value="親友推薦">親友推薦</option>
+          <option value="網路">網路</option>
+          <option value="路過">路過</option>
+        </select>
+
+        <label style="margin-top: 15px;">聯絡日期</label>
+        <input type="date" id="contactDate">
+
+        <label style="margin-top: 15px;">聯絡方式</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="contact" value="市話">市話</label>
+          <label><input type="checkbox" name="contact" value="行動電話">行動電話</label>
+          <label><input type="checkbox" name="contact" value="簡訊">簡訊</label>
+          <label><input type="checkbox" name="contact" value="LINE">LINE</label>
+          <label><input type="checkbox" name="contact" value="臉書">臉書</label>
+          <label><input type="checkbox" name="contact" value="IG">IG</label>
+          <label><input type="checkbox" name="contact" value="當面確認">當面確認</label>
+          <label><input type="checkbox" name="contact" value="介紹人確認">介紹人確認</label>
+        </div>
+
+        <label style="margin-top: 15px;">訪問結果</label>
+        <input type="text" id="result" placeholder="訪問後的結果記錄">
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button onclick="addRecord()">✓ 登錄資料</button>
+      <button class="btn-clear" onclick="clearForm()">✗ 清除表單</button>
+      <button onclick="exportCSV()">📥 匯出CSV</button>
+    </div>
+
+    <hr style="border: none; border-top: 2px solid rgba(0, 230, 230, 0.2); margin: 30px 0;">
+
+    <div class="search-section">
+      <h3>🔍 搜尋篩選</h3>
+      <div class="search-grid">
+        <div>
+          <label>服務項目</label>
+          <input type="text" id="searchService" placeholder="例：燙髮">
+        </div>
+        <div>
+          <label>月份</label>
+          <input type="month" id="searchMonth">
+        </div>
+        <div>
+          <label>來店原因</label>
+          <select id="searchReason">
+            <option value="">全部</option>
+            <option value="親友推薦">親友推薦</option>
+            <option value="網路">網路</option>
+            <option value="路過">路過</option>
+          </select>
+        </div>
+      </div>
+      <div class="button-group">
+        <button onclick="filterRecords()">🔍 搜尋</button>
+        <button onclick="showAllRecords()">📋 顯示全部</button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table id="recordTable">
+        <thead>
+          <tr>
+            <th style="width: 100px;">顧客姓名</th>
+            <th style="width: 80px;">設計師</th>
+            <th style="width: 150px;">消費項目</th>
+            <th style="width: 120px;">購買產品</th>
+            <th style="width: 110px;">消費日期</th>
+            <th style="width: 110px;">聯絡日期</th>
+            <th style="width: 150px;">聯絡方式</th>
+            <th style="width: 90px;">來店原因</th>
+            <th style="width: 150px;">訪問結果</th>
+            <th style="width: 70px;">操作</th>
+          </tr>
+        </thead>
+        <tbody>        </tbody>
+      </table>
+    </div>
+    </div>
+  </div>
+
+  <script>
+    let data = [];
+    let currentDesigner = '';
+
+    function switchDesigner() {
+      currentDesigner = document.getElementById('currentDesigner').value;
+      
+      if (currentDesigner) {
+        document.getElementById('designerSection').style.display = 'block';
+        document.getElementById('designer').value = currentDesigner;
+        filterByDesigner();
+        updateStats();
+      } else {
+        document.getElementById('designerSection').style.display = 'none';
+      }
+    }
+
+    function filterByDesigner() {
+      const filtered = data.filter(r => r.designer === currentDesigner);
+      renderTable(filtered);
+    }
+
+    function updateStats() {
+      if (!currentDesigner) return;
+      
+      const designerData = data.filter(r => r.designer === currentDesigner);
+      const totalRecords = designerData.length;
+      const now = new Date();
+      const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const thisMonth = designerData.filter(r => r.visitDate && r.visitDate.startsWith(currentMonth)).length;
+      
+      document.getElementById('totalRecords').textContent = totalRecords;
+      document.getElementById('thisMonth').textContent = thisMonth;
+    }
+
+    function addRecord() {
+      if (!currentDesigner) {
+        alert('請先選擇設計師');
+        return;
+      }
+
+      const name = document.getElementById('name').value.trim();
+      if (!name) {
+        alert('請輸入顧客姓名');
+        return;
+      }
+
+      const services = [...document.querySelectorAll('input[name="service"]:checked')]
+        .map(e => e.value);
+      
+      if (services.includes('其他')) {
+        const other = document.getElementById('otherService').value.trim();
+        if (other) {
+          services.push(other);
+        }
+      }
+
+      const contactMethods = [...document.querySelectorAll('input[name="contact"]:checked')]
+        .map(e => e.value);
+
+      const record = {
+        id: Date.now(),
+        name: name,
+        designer: document.getElementById('designer').value,
+        services: services.join(', '),
+        product: document.getElementById('product').value.trim(),
+        visitDate: document.getElementById('visitDate').value,
+        contactDate: document.getElementById('contactDate').value,
+        contact: contactMethods.join(', '),
+        reason: document.getElementById('reason').value,
+        result: document.getElementById('result').value.trim()
+      };
+
+      data.push(record);
+      renderTable(data.filter(r => r.designer === currentDesigner));
+      updateStats();
+      clearForm();
+      alert('資料登錄成功！');
+    }
+
+    function clearForm() {
+      document.getElementById('name').value = '';
+      document.getElementById('otherService').value = '';
+      document.getElementById('product').value = '';
+      document.getElementById('visitDate').value = '';
+      document.getElementById('contactDate').value = '';
+      document.getElementById('result').value = '';
+      
+      document.querySelectorAll('input[name="service"]').forEach(cb => cb.checked = false);
+      document.querySelectorAll('input[name="contact"]').forEach(cb => cb.checked = false);
+    }
+
+    function renderTable(records) {
+      const tbody = document.querySelector('#recordTable tbody');
+      
+      if (records.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="empty-state">尚無資料</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = records.map((r, index) => `
+        <tr>
+          <td>${escapeHtml(r.name)}</td>
+          <td>${escapeHtml(r.designer)}</td>
+          <td>${escapeHtml(r.services)}</td>
+          <td>${escapeHtml(r.product)}</td>
+          <td>${r.visitDate || '-'}</td>
+          <td><input type="date" value="${r.contactDate}" onchange="updateField(${r.id}, 'contactDate', this.value)"></td>
+          <td><input type="text" value="${escapeHtml(r.contact)}" onchange="updateField(${r.id}, 'contact', this.value)"></td>
+          <td>${escapeHtml(r.reason)}</td>
+          <td><input type="text" value="${escapeHtml(r.result)}" onchange="updateField(${r.id}, 'result', this.value)"></td>
+          <td><button onclick="deleteRecord(${r.id})" style="padding: 6px 12px; font-size: 12px; background: #e74c3c;">刪除</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function updateField(id, field, value) {
+      const record = data.find(r => r.id === id);
+      if (record) {
+        record[field] = value;
+      }
+    }
+
+    function deleteRecord(id) {
+      if (confirm('確定要刪除此筆資料嗎?')) {
+        data = data.filter(r => r.id !== id);
+        filterByDesigner();
+        updateStats();
+      }
+    }
+
+    function filterRecords() {
+      if (!currentDesigner) return;
+      
+      const s = document.getElementById('searchService').value.trim().toLowerCase();
+      const m = document.getElementById('searchMonth').value;
+      const r = document.getElementById('searchReason').value;
+
+      const filtered = data.filter(rec => {
+        return (rec.designer === currentDesigner) &&
+               (!s || rec.services.toLowerCase().includes(s)) &&
+               (!m || (rec.visitDate && rec.visitDate.startsWith(m))) &&
+               (!r || rec.reason === r);
+      });
+
+      renderTable(filtered);
+    }
+
+    function showAllRecords() {
+      document.getElementById('searchService').value = '';
+      document.getElementById('searchMonth').value = '';
+      document.getElementById('searchReason').value = '';
+      filterByDesigner();
+    }
+
+    function exportCSV() {
+      if (!currentDesigner) {
+        alert('請先選擇設計師');
+        return;
+      }
+
+      const designerData = data.filter(r => r.designer === currentDesigner);
+      
+      if (designerData.length === 0) {
+        alert('目前沒有資料可以匯出');
+        return;
+      }
+
+      const headers = ['顧客姓名', '設計師', '消費項目', '購買產品', '消費日期', '聯絡日期', '聯絡方式', '來店原因', '訪問結果'];
+      const rows = designerData.map(r => [
+        r.name,
+        r.designer,
+        r.services,
+        r.product,
+        r.visitDate,
+        r.contactDate,
+        r.contact,
+        r.reason,
+        r.result
+      ]);
+
+      const csvContent = '\uFEFF' + headers.join(',') + '\n' + 
+        rows.map(r => r.map(x => `"${String(x).replace(/"/g, '""')}"`).join(',')).join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const timestamp = new Date().toISOString().slice(0, 10);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `顧客資料_${currentDesigner}_${timestamp}.csv`);
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    renderTable([]);
+  </script>
+</body>
+</html>
