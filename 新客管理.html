@@ -155,6 +155,12 @@
       transform: translateY(0);
     }
 
+    button:disabled {
+      background: #888;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .btn-clear {
       background: linear-gradient(135deg, #e74c3c, #c0392b);
       box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
@@ -257,6 +263,12 @@
       text-align: center;
       padding: 40px;
       color: rgba(255, 255, 255, 0.6);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #00e6e6;
     }
 
     @media (max-width: 768px) {
@@ -488,7 +500,7 @@
     </div>
 
     <div class="button-group">
-      <button onclick="addRecord()">✓ 登錄資料</button>
+      <button onclick="addRecord()" id="addBtn">✓ 登錄資料</button>
       <button class="btn-clear" onclick="clearForm()">✗ 清除表單</button>
       <button onclick="exportCSV()">📥 匯出CSV</button>
     </div>
@@ -538,17 +550,54 @@
             <th style="width: 70px;">操作</th>
           </tr>
         </thead>
-        <tbody>        </tbody>
+        <tbody>
+          <tr><td colspan="10" class="loading">載入中...</td></tr>
+        </tbody>
       </table>
     </div>
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import { getDatabase, ref, set, get, update, remove, onValue } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAuKPbvzmLv7H8gTIADUugGMGCOrlKJL7I",
+      authDomain: "new-customer-management-system.firebaseapp.com",
+      databaseURL: "https://new-customer-management-system-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "new-customer-management-system",
+      storageBucket: "new-customer-management-system.firebasestorage.app",
+      messagingSenderId: "519659942601",
+      appId: "1:519659942601:web:6e0c257d6b30d120b39318",
+      measurementId: "G-QRJTSHYXVD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
     let data = [];
     let currentDesigner = '';
 
-    function switchDesigner() {
+    // 載入所有資料
+    function loadData() {
+      const recordsRef = ref(database, 'records');
+      onValue(recordsRef, (snapshot) => {
+        data = [];
+        if (snapshot.exists()) {
+          const records = snapshot.val();
+          Object.keys(records).forEach(key => {
+            data.push({ ...records[key], id: key });
+          });
+        }
+        if (currentDesigner) {
+          filterByDesigner();
+          updateStats();
+        }
+      });
+    }
+
+    window.switchDesigner = function() {
       currentDesigner = document.getElementById('currentDesigner').value;
       
       if (currentDesigner) {
@@ -579,7 +628,7 @@
       document.getElementById('thisMonth').textContent = thisMonth;
     }
 
-    function addRecord() {
+    window.addRecord = async function() {
       if (!currentDesigner) {
         alert('請先選擇設計師');
         return;
@@ -605,7 +654,6 @@
         .map(e => e.value);
 
       const record = {
-        id: Date.now(),
         name: name,
         designer: document.getElementById('designer').value,
         services: services.join(', '),
@@ -614,17 +662,29 @@
         contactDate: document.getElementById('contactDate').value,
         contact: contactMethods.join(', '),
         reason: document.getElementById('reason').value,
-        result: document.getElementById('result').value.trim()
+        result: document.getElementById('result').value.trim(),
+        createdAt: new Date().toISOString()
       };
 
-      data.push(record);
-      renderTable(data.filter(r => r.designer === currentDesigner));
-      updateStats();
-      clearForm();
-      alert('資料登錄成功！');
+      const addBtn = document.getElementById('addBtn');
+      addBtn.disabled = true;
+      addBtn.textContent = '登錄中...';
+
+      try {
+        const newRecordRef = ref(database, 'records/' + Date.now());
+        await set(newRecordRef, record);
+        clearForm();
+        alert('資料登錄成功！');
+      } catch (error) {
+        console.error('Error adding record:', error);
+        alert('登錄失敗，請稍後再試');
+      } finally {
+        addBtn.disabled = false;
+        addBtn.textContent = '✓ 登錄資料';
+      }
     }
 
-    function clearForm() {
+    window.clearForm = function() {
       document.getElementById('name').value = '';
       document.getElementById('otherService').value = '';
       document.getElementById('product').value = '';
@@ -644,18 +704,18 @@
         return;
       }
 
-      tbody.innerHTML = records.map((r, index) => `
+      tbody.innerHTML = records.map((r) => `
         <tr>
           <td>${escapeHtml(r.name)}</td>
           <td>${escapeHtml(r.designer)}</td>
           <td>${escapeHtml(r.services)}</td>
           <td>${escapeHtml(r.product)}</td>
           <td>${r.visitDate || '-'}</td>
-          <td><input type="date" value="${r.contactDate}" onchange="updateField(${r.id}, 'contactDate', this.value)"></td>
-          <td><input type="text" value="${escapeHtml(r.contact)}" onchange="updateField(${r.id}, 'contact', this.value)"></td>
+          <td><input type="date" value="${r.contactDate}" onchange="updateField('${r.id}', 'contactDate', this.value)"></td>
+          <td><input type="text" value="${escapeHtml(r.contact)}" onchange="updateField('${r.id}', 'contact', this.value)"></td>
           <td>${escapeHtml(r.reason)}</td>
-          <td><input type="text" value="${escapeHtml(r.result)}" onchange="updateField(${r.id}, 'result', this.value)"></td>
-          <td><button onclick="deleteRecord(${r.id})" style="padding: 6px 12px; font-size: 12px; background: #e74c3c;">刪除</button></td>
+          <td><input type="text" value="${escapeHtml(r.result)}" onchange="updateField('${r.id}', 'result', this.value)"></td>
+          <td><button onclick="deleteRecord('${r.id}')" style="padding: 6px 12px; font-size: 12px; background: #e74c3c;">刪除</button></td>
         </tr>
       `).join('');
     }
@@ -666,22 +726,29 @@
       return div.innerHTML;
     }
 
-    function updateField(id, field, value) {
-      const record = data.find(r => r.id === id);
-      if (record) {
-        record[field] = value;
+    window.updateField = async function(id, field, value) {
+      try {
+        const recordRef = ref(database, 'records/' + id);
+        await update(recordRef, { [field]: value });
+      } catch (error) {
+        console.error('Error updating field:', error);
+        alert('更新失敗，請稍後再試');
       }
     }
 
-    function deleteRecord(id) {
+    window.deleteRecord = async function(id) {
       if (confirm('確定要刪除此筆資料嗎?')) {
-        data = data.filter(r => r.id !== id);
-        filterByDesigner();
-        updateStats();
+        try {
+          const recordRef = ref(database, 'records/' + id);
+          await remove(recordRef);
+        } catch (error) {
+          console.error('Error deleting record:', error);
+          alert('刪除失敗，請稍後再試');
+        }
       }
     }
 
-    function filterRecords() {
+    window.filterRecords = function() {
       if (!currentDesigner) return;
       
       const s = document.getElementById('searchService').value.trim().toLowerCase();
@@ -698,14 +765,14 @@
       renderTable(filtered);
     }
 
-    function showAllRecords() {
+    window.showAllRecords = function() {
       document.getElementById('searchService').value = '';
       document.getElementById('searchMonth').value = '';
       document.getElementById('searchReason').value = '';
       filterByDesigner();
     }
 
-    function exportCSV() {
+    window.exportCSV = function() {
       if (!currentDesigner) {
         alert('請先選擇設計師');
         return;
@@ -744,32 +811,8 @@
       URL.revokeObjectURL(url);
     }
 
-    renderTable([]);
+    // 初始化
+    loadData();
   </script>
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyAuKPbvzmLv7H8gTIADUugGMGCOrlKJL7I",
-    authDomain: "new-customer-management-system.firebaseapp.com",
-    databaseURL: "https://new-customer-management-system-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "new-customer-management-system",
-    storageBucket: "new-customer-management-system.firebasestorage.app",
-    messagingSenderId: "519659942601",
-    appId: "1:519659942601:web:6e0c257d6b30d120b39318",
-    measurementId: "G-QRJTSHYXVD"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
 </body>
-
 </html>
