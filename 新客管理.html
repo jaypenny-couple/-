@@ -78,9 +78,6 @@
       color: #000;
       font-size: 14px;
       transition: all 0.3s ease;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
     }
 
     input[type="text"]:focus,
@@ -141,18 +138,12 @@
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: 0 4px 15px rgba(0, 204, 204, 0.3);
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
     }
 
     button:hover {
       background: linear-gradient(135deg, #00a3a3, #008080);
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(0, 204, 204, 0.4);
-    }
-
-    button:active {
-      transform: translateY(0);
     }
 
     button:disabled {
@@ -163,71 +154,53 @@
 
     .btn-clear {
       background: linear-gradient(135deg, #e74c3c, #c0392b);
-      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
     }
 
     .btn-clear:hover {
       background: linear-gradient(135deg, #c0392b, #a93226);
-      box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
     }
 
-    .search-section {
-      background: rgba(255, 255, 255, 0.08);
-      padding: 20px;
-      border-radius: 12px;
-      margin: 20px 0;
-    }
-
-    .search-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin-bottom: 15px;
-    }
-
-    .table-container {
-      overflow-x: auto;
-      margin-top: 20px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.95);
-      -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-      width: 100%;
-      min-width: 900px;
-      border-collapse: collapse;
-      background: white;
-      color: #000;
-    }
-
-    th {
-      background: linear-gradient(135deg, #00cccc, #00a3a3);
-      color: white;
-      padding: 14px 10px;
-      text-align: left;
-      font-weight: 600;
-      position: sticky;
+    .contact-edit-popup {
+      position: fixed;
       top: 0;
-      z-index: 10;
-    }
-
-    td {
-      padding: 12px 10px;
-      border-bottom: 1px solid #e0e0e0;
-    }
-
-    tr:hover {
-      background-color: #f5f5f5;
-    }
-
-    td input[type="text"],
-    td input[type="date"] {
+      left: 0;
       width: 100%;
-      padding: 6px 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 13px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .contact-edit-content {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .contact-edit-content h4 {
+      color: #00cccc;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .contact-edit-content .checkbox-group label {
+      color: #333;
+    }
+
+    .contact-edit-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .contact-edit-buttons button {
+      flex: 1;
     }
 
     .stats {
@@ -251,7 +224,6 @@
       font-size: 32px;
       font-weight: bold;
       color: #00e6e6;
-      margin-bottom: 5px;
     }
 
     .stat-label {
@@ -259,162 +231,51 @@
       color: rgba(255, 255, 255, 0.8);
     }
 
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    table {
+      width: 100%;
+      min-width: 900px;
+      border-collapse: collapse;
+      background: white;
+      color: #000;
+    }
+
+    th {
+      background: linear-gradient(135deg, #00cccc, #00a3a3);
+      color: white;
+      padding: 14px 10px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    td input[type="text"],
+    td input[type="date"] {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
     .empty-state {
       text-align: center;
       padding: 40px;
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    .loading {
-      text-align: center;
-      padding: 20px;
-      color: #00e6e6;
-    }
-
-    @media (max-width: 768px) {
-      body {
-        padding: 10px;
-      }
-
-      .container {
-        padding: 15px;
-      }
-
-      h2 {
-        font-size: 22px;
-        margin-bottom: 15px;
-      }
-
-      h3 {
-        font-size: 18px;
-        margin: 20px 0 10px;
-      }
-
-      .form-section {
-        grid-template-columns: 1fr;
-        gap: 15px;
-      }
-
-      .form-group {
-        padding: 15px;
-      }
-
-      .stats {
-        gap: 10px;
-      }
-
-      .stat-card {
-        min-width: 120px;
-        padding: 15px;
-      }
-
-      .stat-number {
-        font-size: 24px;
-      }
-
-      .stat-label {
-        font-size: 12px;
-      }
-
-      .checkbox-group {
-        gap: 8px;
-      }
-
-      .checkbox-group label {
-        padding: 6px 10px;
-        font-size: 13px;
-      }
-
-      .button-group {
-        gap: 8px;
-      }
-
-      button {
-        padding: 10px 18px;
-        font-size: 14px;
-        flex: 1 1 auto;
-        min-width: 120px;
-      }
-
-      .search-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-
-      .search-section {
-        padding: 15px;
-      }
-
-      .table-container {
-        margin-top: 15px;
-      }
-
-      table {
-        font-size: 12px;
-      }
-
-      th, td {
-        padding: 8px 6px;
-        min-width: 80px;
-      }
-
-      th {
-        font-size: 12px;
-      }
-
-      td input[type="text"],
-      td input[type="date"] {
-        padding: 4px 6px;
-        font-size: 12px;
-      }
-
-      td button {
-        padding: 4px 8px;
-        font-size: 11px;
-        min-width: auto;
-      }
-    }
-
-    @media (max-width: 480px) {
-      h2 {
-        font-size: 20px;
-      }
-
-      .stat-card {
-        min-width: 100px;
-        padding: 12px;
-      }
-
-      .stat-number {
-        font-size: 20px;
-      }
-
-      button {
-        padding: 10px 16px;
-        font-size: 13px;
-        min-width: 100px;
-      }
-
-      input[type="text"],
-      input[type="date"],
-      input[type="month"],
-      select {
-        padding: 8px 10px;
-        font-size: 13px;
-      }
-
-      .checkbox-group label {
-        padding: 5px 8px;
-        font-size: 12px;
-      }
-
-      table {
-        font-size: 11px;
-      }
-
-      th, td {
-        padding: 6px 4px;
-      }
+      color: #666;
     }
   </style>
 </head>
@@ -424,7 +285,7 @@
 
     <div style="background: rgba(0, 230, 230, 0.15); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
       <label style="font-size: 18px; color: #00e6e6; margin-bottom: 10px;">選擇設計師</label>
-      <select id="currentDesigner" onchange="switchDesigner()" style="font-size: 16px; padding: 12px;">
+      <select id="currentDesigner" style="font-size: 16px; padding: 12px;">
         <option value="">請選擇設計師</option>
         <option value="JAY">JAY</option>
         <option value="IRIS">IRIS</option>
@@ -434,7 +295,7 @@
     </div>
 
     <div id="designerSection" style="display: none;">
-      <div class="stats" id="stats">
+      <div class="stats">
         <div class="stat-card">
           <div class="stat-number" id="totalRecords">0</div>
           <div class="stat-label">總顧客數</div>
@@ -448,10 +309,10 @@
     <div class="form-section">
       <div class="form-group">
         <label>顧客姓名 *</label>
-        <input type="text" id="name" placeholder="請輸入顧客姓名" required>
+        <input type="text" id="name" placeholder="請輸入顧客姓名">
 
         <label style="margin-top: 15px;">設計師 *</label>
-        <input type="text" id="designer" readonly style="background: #e0e0e0; cursor: not-allowed;">
+        <input type="text" id="designer" readonly style="background: #e0e0e0;">
 
         <label style="margin-top: 15px;">消費項目</label>
         <div class="checkbox-group">
@@ -496,20 +357,27 @@
 
         <label style="margin-top: 15px;">訪問結果</label>
         <input type="text" id="result" placeholder="訪問後的結果記錄">
+
+        <label style="margin-top: 15px;">是否回店</label>
+        <select id="returned">
+          <option value="">請選擇</option>
+          <option value="是">是</option>
+          <option value="否">否</option>
+        </select>
       </div>
     </div>
 
     <div class="button-group">
-      <button onclick="addRecord()" id="addBtn">✓ 登錄資料</button>
-      <button class="btn-clear" onclick="clearForm()">✗ 清除表單</button>
-      <button onclick="exportCSV()">📥 匯出CSV</button>
+      <button id="addBtn">✓ 登錄資料</button>
+      <button class="btn-clear" id="clearBtn">✗ 清除表單</button>
+      <button id="exportBtn">📥 匯出CSV</button>
     </div>
 
     <hr style="border: none; border-top: 2px solid rgba(0, 230, 230, 0.2); margin: 30px 0;">
 
-    <div class="search-section">
+    <div style="background: rgba(255, 255, 255, 0.08); padding: 20px; border-radius: 12px; margin: 20px 0;">
       <h3>🔍 搜尋篩選</h3>
-      <div class="search-grid">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
         <div>
           <label>服務項目</label>
           <input type="text" id="searchService" placeholder="例：燙髮">
@@ -529,29 +397,30 @@
         </div>
       </div>
       <div class="button-group">
-        <button onclick="filterRecords()">🔍 搜尋</button>
-        <button onclick="showAllRecords()">📋 顯示全部</button>
+        <button id="searchBtn">🔍 搜尋</button>
+        <button id="showAllBtn">📋 顯示全部</button>
       </div>
     </div>
 
     <div class="table-container">
-      <table id="recordTable">
+      <table>
         <thead>
           <tr>
-            <th style="width: 100px;">顧客姓名</th>
-            <th style="width: 80px;">設計師</th>
-            <th style="width: 150px;">消費項目</th>
-            <th style="width: 120px;">購買產品</th>
-            <th style="width: 110px;">消費日期</th>
-            <th style="width: 110px;">聯絡日期</th>
-            <th style="width: 150px;">聯絡方式</th>
-            <th style="width: 90px;">來店原因</th>
-            <th style="width: 150px;">訪問結果</th>
-            <th style="width: 70px;">操作</th>
+            <th>顧客姓名</th>
+            <th>設計師</th>
+            <th>消費項目</th>
+            <th>購買產品</th>
+            <th>消費日期</th>
+            <th>聯絡日期</th>
+            <th>聯絡方式</th>
+            <th>來店原因</th>
+            <th>訪問結果</th>
+            <th>是否回店</th>
+            <th>操作</th>
           </tr>
         </thead>
-        <tbody>
-          <tr><td colspan="10" class="loading">載入中...</td></tr>
+        <tbody id="tableBody">
+          <tr><td colspan="11" style="text-align: center; padding: 20px; color: #00e6e6;">載入中...</td></tr>
         </tbody>
       </table>
     </div>
@@ -560,256 +429,285 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-    import { getDatabase, ref, set, get, update, remove, onValue } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+    import { getDatabase, ref, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
 
-    const firebaseConfig = {
+    const app = initializeApp({
       apiKey: "AIzaSyAuKPbvzmLv7H8gTIADUugGMGCOrlKJL7I",
       authDomain: "new-customer-management-system.firebaseapp.com",
       databaseURL: "https://new-customer-management-system-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "new-customer-management-system",
       storageBucket: "new-customer-management-system.firebasestorage.app",
       messagingSenderId: "519659942601",
-      appId: "1:519659942601:web:6e0c257d6b30d120b39318",
-      measurementId: "G-QRJTSHYXVD"
-    };
+      appId: "1:519659942601:web:6e0c257d6b30d120b39318"
+    });
 
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-
-    let data = [];
+    const db = getDatabase(app);
+    let allData = [];
     let currentDesigner = '';
 
-    // 載入所有資料
+    // 載入資料
     function loadData() {
-      const recordsRef = ref(database, 'records');
-      onValue(recordsRef, (snapshot) => {
-        data = [];
-        if (snapshot.exists()) {
-          const records = snapshot.val();
-          Object.keys(records).forEach(key => {
-            data.push({ ...records[key], id: key });
+      onValue(ref(db, 'records'), (snap) => {
+        allData = [];
+        if (snap.exists()) {
+          Object.entries(snap.val()).forEach(([k, v]) => {
+            allData.push({...v, id: k});
           });
         }
         if (currentDesigner) {
-          filterByDesigner();
-          updateStats();
+          renderTable();
         }
       });
     }
 
-    window.switchDesigner = function() {
-      currentDesigner = document.getElementById('currentDesigner').value;
+    // 渲染表格
+    function renderTable(filteredData = null) {
+      const data = filteredData || allData.filter(r => r.designer === currentDesigner);
+      const tbody = document.getElementById('tableBody');
       
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" class="empty-state">尚無資料</td></tr>';
+        document.getElementById('totalRecords').textContent = '0';
+        document.getElementById('thisMonth').textContent = '0';
+        return;
+      }
+
+      // 更新統計
+      const now = new Date();
+      const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      document.getElementById('totalRecords').textContent = data.length;
+      document.getElementById('thisMonth').textContent = data.filter(r => r.visitDate?.startsWith(month)).length;
+
+      // 渲染表格內容
+      tbody.innerHTML = data.map(r => `
+        <tr>
+          <td>${escapeHtml(r.name)}</td>
+          <td>${escapeHtml(r.designer)}</td>
+          <td>${escapeHtml(r.services || '')}</td>
+          <td>${escapeHtml(r.product || '')}</td>
+          <td>${r.visitDate || '-'}</td>
+          <td><input type="date" value="${r.contactDate || ''}" data-id="${r.id}" data-field="contactDate"></td>
+          <td><button data-id="${r.id}" data-contact="${escapeHtml(r.contact || '')}" class="contact-btn" style="padding: 6px 12px; font-size: 12px; background: #00a3a3; width: 100%; cursor: pointer; color: white; border: none; border-radius: 4px;">${escapeHtml(r.contact) || '選擇'}</button></td>
+          <td>${escapeHtml(r.reason || '')}</td>
+          <td><input type="text" value="${escapeHtml(r.result || '')}" data-id="${r.id}" data-field="result"></td>
+          <td>
+            <select data-id="${r.id}" data-field="returned" style="width: 100%; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+              <option value="" ${!r.returned ? 'selected' : ''}>請選擇</option>
+              <option value="是" ${r.returned === '是' ? 'selected' : ''}>是</option>
+              <option value="否" ${r.returned === '否' ? 'selected' : ''}>否</option>
+            </select>
+          </td>
+          <td><button data-id="${r.id}" class="del-btn" style="padding: 6px 12px; font-size: 12px; background: #e74c3c; cursor: pointer; color: white; border: none; border-radius: 4px;">刪除</button></td>
+        </tr>
+      `).join('');
+
+      // 綁定表格內的事件
+      tbody.querySelectorAll('input[data-field], select[data-field]').forEach(inp => {
+        inp.addEventListener('change', () => {
+          update(ref(db, 'records/' + inp.dataset.id), {[inp.dataset.field]: inp.value});
+        });
+      });
+
+      tbody.querySelectorAll('.contact-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          openContactEdit(btn.dataset.id, btn.dataset.contact);
+        });
+      });
+
+      tbody.querySelectorAll('.del-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (confirm('確定要刪除此筆資料嗎?')) {
+            remove(ref(db, 'records/' + btn.dataset.id));
+          }
+        });
+      });
+    }
+
+    // HTML 轉義
+    function escapeHtml(txt) {
+      const d = document.createElement('div');
+      d.textContent = txt;
+      return d.innerHTML;
+    }
+
+    // 開啟聯絡方式編輯視窗
+    function openContactEdit(id, current) {
+      const opts = ['市話', '行動電話', '簡訊', 'LINE', '臉書', 'IG', '當面確認', '介紹人確認'];
+      const selected = current ? current.split(', ').filter(s => s) : [];
+      
+      const popup = document.createElement('div');
+      popup.className = 'contact-edit-popup';
+      popup.innerHTML = `
+        <div class="contact-edit-content">
+          <h4>編輯聯絡方式</h4>
+          <div class="checkbox-group">
+            ${opts.map(o => `
+              <label>
+                <input type="checkbox" value="${o}" ${selected.includes(o) ? 'checked' : ''}>
+                ${o}
+              </label>
+            `).join('')}
+          </div>
+          <div class="contact-edit-buttons">
+            <button class="save-btn">✓ 確認</button>
+            <button class="btn-clear cancel-btn">✗ 取消</button>
+          </div>
+        </div>
+      `;
+      
+      popup.addEventListener('click', (e) => {
+        if (e.target === popup) popup.remove();
+      });
+
+      popup.querySelector('.save-btn').addEventListener('click', () => {
+        const checked = [...popup.querySelectorAll('input:checked')].map(c => c.value);
+        update(ref(db, 'records/' + id), {contact: checked.join(', ')});
+        popup.remove();
+      });
+
+      popup.querySelector('.cancel-btn').addEventListener('click', () => popup.remove());
+      
+      document.body.appendChild(popup);
+    }
+
+    // 設計師選擇
+    document.getElementById('currentDesigner').addEventListener('change', (e) => {
+      currentDesigner = e.target.value;
       if (currentDesigner) {
         document.getElementById('designerSection').style.display = 'block';
         document.getElementById('designer').value = currentDesigner;
-        filterByDesigner();
-        updateStats();
+        renderTable();
       } else {
         document.getElementById('designerSection').style.display = 'none';
       }
-    }
+    });
 
-    function filterByDesigner() {
-      const filtered = data.filter(r => r.designer === currentDesigner);
-      renderTable(filtered);
-    }
-
-    function updateStats() {
-      if (!currentDesigner) return;
-      
-      const designerData = data.filter(r => r.designer === currentDesigner);
-      const totalRecords = designerData.length;
-      const now = new Date();
-      const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      const thisMonth = designerData.filter(r => r.visitDate && r.visitDate.startsWith(currentMonth)).length;
-      
-      document.getElementById('totalRecords').textContent = totalRecords;
-      document.getElementById('thisMonth').textContent = thisMonth;
-    }
-
-    window.addRecord = async function() {
+    // 新增資料
+    document.getElementById('addBtn').addEventListener('click', async () => {
       if (!currentDesigner) {
         alert('請先選擇設計師');
         return;
       }
-
+      
       const name = document.getElementById('name').value.trim();
       if (!name) {
         alert('請輸入顧客姓名');
         return;
       }
 
-      const services = [...document.querySelectorAll('input[name="service"]:checked')]
-        .map(e => e.value);
-      
+      const services = [...document.querySelectorAll('input[name="service"]:checked')].map(c => c.value);
       if (services.includes('其他')) {
         const other = document.getElementById('otherService').value.trim();
-        if (other) {
-          services.push(other);
-        }
+        if (other) services.push(other);
       }
 
-      const contactMethods = [...document.querySelectorAll('input[name="contact"]:checked')]
-        .map(e => e.value);
+      const contacts = [...document.querySelectorAll('input[name="contact"]:checked')].map(c => c.value);
 
-      const record = {
-        name: name,
-        designer: document.getElementById('designer').value,
-        services: services.join(', '),
-        product: document.getElementById('product').value.trim(),
-        visitDate: document.getElementById('visitDate').value,
-        contactDate: document.getElementById('contactDate').value,
-        contact: contactMethods.join(', '),
-        reason: document.getElementById('reason').value,
-        result: document.getElementById('result').value.trim(),
-        createdAt: new Date().toISOString()
-      };
-
-      const addBtn = document.getElementById('addBtn');
-      addBtn.disabled = true;
-      addBtn.textContent = '登錄中...';
+      const btn = document.getElementById('addBtn');
+      btn.disabled = true;
+      btn.textContent = '登錄中...';
 
       try {
-        const newRecordRef = ref(database, 'records/' + Date.now());
-        await set(newRecordRef, record);
-        clearForm();
+        await set(ref(db, 'records/' + Date.now()), {
+          name,
+          designer: currentDesigner,
+          services: services.join(', '),
+          product: document.getElementById('product').value.trim(),
+          visitDate: document.getElementById('visitDate').value,
+          contactDate: document.getElementById('contactDate').value,
+          contact: contacts.join(', '),
+          reason: document.getElementById('reason').value,
+          result: document.getElementById('result').value.trim(),
+          returned: document.getElementById('returned').value,
+          createdAt: new Date().toISOString()
+        });
+        
+        // 清空表單
+        document.getElementById('name').value = '';
+        document.getElementById('otherService').value = '';
+        document.getElementById('product').value = '';
+        document.getElementById('visitDate').value = '';
+        document.getElementById('contactDate').value = '';
+        document.getElementById('result').value = '';
+        document.getElementById('returned').value = '';
+        document.querySelectorAll('input[name="service"], input[name="contact"]').forEach(c => c.checked = false);
+        
         alert('資料登錄成功！');
-      } catch (error) {
-        console.error('Error adding record:', error);
+      } catch (err) {
+        console.error(err);
         alert('登錄失敗，請稍後再試');
       } finally {
-        addBtn.disabled = false;
-        addBtn.textContent = '✓ 登錄資料';
+        btn.disabled = false;
+        btn.textContent = '✓ 登錄資料';
       }
-    }
+    });
 
-    window.clearForm = function() {
+    // 清除表單
+    document.getElementById('clearBtn').addEventListener('click', () => {
       document.getElementById('name').value = '';
       document.getElementById('otherService').value = '';
       document.getElementById('product').value = '';
       document.getElementById('visitDate').value = '';
       document.getElementById('contactDate').value = '';
       document.getElementById('result').value = '';
-      
-      document.querySelectorAll('input[name="service"]').forEach(cb => cb.checked = false);
-      document.querySelectorAll('input[name="contact"]').forEach(cb => cb.checked = false);
-    }
+      document.getElementById('returned').value = '';
+      document.querySelectorAll('input[name="service"], input[name="contact"]').forEach(c => c.checked = false);
+    });
 
-    function renderTable(records) {
-      const tbody = document.querySelector('#recordTable tbody');
-      
-      if (records.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" class="empty-state">尚無資料</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = records.map((r) => `
-        <tr>
-          <td>${escapeHtml(r.name)}</td>
-          <td>${escapeHtml(r.designer)}</td>
-          <td>${escapeHtml(r.services)}</td>
-          <td>${escapeHtml(r.product)}</td>
-          <td>${r.visitDate || '-'}</td>
-          <td><input type="date" value="${r.contactDate}" onchange="updateField('${r.id}', 'contactDate', this.value)"></td>
-          <td><input type="text" value="${escapeHtml(r.contact)}" onchange="updateField('${r.id}', 'contact', this.value)"></td>
-          <td>${escapeHtml(r.reason)}</td>
-          <td><input type="text" value="${escapeHtml(r.result)}" onchange="updateField('${r.id}', 'result', this.value)"></td>
-          <td><button onclick="deleteRecord('${r.id}')" style="padding: 6px 12px; font-size: 12px; background: #e74c3c;">刪除</button></td>
-        </tr>
-      `).join('');
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    window.updateField = async function(id, field, value) {
-      try {
-        const recordRef = ref(database, 'records/' + id);
-        await update(recordRef, { [field]: value });
-      } catch (error) {
-        console.error('Error updating field:', error);
-        alert('更新失敗，請稍後再試');
-      }
-    }
-
-    window.deleteRecord = async function(id) {
-      if (confirm('確定要刪除此筆資料嗎?')) {
-        try {
-          const recordRef = ref(database, 'records/' + id);
-          await remove(recordRef);
-        } catch (error) {
-          console.error('Error deleting record:', error);
-          alert('刪除失敗，請稍後再試');
-        }
-      }
-    }
-
-    window.filterRecords = function() {
+    // 搜尋
+    document.getElementById('searchBtn').addEventListener('click', () => {
       if (!currentDesigner) return;
       
-      const s = document.getElementById('searchService').value.trim().toLowerCase();
-      const m = document.getElementById('searchMonth').value;
-      const r = document.getElementById('searchReason').value;
+      const svc = document.getElementById('searchService').value.trim().toLowerCase();
+      const mon = document.getElementById('searchMonth').value;
+      const rsn = document.getElementById('searchReason').value;
 
-      const filtered = data.filter(rec => {
-        return (rec.designer === currentDesigner) &&
-               (!s || rec.services.toLowerCase().includes(s)) &&
-               (!m || (rec.visitDate && rec.visitDate.startsWith(m))) &&
-               (!r || rec.reason === r);
-      });
+      const filtered = allData.filter(r => 
+        r.designer === currentDesigner &&
+        (!svc || (r.services && r.services.toLowerCase().includes(svc))) &&
+        (!mon || (r.visitDate && r.visitDate.startsWith(mon))) &&
+        (!rsn || r.reason === rsn)
+      );
 
       renderTable(filtered);
-    }
+    });
 
-    window.showAllRecords = function() {
+    // 顯示全部
+    document.getElementById('showAllBtn').addEventListener('click', () => {
       document.getElementById('searchService').value = '';
       document.getElementById('searchMonth').value = '';
       document.getElementById('searchReason').value = '';
-      filterByDesigner();
-    }
+      renderTable();
+    });
 
-    window.exportCSV = function() {
+    // 匯出CSV
+    document.getElementById('exportBtn').addEventListener('click', () => {
       if (!currentDesigner) {
         alert('請先選擇設計師');
         return;
       }
-
-      const designerData = data.filter(r => r.designer === currentDesigner);
       
-      if (designerData.length === 0) {
+      const data = allData.filter(r => r.designer === currentDesigner);
+      if (data.length === 0) {
         alert('目前沒有資料可以匯出');
         return;
       }
 
-      const headers = ['顧客姓名', '設計師', '消費項目', '購買產品', '消費日期', '聯絡日期', '聯絡方式', '來店原因', '訪問結果'];
-      const rows = designerData.map(r => [
-        r.name,
-        r.designer,
-        r.services,
-        r.product,
-        r.visitDate,
-        r.contactDate,
-        r.contact,
-        r.reason,
-        r.result
-      ]);
+      const csv = '\uFEFF' + 
+        '顧客姓名,設計師,消費項目,購買產品,消費日期,聯絡日期,聯絡方式,來店原因,訪問結果,是否回店\n' +
+        data.map(r => [
+          r.name, r.designer, r.services, r.product, r.visitDate, 
+          r.contactDate, r.contact, r.reason, r.result, r.returned
+        ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',')).join('\n');
 
-      const csvContent = '\uFEFF' + headers.join(',') + '\n' + 
-        rows.map(r => r.map(x => `"${String(x).replace(/"/g, '""')}"`).join(',')).join('\n');
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      const timestamp = new Date().toISOString().slice(0, 10);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `顧客資料_${currentDesigner}_${timestamp}.csv`);
-      link.click();
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `顧客資料_${currentDesigner}_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
       URL.revokeObjectURL(url);
-    }
+    });
 
     // 初始化
     loadData();
