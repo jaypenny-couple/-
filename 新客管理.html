@@ -395,6 +395,14 @@
             <option value="路過">路過</option>
           </select>
         </div>
+        <div>
+          <label>是否回店</label>
+          <select id="searchReturned">
+            <option value="">全部</option>
+            <option value="是">是</option>
+            <option value="否">否</option>
+          </select>
+        </div>
       </div>
       <div class="button-group">
         <button id="searchBtn">🔍 搜尋</button>
@@ -661,12 +669,14 @@
       const svc = document.getElementById('searchService').value.trim().toLowerCase();
       const mon = document.getElementById('searchMonth').value;
       const rsn = document.getElementById('searchReason').value;
+      const ret = document.getElementById('searchReturned').value;
 
       const filtered = allData.filter(r => 
         r.designer === currentDesigner &&
         (!svc || (r.services && r.services.toLowerCase().includes(svc))) &&
         (!mon || (r.visitDate && r.visitDate.startsWith(mon))) &&
-        (!rsn || r.reason === rsn)
+        (!rsn || r.reason === rsn) &&
+        (!ret || r.returned === ret)
       );
 
       renderTable(filtered);
@@ -677,6 +687,7 @@
       document.getElementById('searchService').value = '';
       document.getElementById('searchMonth').value = '';
       document.getElementById('searchReason').value = '';
+      document.getElementById('searchReturned').value = '';
       renderTable();
     });
 
