@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>ALICE 愛麗絲美髮沙龍｜服務項目與價目</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="description" content="ALICE 愛麗絲美髮沙龍服務項目：剪髮、燙髮、染髮、頭皮健康管理、結構式護髮、育髮、彩妝與新娘秘書、髮片訂製，一對一專業服務。" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif;
+      background: #f7f7f8;
+      color: #222;
+      line-height: 1.6;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      padding-bottom: 80px; /* 預留底部按鈕空間 */
+    }
+
+    /* Header 區 */
+
+    .hero {
+      padding: 20px 16px 16px;
+      background: linear-gradient(135deg, #111827, #374151);
+      color: #f9fafb;
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.4);
+    }
+
+    .hero-name {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .hero-sub {
+      font-size: 13px;
+      opacity: 0.9;
+      margin-bottom: 10px;
+    }
+
+    .hero-tagline {
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(249, 250, 251, 0.15);
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(6px);
+      white-space: nowrap;
+    }
+
+    .hero-note {
+      font-size: 11px;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    /* 上方快速導覽列 */
+
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      background: rgba(247, 247, 248, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .top-nav-inner {
+      display: flex;
+      gap: 8px;
+      padding: 8px 12px 6px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .top-nav-link {
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .top-nav-link:first-child {
+      background: #111827;
+      color: #f9fafb;
+    }
+
+    /* 區塊標題 */
+
+    .section {
+      padding: 16px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .section-subtitle {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 10px;
+    }
+
+    /* 卡片通用樣式 */
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 14px 14px 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .card-tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      white-space: nowrap;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: #4b5563;
+      margin-bottom: 8px;
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .price-label {
+      color: #6b7280;
+    }
+
+    .price-value {
+      font-weight: 600;
+    }
+
+    .price-note {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    /* 表格式價格列 */
+
+    .price-table {
+      margin-top: 6px;
+      border-top: 1px dashed #e5e7eb;
+      padding-top: 6px;
+    }
+
+    .price-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      padding: 3px 0;
+    }
+
+    .price-item-label {
+      color: #4b5563;
+    }
+
+    .price-item-price {
+      font-weight: 600;
+    }
+
+    /* 小提醒 */
+
+    .notice {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+
+    /* 聯絡方式 */
+
+    .contact-list {
+      font-size: 13px;
+      list-style: none;
+      margin-top: 4px;
+    }
+
+    .contact-list li {
+      margin-bottom: 4px;
+    }
+
+    .contact-label {
+      color: #6b7280;
+      margin-right: 4px;
+    }
+
+    /* 底部固定按鈕列 */
+
+    .bottom-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 8px 12px 10px;
+      background: rgba(17, 24, 39, 0.96);
+      backdrop-filter: blur(10px);
+      display: flex;
+      gap: 8px;
+      z-index: 20;
+    }
+
+    .bottom-btn {
+      flex: 1;
+      border-radius: 999px;
+      padding: 9px 0;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      border: none;
+      cursor: pointer;
+    }
+
+    .bottom-btn.primary {
+      background: #f97316;
+      color: #111827;
+      box-shadow: 0 8px 18px rgba(249, 115, 22, 0.45);
+    }
+
+    .bottom-btn.secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .bottom-btn span {
+      font-size: 11px;
+      display: block;
+      font-weight: 400;
+      opacity: 0.85;
+      margin-top: 1px;
+    }
+
+    /* 讓小螢幕閱讀更舒服 */
+
+    @media (max-width: 360px) {
+      .hero-name {
+        font-size: 20px;
+      }
+      .card {
+        padding: 12px;
+      }
+      .section {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- 頁首資訊 -->
+    <header class="hero">
+      <div class="hero-name">ALICE 愛麗絲美髮沙龍</div>
+      <div class="hero-sub">桃園南崁．預約制．男 / 女性剪燙染</div>
+
+      <div class="hero-tagline">
+        熟齡時尚、髮質修護、自然捲問題專門。<br />
+        用專業設計，讓日常頭髮也有質感。
+      </div>
+
+      <div class="hero-badges">
+        <div class="badge">剪髮</div>
+        <div class="badge">燙髮</div>
+        <div class="badge">染髮</div>
+        <div class="badge">頭皮養護</div>
+        <div class="badge">結構式護髮</div>
+        <div class="badge">育髮</div>
+        <div class="badge">彩妝 / 新娘秘書</div>
+        <div class="badge">髮片訂製</div>
+        <div class="badge">一對一服務</div>
+      </div>
+
+      <div class="hero-note">
+        以下價格為參考，實際依現場頭髮長度、髮量與狀況評估。
+      </div>
+    </header>
+
+    <!-- 上方快速導覽列 -->
+    <nav class="top-nav">
+      <div class="top-nav-inner">
+        <a href="#cut" class="top-nav-link">剪髮</a>
+        <a href="#perm" class="top-nav-link">燙髮</a>
+        <a href="#color" class="top-nav-link">染髮</a>
+        <a href="#treatment" class="top-nav-link">護髮</a>
+        <a href="#scalp" class="top-nav-link">頭皮</a>
+      </div>
+    </nav>
+
+    <!-- 剪髮區塊 -->
+    <section class="section" id="cut">
+      <h2 class="section-title">剪髮設計 Cut</h2>
+      <p class="section-subtitle">
+        依設計師資歷分級收費，含洗髮與完整 DIY 教學，讓你回家也能自己整理。
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">設計剪髮</div>
+          <div class="card-tag">含洗髮，約 1 小時</div>
+        </div>
+        <p class="card-desc">
+          依頭型、髮流與日常工作、生活習慣客製化剪髮，讓髮型至少能維持 1～2 個月的好整理狀態。
+        </p>
+
+        <div class="price-table">
+          <div class="price-item">
+            <div class="price-item-label">新秀設計師 Cindy</div>
+            <div class="price-item-price">NT$600</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">資深設計師 Iris &amp; Sherry</div>
+            <div class="price-item-price">NT$800</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">講師級設計師 杰煬</div>
+            <div class="price-item-price">NT$1,200</div>
+          </div>
+        </div>
+
+        <p class="price-note">
+          學生剪髮、兒童剪髮 NT$300～600，實際金額依現場髮量與設計難度為準。
+        </p>
+      </div>
+    </section>
+
+    <!-- 燙髮區塊 -->
+    <section class="section" id="perm">
+      <h2 class="section-title">燙髮 Perm</h2>
+      <p class="section-subtitle">
+        價格依頭髮長度及髮量調整，皆含洗剪與基本養護。
+      </p>
+
+      <!-- 冷燙 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">冷燙 Regular Perm</div>
+          <div class="card-tag">約 2 小時 · 含洗剪養護</div>
+        </div>
+        <p class="card-desc">
+          強調頂部蓬鬆與輪廓修飾，捲度自然柔軟，整理方便，持久度約 2～3 個月。
+        </p>
+        <div class="price-table">
+          <div class="price-item">
+            <div class="price-item-label">短髮</div>
+            <div class="price-item-price">NT$2,800～3,000</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">中長髮</div>
+            <div class="price-item-price">NT$3,200～3,500</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 溫塑燙 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">溫塑燙髮 Thermal Perm</div>
+          <div class="card-tag">約 3.5 小時 · 含洗剪養護</div>
+        </div>
+        <p class="card-desc">
+          捲度立體有彈性，再現性佳，能有效減少整髮時間，持久度約 4～6 個月。
+        </p>
+        <div class="price-table">
+          <div class="price-item">
+            <div class="price-item-label">短髮</div>
+            <div class="price-item-price">NT$3,800</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">中長髮</div>
+            <div class="price-item-price">NT$4,200</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">長髮</div>
+            <div class="price-item-price">NT$4,800</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 縮毛矯正 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">縮毛矯正 Straightening</div>
+          <div class="card-tag">約 3.5 小時 · 含洗剪養護</div>
+        </div>
+        <p class="card-desc">
+          自然捲剋星，打造自然直順不僵硬的線條，光澤度高，適合易毛躁、蓬亂的髮質。
+        </p>
+        <div class="price-table">
+          <div class="price-item">
+            <div class="price-item-label">短髮</div>
+            <div class="price-item-price">NT$3,800</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">中長髮</div>
+            <div class="price-item-price">NT$4,200</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">長髮</div>
+            <div class="price-item-price">NT$4,800</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 染髮區塊 -->
+    <section class="section" id="color">
+      <h2 class="section-title">染髮 Color</h2>
+      <p class="section-subtitle">
+        商業色染髮、白髮染、補染與特殊設計染，皆會依髮況與設計難度評估。
+      </p>
+
+      <!-- 商業色 / 白髮染 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">商業色染髮 / 白髮染</div>
+          <div class="card-tag">約 1.5 小時 · 含頭皮隔離、一般養護與洗髮</div>
+        </div>
+        <p class="card-desc">
+          依照膚色與個人風格選色，適合崇尚自然風格的你，讓氣色看起來更明亮有精神。
+        </p>
+        <div class="price-table">
+          <div class="price-item">
+            <div class="price-item-label">短髮</div>
+            <div class="price-item-price">NT$2,000</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">中長髮</div>
+            <div class="price-item-price">NT$2,400</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">長髮</div>
+            <div class="price-item-price">NT$2,800</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 補染 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">補染 Retouch</div>
+          <div class="card-tag">約 1 小時 · 含頭皮隔離、一般養護與洗髮</div>
+        </div>
+        <p class="card-desc">
+          僅針對新生髮根補色，讓整體顏色更加一致，適合規律補染白髮或維持商業色的顧客。
+        </p>
+        <div class="price-row">
+          <div class="price-label">2 公分內為限</div>
+          <div class="price-value">NT$1,800</div>
+        </div>
+      </div>
+
+      <!-- 特殊設計染 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">特殊設計染髮 Special Hair Dye</div>
+          <div class="card-tag">依設計報價</div>
+        </div>
+        <p class="card-desc">
+          包含特殊色、片染、挑染、線條染、沐浴染等進階設計。<br />
+          會依照你提供的參考照片與現場髮況，當面諮詢後提供專屬報價。
+        </p>
+      </div>
+    </section>
+
+    <!-- 護髮區塊 -->
+    <section class="section" id="treatment">
+      <h2 class="section-title">各式沙龍專業護髮 Hair Treatment</h2>
+      <p class="section-subtitle">
+        受損程度與需求不同，護髮種類也不同；設計師會依你的髮況，建議最適合的方案。
+      </p>
+
+      <!-- 白金瞬效護髮 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">白金瞬效護髮</div>
+          <div class="card-tag">約 0.5 小時 · 含洗</div>
+        </div>
+        <p class="card-desc">
+          燙染後的高 CP 值選擇，瞬間中和鹼性與染燙藥劑殘留，適合時間與預算有限的你。
+        </p>
+        <div class="price-table">
+          <div class="price-item">
+            <div class="price-item-label">短髮</div>
+            <div class="price-item-price">NT$1,000</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">中長髮</div>
+            <div class="price-item-price">NT$1,200</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">長髮</div>
+            <div class="price-item-price">NT$1,500</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 柔漾護髮 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">柔漾護髮</div>
+          <div class="card-tag">約 1 小時 · 含洗</div>
+        </div>
+        <p class="card-desc">
+          毛鱗片修復高手，改善粗糙與毛躁，還給你滑順亮麗的秀髮。
+        </p>
+        <div class="price-table">
+          <div class="price-item">
+            <div class="price-item-label">短髮</div>
+            <div class="price-item-price">NT$1,200</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">中長髮</div>
+            <div class="price-item-price">NT$1,500</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">長髮</div>
+            <div class="price-item-price">NT$1,800</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 水舞鑽護髮 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">水舞鑽護髮</div>
+          <div class="card-tag">約 1 小時 · 含洗</div>
+        </div>
+        <p class="card-desc">
+          結構式重建的佼佼者，從髮芯內部補充到外部修補，搭配隨贈居家護理，效果可維持約一個月。
+        </p>
+        <div class="price-table">
+          <div class="price-item">
+            <div class="price-item-label">短髮</div>
+            <div class="price-item-price">NT$1,800</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">中長髮</div>
+            <div class="price-item-price">NT$2,100</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">長髮</div>
+            <div class="price-item-price">NT$2,400</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IAU 細胞修護 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">IAU 細胞修護</div>
+          <div class="card-tag">約 1 小時 · 含洗</div>
+        </div>
+        <p class="card-desc">
+          多了膠原泡泡的綿密呵護，頭皮與髮質一起照顧到，同樣搭配居家護理，效果可維持約一個月。
+        </p>
+        <div class="price-table">
+          <div class="price-item">
+            <div class="price-item-label">短髮</div>
+            <div class="price-item-price">NT$1,800</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">中長髮</div>
+            <div class="price-item-price">NT$2,100</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">長髮</div>
+            <div class="price-item-price">NT$2,400</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Refine 養護療浴 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Refine 養護療浴</div>
+          <div class="card-tag">約 1 小時 · 含洗</div>
+        </div>
+        <p class="card-desc">
+          來自日本最新科技，終結頭髮沉默受損，真正實現秀髮的全面性修護。
+        </p>
+        <div class="price-table">
+          <div class="price-item">
+            <div class="price-item-label">短髮</div>
+            <div class="price-item-price">NT$1,800</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">中長髮</div>
+            <div class="price-item-price">NT$2,100</div>
+          </div>
+          <div class="price-item">
+            <div class="price-item-label">長髮</div>
+            <div class="price-item-price">NT$2,400</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 頭皮健康管理 -->
+    <section class="section" id="scalp">
+      <h2 class="section-title">頭皮健康管理 Scalp Treatment</h2>
+      <p class="section-subtitle">
+        不同頭皮狀況，對應不同療程；從乾癢、敏感到油性厚重，都有專屬解方。
+      </p>
+
+      <!-- 水潤舒緩 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">髮原素頭皮護理 · 水潤舒緩</div>
+          <div class="card-tag">約 1 小時 · 含洗髮</div>
+        </div>
+        <p class="card-desc">
+          溫和去除頭皮老化角質，舒緩乾癢與敏感，是乾癢敏感頭皮的呵護者。
+        </p>
+        <div class="price-row">
+          <div class="price-label">單次療程</div>
+          <div class="price-value">NT$800</div>
+        </div>
+      </div>
+
+      <!-- 深層淨化 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">髮原素頭皮護理 · 深層淨化</div>
+          <div class="card-tag">約 1 小時 · 含洗髮</div>
+        </div>
+        <p class="card-desc">
+          有效清除毛孔內長期堆積的角栓，最適合油性頭皮或有頭氣味困擾的你。
+        </p>
+        <div class="price-row">
+          <div class="price-label">單次療程</div>
+          <div class="price-value">NT$1,200</div>
+        </div>
+      </div>
+
+      <!-- 茶樹微生態養膚 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">茶樹微生態養膚</div>
+          <div class="card-tag">約 1 小時 · 含洗髮</div>
+        </div>
+        <p class="card-desc">
+          除了去除角質與角栓，更幫助頭皮維持好菌多於壞菌的平衡狀態，長期改善頭皮環境。
+        </p>
+        <div class="price-row">
+          <div class="price-label">單次療程</div>
+          <div class="price-value">NT$1,500</div>
+        </div>
+      </div>
+
+      <!-- 頭皮 SPA -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">頭皮 SPA</div>
+          <div class="card-tag">約 1.5 小時</div>
+        </div>
+        <p class="card-desc">
+          在頭皮清潔與保濕的基礎上，更提供你一個半小時的深度放鬆，達到身心的寧靜與平衡。
+        </p>
+        <div class="price-row">
+          <div class="price-label">單次療程</div>
+          <div class="price-value">NT$1,800</div>
+        </div>
+      </div>
+
+      <!-- 外泌體健髮工程 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">外泌體健髮工程</div>
+          <div class="card-tag">依狀況報價</div>
+        </div>
+        <p class="card-desc">
+          來自醫學科技前沿的外泌體健髮方案，能有效改善圓形禿、雄性禿等問題。<br />
+          需由設計師與你詳細諮詢後，再提供完整療程與費用規劃。
+        </p>
+      </div>
+    </section>
+
+    <!-- 預約 / 聯絡資訊 -->
+    <section class="section" id="contact">
+      <h2 class="section-title">預約方式與店家資訊</h2>
+      <p class="section-subtitle">建議先預約，以確保有充足服務時間。</p>
+
+      <div class="card">
+        <p class="card-desc">
+          如需預約或估價，歡迎先透過 LINE 傳頭髮現況照片與理想參考圖，設計師會依照髮況給予初步建議。
+        </p>
+
+        <ul class="contact-list">
+          <li>
+            <span class="contact-label">電話預約</span>
+            <a href="tel:0933044645">0933044645</a>
+          </li>
+          <li>
+            <span class="contact-label">LINE 官方帳號</span>
+            <a href="https://lin.ee/UKXe7qp">點此加入好友</a>
+          </li>
+          <li>
+            <span class="contact-label">地址</span>
+            桃園市蘆竹區新南路一段 29 號
+          </li>
+        </ul>
+
+        <p class="notice">
+          營業時間：10:00–19:00<br />
+          公休日：每月第 1、3 週一與第 2、4 週日
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <!-- 底部固定按鈕 -->
+  <div class="bottom-bar">
+    <a href="tel:0933044645" class="bottom-btn primary">
+      立即來電預約
+      <span>Phone Reservation</span>
+    </a>
+    <a href="https://lin.ee/UKXe7qp" class="bottom-btn secondary">
+      LINE 詢問
+      <span>加入官方帳號</span>
+    </a>
+  </div>
+</body>
+</html>
