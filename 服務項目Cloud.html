@@ -137,10 +137,11 @@
       font-weight: 500;
     }
 
-    .top-nav-link:first-child {
+    .top-nav-link:active {
       background: linear-gradient(135deg, #8b7355 0%, #6b5d52 100%);
       color: #fff9f0;
       box-shadow: 0 2px 8px rgba(139, 115, 85, 0.3);
+      transform: scale(0.97);
     }
 
     /* 區塊標題 */
@@ -260,11 +261,13 @@
       align-items: center;
       font-size: 14px;
       padding: 8px 0;
+      gap: 16px;
     }
 
     .price-item-label {
       color: #5a4e44;
       flex: 1;
+      min-width: 0;
     }
 
     .price-item-price {
@@ -272,7 +275,7 @@
       color: #8b7355;
       font-size: 15px;
       white-space: nowrap;
-      margin-left: 12px;
+      flex-shrink: 0;
     }
 
     /* 小提醒 */
