@@ -473,9 +473,7 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
-        // Import Firebase functions
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { 
             getDatabase, 
@@ -488,7 +486,6 @@
             serverTimestamp
         } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBSCAo9bCzDK0p39STACEg6opiKttrNy4I",
             authDomain: "pre-order-registration.firebaseapp.com",
@@ -500,22 +497,18 @@
             measurementId: "G-V10VT86DVZ"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
         const reservationsRef = ref(database, 'reservations');
 
-        // Global variables
         let reservations = [];
         let sortColumn = '';
         let sortDirection = 'asc';
         let isConnected = false;
 
-        // Connection status monitoring with timeout
         let connectionTimeout;
         const connectedRef = ref(database, '.info/connected');
         
-        // Set a timeout for connection
         connectionTimeout = setTimeout(() => {
             const connectionStatus = document.getElementById('connectionStatus');
             if (connectionStatus.textContent === '連接中...') {
@@ -523,7 +516,7 @@
                 connectionStatus.className = 'connection-status offline';
                 console.warn('Firebase connection timeout');
             }
-        }, 10000); // 10 seconds timeout
+        }, 10000);
         
         onValue(connectedRef, (snapshot) => {
             clearTimeout(connectionTimeout);
@@ -553,7 +546,6 @@
             submitBtn.disabled = true;
         });
 
-        // Initialize date inputs
         function initializeDateInputs() {
             const today = new Date();
             const todayString = today.toISOString().split('T')[0];
@@ -572,28 +564,25 @@
             document.getElementById('reservationDate').setAttribute('max', maxDateString);
         }
 
-        // Listen for real-time updates from Firebase with timeout
         let loadingTimeout;
         
         function loadReservations() {
-            // Set loading timeout
             loadingTimeout = setTimeout(() => {
                 const loadingIndicator = document.getElementById('loadingIndicator');
                 const tableContainer = document.getElementById('tableContainer');
                 
                 if (loadingIndicator.style.display !== 'none') {
-                    loadingIndicator.textContent = '載入超時，請檢查網路連線';
+                    loadingIndicator.textContent = '載入超時,請檢查網路連線';
                     loadingIndicator.style.color = '#ff6b6b';
                     
-                    // Show empty table after timeout
                     setTimeout(() => {
                         loadingIndicator.style.display = 'none';
                         tableContainer.style.display = 'block';
-                        renderReservations(); // Render empty table
+                        renderReservations();
                         updateStats();
                     }, 3000);
                 }
-            }, 8000); // 8 seconds timeout
+            }, 8000);
             
             onValue(reservationsRef, (snapshot) => {
                 clearTimeout(loadingTimeout);
@@ -612,7 +601,6 @@
                 renderReservations();
                 updateStats();
                 
-                // Hide loading indicator and show table
                 document.getElementById('loadingIndicator').style.display = 'none';
                 document.getElementById('tableContainer').style.display = 'block';
                 console.log('Reservations loaded successfully:', reservations.length);
@@ -623,20 +611,18 @@
                 const loadingIndicator = document.getElementById('loadingIndicator');
                 const tableContainer = document.getElementById('tableContainer');
                 
-                loadingIndicator.textContent = '載入失敗，請重新整理頁面';
+                loadingIndicator.textContent = '載入失敗,請重新整理頁面';
                 loadingIndicator.style.color = '#ff6b6b';
                 
-                // Show empty table after error
                 setTimeout(() => {
                     loadingIndicator.style.display = 'none';
                     tableContainer.style.display = 'block';
-                    renderReservations(); // Render empty table
+                    renderReservations();
                     updateStats();
                 }, 3000);
             });
         }
 
-        // Add new reservation to Firebase
         async function addReservation(reservationData) {
             try {
                 await push(reservationsRef, {
@@ -646,12 +632,11 @@
                 return true;
             } catch (error) {
                 console.error('Error adding reservation:', error);
-                alert('新增預訂失敗，請檢查網路連線');
+                alert('新增預訂失敗,請檢查網路連線');
                 return false;
             }
         }
 
-        // Delete reservation from Firebase
         async function deleteReservation(firebaseKey) {
             try {
                 const reservationRef = ref(database, `reservations/${firebaseKey}`);
@@ -659,12 +644,11 @@
                 return true;
             } catch (error) {
                 console.error('Error deleting reservation:', error);
-                alert('刪除失敗，請檢查網路連線');
+                alert('刪除失敗,請檢查網路連線');
                 return false;
             }
         }
 
-        // Update pickup date in Firebase
         async function updatePickupDate(firebaseKey, pickupDate) {
             try {
                 const reservationRef = ref(database, `reservations/${firebaseKey}`);
@@ -672,17 +656,16 @@
                 return true;
             } catch (error) {
                 console.error('Error updating pickup date:', error);
-                alert('更新日期失敗，請檢查網路連線');
+                alert('更新日期失敗,請檢查網路連線');
                 return false;
             }
         }
 
-        // Form submission
         document.getElementById('reservationForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             if (!isConnected) {
-                alert('目前離線，無法新增預訂');
+                alert('目前離線,無法新增預訂');
                 return;
             }
 
@@ -692,7 +675,7 @@
 
             const reservationDate = document.getElementById('reservationDate').value;
             const reservation = {
-                id: Date.now(), // Keep for compatibility
+                id: Date.now(),
                 reservationDate: reservationDate,
                 customerName: document.getElementById('customerName').value,
                 contactPlatform: document.getElementById('contactPlatform').value,
@@ -715,7 +698,6 @@
             submitBtn.textContent = '新增預訂';
         });
 
-        // Sort reservations
         function sortReservations(column) {
             if (sortColumn === column) {
                 sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
@@ -747,7 +729,6 @@
             renderReservations();
         }
 
-        // Update sort headers
         function updateSortHeaders() {
             document.querySelectorAll('.sortable').forEach(th => {
                 th.classList.remove('asc', 'desc');
@@ -757,7 +738,6 @@
             });
         }
 
-        // Update statistics
         function updateStats() {
             const today = new Date().toISOString().split('T')[0];
             const todayReservations = reservations.filter(r => r.reservationDate === today).length;
@@ -768,7 +748,6 @@
             document.getElementById('totalQuantity').textContent = totalQuantity;
         }
 
-        // Render reservations table
         function renderReservations() {
             const reservationList = document.getElementById('reservationList');
             reservationList.innerHTML = '';
@@ -791,7 +770,8 @@
                     <td>
                         <input type="date" class="edit-date" value="${reservation.pickupDate}" 
                                min="${minPickupDate}" max="${maxDateString}" 
-                               data-firebase-key="${reservation.firebaseKey}">
+                               data-firebase-key="${reservation.firebaseKey}"
+                               data-original-value="${reservation.pickupDate}">
                     </td>
                     <td>
                         <div class="delete-actions">
@@ -806,30 +786,31 @@
                 reservationList.appendChild(row);
             });
 
-            // Date edit events
             document.querySelectorAll('.edit-date').forEach(input => {
                 input.addEventListener('change', async (e) => {
                     if (!isConnected) {
-                        alert('目前離線，無法更新日期');
-                        e.target.value = e.target.defaultValue; // Reset to original value
+                        alert('目前離線,無法更新日期');
+                        e.target.value = e.target.getAttribute('data-original-value');
                         return;
                     }
 
                     const firebaseKey = e.target.getAttribute('data-firebase-key');
                     const newPickupDate = e.target.value;
+                    const originalValue = e.target.getAttribute('data-original-value');
                     
                     const success = await updatePickupDate(firebaseKey, newPickupDate);
                     if (!success) {
-                        e.target.value = e.target.defaultValue; // Reset to original value
+                        e.target.value = originalValue;
+                    } else {
+                        e.target.setAttribute('data-original-value', newPickupDate);
                     }
                 });
             });
 
-            // Delete button events
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
                     if (!isConnected) {
-                        alert('目前離線，無法刪除預訂');
+                        alert('目前離線,無法刪除預訂');
                         return;
                     }
 
@@ -840,41 +821,10 @@
                 });
             });
 
-            // Confirm delete button events
             document.querySelectorAll('.confirm-delete-btn').forEach(button => {
                 button.addEventListener('click', async () => {
                     const firebaseKey = button.getAttribute('data-firebase-key');
                     button.disabled = true;
                     button.textContent = '刪除中...';
                     
-                    await deleteReservation(firebaseKey);
-                });
-            });
-
-            // Cancel delete button events
-            document.querySelectorAll('.cancel-delete-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const firebaseKey = button.getAttribute('data-firebase-key');
-                    const confirmActions = button.parentElement;
-                    const deleteBtn = confirmActions.parentElement.querySelector(`.delete-btn[data-firebase-key="${firebaseKey}"]`);
-                    confirmActions.style.display = 'none';
-                    deleteBtn.style.display = 'inline-block';
-                });
-            });
-        }
-
-        // Sort event listeners
-        document.querySelectorAll('.sortable').forEach(th => {
-            th.addEventListener('click', () => {
-                sortReservations(th.dataset.column);
-            });
-        });
-
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeDateInputs();
-            loadReservations();
-        });
-    </script>
-</body>
-</html>
+                    await deleteReservation
