@@ -1,0 +1,1565 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ALICE Salon HR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0a0a0a;
+      --paper: #f7f4ef;
+      --cream: #ede9e2;
+      --gold: #c9a84c;
+      --gold-light: #e8d5a0;
+      --gold-dark: #9e7a2a;
+      --muted: #7a7269;
+      --border: #d4cfc6;
+      --surface: #ffffff;
+      --danger: #a83232;
+      --success: #2a6b4a;
+      --r: 10px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      font-size: 18px;
+      font-weight: 300;
+    }
+
+    /* ─── HEADER ─── */
+    .header {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .header-brand .salon {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      color: var(--gold);
+      font-style: italic;
+    }
+
+    .header-brand .hr-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 300;
+      letter-spacing: 0.25em;
+      color: #888;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .header-sep { width: 1px; height: 24px; background: #333; margin: 0 4px; }
+
+    .header-nav {
+      display: flex;
+      gap: 2px;
+      flex: 1;
+      overflow-x: auto;
+    }
+
+    .nav-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #999;
+      background: transparent;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover { color: var(--paper); background: #1a1a1a; }
+
+    .nav-btn.active {
+      color: var(--ink);
+      background: var(--gold);
+      font-weight: 500;
+    }
+
+    /* ─── LAYOUT ─── */
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    .page-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 44px;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+      line-height: 1.1;
+    }
+
+    .page-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      margin-bottom: 28px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ─── CARDS ─── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title::before {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 18px;
+      background: var(--gold);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ─── FORM ELEMENTS ─── */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    input[type=text], input[type=number], input[type=date], select, textarea {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 300;
+      padding: 10px 13px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--paper);
+      color: var(--ink);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+      background: var(--surface);
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7269' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+
+    .btn-primary:hover {
+      background: #1f1f1f;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: var(--ink);
+      border-color: var(--gold);
+    }
+
+    .btn-gold:hover {
+      background: var(--gold-dark);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(158,122,42,0.3);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border-color: var(--border);
+    }
+
+    .btn-ghost:hover {
+      background: var(--cream);
+      color: var(--ink);
+      border-color: var(--ink);
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border-color: #e0b0b0;
+      font-size: 12px;
+      padding: 6px 11px;
+    }
+
+    .btn-danger:hover {
+      background: #fdf0f0;
+      border-color: var(--danger);
+    }
+
+    /* ─── TABLE ─── */
+    .tbl-wrap {
+      overflow-x: auto;
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      background: var(--cream);
+    }
+
+    th {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 13px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 11px 14px;
+      border-bottom: 1px solid #f0ece6;
+      font-size: 14px;
+      font-weight: 300;
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    tbody tr:hover td { background: #faf8f5; }
+
+    .td-right { text-align: right; }
+    .td-mono { font-family: 'DM Mono', monospace; font-size: 13px; }
+    .td-name { font-weight: 500; }
+
+    /* ─── BADGE ─── */
+    .badge {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      padding: 4px 9px;
+      border-radius: 20px;
+      border: 1px solid currentColor;
+    }
+
+    .badge-annual { color: var(--gold-dark); background: #fdf7e8; border-color: var(--gold-light); }
+    .badge-personal { color: #4a6a8a; background: #eef3f8; border-color: #b0c8e0; }
+    .badge-sick { color: #6a4a7a; background: #f5eef8; border-color: #d0b0e0; }
+    .badge-other { color: var(--muted); background: var(--cream); border-color: var(--border); }
+    .badge-active { color: var(--success); background: #eef7f2; border-color: #a0d4bc; }
+    .badge-inactive { color: var(--muted); background: var(--cream); border-color: var(--border); }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    /* ─── GRID HELPERS ─── */
+    .row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+    .row > .field { flex: 1; min-width: 130px; }
+    .row > .field-auto { flex: 0 0 auto; }
+
+    .form-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .hint {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    /* ─── STAT BOX ─── */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px 16px;
+    }
+
+    .stat-box .num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 300;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .stat-box .num.gold { color: var(--gold-dark); }
+    .stat-box .num.danger { color: var(--danger); }
+
+    .stat-box .lbl {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ─── CALENDAR ─── */
+    .cal-layout { display: grid; grid-template-columns: 1fr 320px; gap: 16px; }
+
+    @media (max-width: 900px) { .cal-layout { grid-template-columns: 1fr; } }
+
+    .cal-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .cal-month {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      flex: 1;
+    }
+
+    .dow {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin-bottom: 5px;
+    }
+
+    .dow > div {
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 6px 0;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .cal-cell {
+      min-height: 90px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: var(--surface);
+      padding: 7px 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      overflow: hidden;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .cal-cell:hover { border-color: var(--gold-light); background: #fffdf5; }
+    .cal-cell.sel { border-color: var(--gold); background: #fffdf5; box-shadow: 0 0 0 2px rgba(201,168,76,0.2); }
+    .cal-cell.today .day-num { color: var(--gold-dark); font-weight: 600; }
+    .cal-cell.today { background: #fffaed; }
+    .cal-cell.blank { background: transparent; border: 1px dashed #e5e0d8; cursor: default; }
+    .cal-cell.blank:hover { border: 1px dashed #e5e0d8; background: transparent; }
+
+    .day-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+
+    .day-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--gold-dark);
+      letter-spacing: 0.06em;
+    }
+
+    .day-entry {
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ─── INFO PANEL ─── */
+    .info-empty {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--muted);
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 16px;
+    }
+
+    /* ─── UTIL ─── */
+    .text-muted { color: var(--muted); }
+    .text-gold { color: var(--gold-dark); }
+    .text-danger { color: var(--danger); }
+    .text-success { color: var(--success); }
+    .mono { font-family: 'DM Mono', monospace; }
+    .small { font-size: 12px; }
+    .mb-12 { margin-bottom: 12px; }
+    .mb-20 { margin-bottom: 20px; }
+    .hidden { display: none !important; }
+
+    /* ─── ANIM ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .wrap > * { animation: fadeUp 0.3s ease both; }
+
+    /* ─── SWITCHER BOX ─── */
+    .switch-row {
+      display: flex;
+      gap: 4px;
+      background: var(--cream);
+      border-radius: 9px;
+      padding: 3px;
+      width: fit-content;
+    }
+
+    .switch-btn {
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      padding: 7px 16px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .switch-btn.active {
+      background: var(--surface);
+      color: var(--ink);
+      font-weight: 500;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    /* ─── CALC PREVIEW ─── */
+    .calc-preview {
+      background: var(--cream);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .calc-preview strong { color: var(--gold-dark); font-size: 16px; }
+
+    /* ─── INLINE EDIT ─── */
+    .inline-name {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 4px 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+      width: 100%;
+      max-width: 160px;
+    }
+
+    .inline-name:hover { border-color: var(--border); background: var(--cream); }
+    .inline-name:focus { outline: none; border-color: var(--gold); background: var(--surface); }
+
+    /* ─── BACKUP ─── */
+    .backup-action {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 10px;
+      padding: 28px 24px;
+      border-radius: var(--r);
+      border: 1px dashed var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .backup-action:hover { border-color: var(--gold); background: #fffdf5; }
+
+    .backup-icon {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .backup-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 19px;
+      font-weight: 400;
+    }
+
+    .backup-desc {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .message {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: 'DM Mono', monospace;
+      margin-top: 10px;
+    }
+
+    .message.ok { background: #eef7f2; color: var(--success); border: 1px solid #a0d4bc; }
+    .message.err { background: #fdf0f0; color: var(--danger); border: 1px solid #e0b0b0; }
+
+    /* ─── SUMMARY CHIP ─── */
+    .summary-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--ink);
+      color: var(--gold);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <span class="salon">ALICE</span>
+      <span class="hr-tag">HR System</span>
+    </div>
+    <div class="header-sep"></div>
+    <nav id="navBar" class="header-nav"></nav>
+  </header>
+
+  <main class="wrap" id="page"></main>
+
+<script>
+/* ═══════════════════════════════════════════════
+   CONSTANTS & DATA LAYER
+═══════════════════════════════════════════════ */
+const KEY = "SALON_HR_ALICE_V1";
+const HOURS_PER_DAY = 9, START_H = 10, END_H = 19;
+
+const LEAVE_TYPES = [
+  { key:"annual",   label:"特休", badgeClass:"badge-annual" },
+  { key:"personal", label:"事假", badgeClass:"badge-personal" },
+  { key:"sick",     label:"病假", badgeClass:"badge-sick" },
+  { key:"other",    label:"其他", badgeClass:"badge-other" },
+];
+
+const TABS = [
+  { key:"leave",      label:"請假" },
+  { key:"calendar",   label:"行事曆" },
+  { key:"entitlement",label:"特休配額" },
+  { key:"training",   label:"進修" },
+  { key:"staff",      label:"員工" },
+  { key:"backup",     label:"備份 / 還原" },
+];
+
+/* ─── State ─── */
+const uid = () => crypto?.randomUUID?.() ?? `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+
+function defaults() {
+  return {
+    staff: [{ id:uid(), name:"JAY", active:true, createdAt:Date.now() }],
+    entitlements: [], leaves: [], trainings: []
+  };
+}
+
+let state = (() => {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (!s) return defaults();
+    return {
+      staff: Array.isArray(s.staff) ? s.staff : defaults().staff,
+      entitlements: Array.isArray(s.entitlements) ? s.entitlements : [],
+      leaves: Array.isArray(s.leaves) ? s.leaves : [],
+      trainings: Array.isArray(s.trainings) ? s.trainings : [],
+    };
+  } catch { return defaults(); }
+})();
+
+let activeTab = "leave";
+
+const save = () => localStorage.setItem(KEY, JSON.stringify(state));
+
+/* ─── Utils ─── */
+const r1 = n => Math.round((+n||0)*10)/10;
+const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const staffName = id => state.staff.find(s=>s.id===id)?.name ?? "(未知)";
+const activeStaff = () => state.staff.filter(s=>s.active);
+const typeInfo = k => LEAVE_TYPES.find(x=>x.key===k) ?? {label:k,badgeClass:"badge-other"};
+
+function fmtDT(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function fmtDate(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+}
+
+const p = n => String(n).padStart(2,"0");
+const ymd = d => `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+const todayYmd = () => ymd(new Date());
+
+function computeTimes(dateStr, hoursTotal) {
+  const h = +hoursTotal;
+  if (!h || h <= 0) throw new Error("時數需大於 0");
+  // 幾個完整天 + 尾數小時
+  const fullDays = Math.floor(h / HOURS_PER_DAY);
+  const remHours = r1(h % HOURS_PER_DAY);
+  const [y,m,d] = dateStr.split("-").map(Number);
+  const start = new Date(y, m-1, d, START_H, 0, 0);
+  // 尾數為 0 表示剛好整天：結束在最後一天的 19:00
+  // 尾數 > 0：最後一天從 10:00 加上尾數小時
+  let endDay, endHour, endMin;
+  if (remHours === 0) {
+    // 整數天：結束在第 fullDays-1 天（0-based offset）的 19:00
+    endDay = d + fullDays - 1;
+    endHour = END_H;
+    endMin = 0;
+  } else {
+    endDay = d + fullDays;
+    const endMins = Math.round(remHours * 60);
+    endHour = START_H + Math.floor(endMins / 60);
+    endMin  = endMins % 60;
+  }
+  const end = new Date(y, m-1, endDay, endHour, endMin, 0);
+  return { startISO: start.toISOString(), endISO: end.toISOString() };
+}
+
+/* ─── Router ─── */
+function render() {
+  // nav
+  document.getElementById("navBar").innerHTML = TABS.map(t =>
+    `<button class="nav-btn${activeTab===t.key?' active':''}" data-tab="${t.key}">${esc(t.label)}</button>`
+  ).join("");
+  document.querySelectorAll(".nav-btn").forEach(b =>
+    b.addEventListener("click", () => { activeTab = b.dataset.tab; save(); render(); })
+  );
+  save();
+  const fns = {
+    leave: renderLeave, calendar: renderCalendar,
+    entitlement: renderEntitlement, training: renderTraining,
+    staff: renderStaff, backup: renderBackup
+  };
+  fns[activeTab]();
+}
+
+/* ═══════════════════════════════════════════════
+   PAGE: LEAVE
+═══════════════════════════════════════════════ */
+let leaveMode = "days";
+
+function renderLeave() {
+  const staffOpts = activeStaff().map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+  const typeOpts = LEAVE_TYPES.map(t=>`<option value="${t.key}">${t.label}</option>`).join("");
+
+  const leaveCount = state.leaves.length;
+  const totalHours = r1(state.leaves.reduce((a,x)=>a+(+x.hours||0),0));
+
+  document.getElementById("page").innerHTML = `
+    <h1 class="page-title">請假管理</h1>
+    <p class="page-subtitle">// LEAVE MANAGEMENT · 固定 10:00 → 19:00 · 1天 = 9小時</p>
+
+    <div class="stats-row mb-20">
+      <div class="stat-box"><div class="num">${leaveCount}</div><div class="lbl">請假紀錄</div></div>
+      <div class="stat-box"><div class="num gold">${totalHours}</div><div class="lbl">累計時數</div></div>
+      <div class="stat-box"><div class="num">${r1(totalHours/HOURS_PER_DAY)}</div><div class="lbl">累計天數</div></div>
+    </div>
+
+    <div class="card mb-20">
+      <div class="card-title">新增請假</div>
+
+      <div class="row mb-12">
+        <div class="field">
+          <label>員工</label>
+          <select id="lStaff">${staffOpts||`<option value="">(請先新增員工)</option>`}</select>
+        </div>
+        <div class="field">
+          <label>假別</label>
+          <select id="lType">${typeOpts}</select>
+        </div>
+        <div class="field">
+          <label>開始日期</label>
+          <input id="lDate" type="date" value="${todayYmd()}">
+        </div>
+      </div>
+
+      <div class="row mb-12" style="align-items:center">
+        <div class="field-auto">
+          <div class="switch-row">
+            <button class="switch-btn${leaveMode==='days'?' active':''}" id="modeDays">天數</button>
+            <button class="switch-btn${leaveMode==='hours'?' active':''}" id="modeHours">時數</button>
+          </div>
+        </div>
+        <div class="field" id="daysField" ${leaveMode==='hours'?'style="display:none"':''}>
+          <label>天數 (0.5 起)</label>
+          <input id="lDays" type="number" step="0.5" min="0.5" value="1">
+        </div>
+        <div class="field" id="hoursField" ${leaveMode==='days'?'style="display:none"':''}>
+          <label>時數 (0.5 起)</label>
+          <input id="lHours" type="number" step="0.5" min="0.5" value="9">
+        </div>
+        <div class="field">
+          <label>備註</label>
+          <input id="lNote" type="text" placeholder="可選填">
+        </div>
+        <div class="field-auto">
+          <button class="btn btn-gold" id="lAdd" style="margin-top:0">＋ 新增</button>
+        </div>
+      </div>
+
+      <div class="calc-preview" id="lPreview">— 請輸入資訊 —</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">請假列表</div>
+      <div class="tbl-wrap" id="lTableWrap"></div>
+    </div>
+  `;
+
+  const recalc = () => {
+    const days = leaveMode==='days' ? r1(+document.getElementById("lDays").value||0) : r1((+document.getElementById("lHours").value||0)/HOURS_PER_DAY);
+    const hours = leaveMode==='days' ? r1(days*HOURS_PER_DAY) : r1(+document.getElementById("lHours").value||0);
+    const dateEl = document.getElementById("lDate");
+    let rangeStr = "—";
+    if (dateEl.value && hours>0) {
+      try {
+        const {startISO,endISO} = computeTimes(dateEl.value, hours);
+        rangeStr = `${fmtDT(startISO)} → ${fmtDT(endISO)}`;
+      } catch {}
+    }
+    document.getElementById("lPreview").innerHTML =
+      `換算：<strong>${days} 天 &nbsp;/&nbsp; ${hours} 小時</strong> &nbsp;·&nbsp; 時間區間：${rangeStr}`;
+  };
+
+  document.getElementById("modeDays").onclick = () => {
+    leaveMode="days";
+    document.getElementById("daysField").style.display="";
+    document.getElementById("hoursField").style.display="none";
+    document.querySelectorAll(".switch-btn").forEach((b,i)=>b.classList.toggle("active",i===0));
+    recalc();
+  };
+
+  document.getElementById("modeHours").onclick = () => {
+    leaveMode="hours";
+    document.getElementById("daysField").style.display="none";
+    document.getElementById("hoursField").style.display="";
+    document.querySelectorAll(".switch-btn").forEach((b,i)=>b.classList.toggle("active",i===1));
+    recalc();
+  };
+
+  ["lDays","lHours","lDate"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("input", recalc);
+  });
+  recalc();
+
+  document.getElementById("lAdd").onclick = () => {
+    const sid = document.getElementById("lStaff").value;
+    if (!sid) return alert("請選擇員工");
+    const dateVal = document.getElementById("lDate").value;
+    if (!dateVal) return alert("請選開始日期");
+
+    let hours, days;
+    if (leaveMode==='days') {
+      days = r1(+document.getElementById("lDays").value);
+      if (!days||days<=0) return alert("天數需大於 0");
+      hours = r1(days*HOURS_PER_DAY);
+    } else {
+      hours = r1(+document.getElementById("lHours").value);
+      if (!hours||hours<=0) return alert("時數需大於 0");
+      days = r1(hours/HOURS_PER_DAY);
+    }
+
+    let startISO, endISO;
+    try { ({startISO,endISO}=computeTimes(dateVal,hours)); }
+    catch(e) { return alert(e.message||"計算失敗"); }
+
+    state.leaves.unshift({
+      id:uid(), staffId:sid, type:document.getElementById("lType").value,
+      startISO, endISO, hours, days,
+      note:document.getElementById("lNote").value.trim(),
+      createdAt:Date.now()
+    });
+
+    document.getElementById("lNote").value="";
+    renderLeave();
+  };
+
+  buildLeaveTable(document.getElementById("lTableWrap"), [...state.leaves].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)));
+}
+
+function buildLeaveTable(container, list) {
+  if (!list.length) {
+    container.innerHTML = `<div class="info-empty">尚無請假紀錄</div>`;
+    return;
+  }
+  container.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>員工</th><th>假別</th><th>日期</th><th class="td-right">天數</th><th class="td-right">時數</th><th>備註</th><th></th>
+      </tr></thead>
+      <tbody>${list.map(r => {
+        const days = isFinite(+r.days) ? r.days : r1((+r.hours||0)/HOURS_PER_DAY);
+        const ti = typeInfo(r.type);
+        return `<tr>
+          <td class="td-name">${esc(staffName(r.staffId))}</td>
+          <td><span class="badge ${ti.badgeClass}">${ti.label}</span></td>
+          <td class="td-mono small">${esc(fmtDate(r.startISO))}${r.days>1?` → ${esc(fmtDate(r.endISO))}`:''}
+            <div class="text-muted small">${esc(fmtDT(r.startISO))} → ${esc(fmtDT(r.endISO))}</div>
+          </td>
+          <td class="td-right td-mono">${days}</td>
+          <td class="td-right td-mono">${r.hours}h</td>
+          <td class="text-muted small">${esc(r.note||'')}</td>
+          <td><button class="btn btn-danger del" data-id="${r.id}">刪除</button></td>
+        </tr>`;
+      }).join("")}</tbody>
+    </table>`;
+
+  container.querySelectorAll(".del").forEach(btn => {
+    btn.onclick = () => {
+      if (!confirm("確定刪除此筆請假？")) return;
+      state.leaves = state.leaves.filter(x=>x.id!==btn.dataset.id);
+      renderLeave();
+    };
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   PAGE: CALENDAR
+═══════════════════════════════════════════════ */
+let calY = new Date().getFullYear(), calM = new Date().getMonth();
+let calSel = todayYmd(), calFilter = "ALL";
+
+function renderCalendar() {
+  const staffOpts = [`<option value="ALL">全部員工</option>`]
+    .concat(activeStaff().map(s=>`<option value="${s.id}">${esc(s.name)}</option>`)).join("");
+
+  document.getElementById("page").innerHTML = `
+    <h1 class="page-title">行事曆</h1>
+    <p class="page-subtitle">// CALENDAR · 以開始日期歸類顯示</p>
+
+    <div class="cal-layout">
+      <div class="card">
+        <div class="cal-header">
+          <button class="btn btn-ghost" id="calPrev">←</button>
+          <div class="cal-month" id="calMonth"></div>
+          <button class="btn btn-ghost" id="calNext">→</button>
+          <div class="field" style="flex:0 0 180px;margin-bottom:0">
+            <select id="calFilter" style="padding:7px 12px">${staffOpts}</select>
+          </div>
+        </div>
+
+        <div class="dow">
+          ${["日","一","二","三","四","五","六"].map(d=>`<div>${d}</div>`).join("")}
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <p class="hint">跨日請假顯示在開始日；可點格子查看明細。</p>
+      </div>
+
+      <div class="card" id="calPanel">
+        <div class="info-empty">選擇日期查看詳情</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("calFilter").value = calFilter;
+  document.getElementById("calFilter").onchange = e => { calFilter=e.target.value; renderCalendar(); };
+  document.getElementById("calPrev").onclick = () => { const d=new Date(calY,calM-1,1); calY=d.getFullYear(); calM=d.getMonth(); calSel=ymd(d); renderCalendar(); };
+  document.getElementById("calNext").onclick = () => { const d=new Date(calY,calM+1,1); calY=d.getFullYear(); calM=d.getMonth(); calSel=ymd(d); renderCalendar(); };
+
+  drawCal();
+  drawPanel();
+}
+
+/* ─ 共用：把進修跨日展開成每日 Map key ─ */
+function buildCalMaps() {
+  const leaveByDay    = new Map(); // k -> [{kind:"leave", ...record}]
+  const trainingByDay = new Map(); // k -> [{kind:"training", ...record}]
+
+  // 請假：以 startISO 日期為 key
+  for (const l of state.leaves) {
+    if (calFilter!=="ALL" && l.staffId!==calFilter) continue;
+    const k = ymd(new Date(l.startISO));
+    if (!leaveByDay.has(k)) leaveByDay.set(k,[]);
+    leaveByDay.get(k).push(l);
+  }
+
+  // 進修：跨日期範圍，每天都標記（startDate ~ endDate）
+  for (const t of state.trainings) {
+    if (calFilter!=="ALL" && t.staffId!==calFilter) continue;
+    if (!t.startDate) continue;
+    const [sy,sm,sd] = t.startDate.split("-").map(Number);
+    const endStr = t.endDate||t.startDate;
+    const [ey,em,ed] = endStr.split("-").map(Number);
+    const start = new Date(sy,sm-1,sd);
+    const end   = new Date(ey,em-1,ed);
+    for (let cur=new Date(start); cur<=end; cur.setDate(cur.getDate()+1)) {
+      const k = ymd(new Date(cur));
+      if (!trainingByDay.has(k)) trainingByDay.set(k,[]);
+      // 避免同一筆紀錄重複推入（同一天只推一次）
+      if (!trainingByDay.get(k).find(x=>x.id===t.id))
+        trainingByDay.get(k).push(t);
+    }
+  }
+
+  return { leaveByDay, trainingByDay };
+}
+
+function drawCal() {
+  const lbl = `${calY} 年 ${calM+1} 月`;
+  document.getElementById("calMonth").textContent = lbl;
+
+  const { leaveByDay, trainingByDay } = buildCalMaps();
+
+  const firstWd = new Date(calY,calM,1).getDay();
+  const dim     = new Date(calY,calM+1,0).getDate();
+  const total   = Math.ceil((firstWd+dim)/7)*7;
+  const today   = todayYmd();
+
+  let html = "";
+  for (let i=0; i<total; i++) {
+    const dayNum = i-firstWd+1;
+    if (dayNum<1||dayNum>dim) { html+=`<div class="cal-cell blank"></div>`; continue; }
+    const k = ymd(new Date(calY,calM,dayNum));
+
+    // 只取當月的事件
+    const lRows = (leaveByDay.get(k)||[]).filter(l=>{
+      const d=new Date(l.startISO); return d.getFullYear()===calY&&d.getMonth()===calM;
+    });
+    const tRows = (trainingByDay.get(k)||[]).filter(t=>{
+      const inMonth = d => { const x=new Date(d); return x.getFullYear()===calY&&x.getMonth()===calM; };
+      return inMonth(t.startDate||(t.endDate||t.startDate));
+    });
+
+    const total2 = lRows.length + tRows.length;
+    const sel = calSel===k;
+    const isToday = today===k;
+    const cls = ["cal-cell",sel?"sel":"",isToday?"today":""].filter(Boolean).join(" ");
+
+    // 最多顯示 2 行 preview，請假優先
+    const preview = [
+      ...lRows.slice(0,2).map(r=>`<div class="day-entry">· ${esc(staffName(r.staffId))} <span style="color:var(--gold-dark)">${typeInfo(r.type).label}</span> ${r.days}d</div>`),
+      ...tRows.slice(0, Math.max(0, 2-lRows.length)).map(t=>`<div class="day-entry" style="color:#4a6a8a">· ${esc(staffName(t.staffId))} <span>進修</span></div>`),
+    ].slice(0,2);
+
+    html+=`<button class="${cls}" data-k="${k}">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span class="day-num">${dayNum}</span>
+        ${total2?`<span class="day-count">${total2}件</span>`:''}
+      </div>
+      ${preview.join("")}
+      ${total2>2?`<div class="day-entry text-muted">+${total2-2} 更多</div>`:''}
+    </button>`;
+  }
+
+  document.getElementById("calGrid").innerHTML = html;
+  document.getElementById("calGrid").querySelectorAll(".cal-cell:not(.blank)").forEach(btn => {
+    btn.onclick = () => { calSel=btn.dataset.k; drawCal(); drawPanel(); };
+  });
+}
+
+function drawPanel() {
+  const { leaveByDay, trainingByDay } = buildCalMaps();
+  const leaveRows    = leaveByDay.get(calSel)||[];
+  const trainingRows = trainingByDay.get(calSel)||[];
+  const panel = document.getElementById("calPanel");
+
+  if (!leaveRows.length && !trainingRows.length) {
+    panel.innerHTML = `<div class="card-title">${esc(calSel)}</div><div class="info-empty">這天沒有任何紀錄</div>`;
+    return;
+  }
+
+  let html = `<div class="card-title">${esc(calSel)}</div>`;
+
+  // ── 請假區塊 ──
+  if (leaveRows.length) {
+    html += `
+      <div style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">請假</div>
+      <div class="tbl-wrap" style="margin-bottom:14px">
+        <table>
+          <thead><tr><th>員工</th><th>假別</th><th class="td-right">天</th><th class="td-right">時</th><th></th></tr></thead>
+          <tbody id="panelLeaveTbody">${leaveRows.map(r=>{
+            const days=isFinite(+r.days)?r.days:r1((+r.hours||0)/HOURS_PER_DAY);
+            const ti=typeInfo(r.type);
+            return `<tr>
+              <td class="td-name">${esc(staffName(r.staffId))}</td>
+              <td><span class="badge ${ti.badgeClass}">${ti.label}</span></td>
+              <td class="td-right td-mono">${days}</td>
+              <td class="td-right td-mono">${r.hours}h</td>
+              <td><button class="btn btn-danger l-del" data-id="${r.id}">刪除</button></td>
+            </tr>
+            <tr><td colspan="5" class="text-muted small td-mono" style="padding-top:0">${esc(fmtDT(r.startISO))} → ${esc(fmtDT(r.endISO))}${r.note?` · ${esc(r.note)}`:''}
+            </td></tr>`;
+          }).join("")}</tbody>
+        </table>
+      </div>`;
+  }
+
+  // ── 進修區塊 ──
+  if (trainingRows.length) {
+    html += `
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">進修</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>員工</th><th>課程</th><th>日期</th><th class="td-right">學費</th><th></th></tr></thead>
+          <tbody id="panelTrainingTbody">${trainingRows.map(t=>{
+            const range=(t.endDate&&t.endDate!==t.startDate)?`${t.startDate} → ${t.endDate}`:t.startDate;
+            return `<tr>
+              <td class="td-name">${esc(staffName(t.staffId))}</td>
+              <td>${esc(t.courseName)}</td>
+              <td class="td-mono small">${esc(range)}</td>
+              <td class="td-right td-mono">$${(+t.tuition||0).toLocaleString()}</td>
+              <td><button class="btn btn-danger t-del" data-id="${t.id}">刪除</button></td>
+            </tr>
+            ${t.note?`<tr><td colspan="5" class="text-muted small td-mono" style="padding-top:0">${esc(t.note)}</td></tr>`:''}`;
+          }).join("")}</tbody>
+        </table>
+      </div>`;
+  }
+
+  panel.innerHTML = html;
+
+  panel.querySelectorAll(".l-del").forEach(btn => {
+    btn.onclick = () => {
+      if (!confirm("確定刪除此筆請假？")) return;
+      state.leaves = state.leaves.filter(x=>x.id!==btn.dataset.id);
+      save(); drawCal(); drawPanel();
+    };
+  });
+
+  panel.querySelectorAll(".t-del").forEach(btn => {
+    btn.onclick = () => {
+      if (!confirm("確定刪除此筆進修？")) return;
+      state.trainings = state.trainings.filter(x=>x.id!==btn.dataset.id);
+      save(); drawCal(); drawPanel();
+    };
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   PAGE: ENTITLEMENT
+═══════════════════════════════════════════════ */
+function renderEntitlement() {
+  const yr = new Date().getFullYear();
+  const staffOpts = state.staff.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+
+  document.getElementById("page").innerHTML = `
+    <h1 class="page-title">特休配額</h1>
+    <p class="page-subtitle">// ANNUAL LEAVE QUOTA · 僅扣除假別「特休」的時數</p>
+
+    <div class="card mb-20">
+      <div class="card-title">新增 / 更新配額</div>
+      <div class="row">
+        <div class="field" style="flex:0 0 120px">
+          <label>年度</label>
+          <input id="eYear" type="number" value="${yr}" style="width:120px">
+        </div>
+        <div class="field" style="flex:0 0 200px">
+          <label>員工</label>
+          <select id="eStaff" style="width:200px">${staffOpts||`<option value="">(請先新增員工)</option>`}</select>
+        </div>
+        <div class="field" style="flex:0 0 150px">
+          <label>配額 (小時)</label>
+          <input id="eQuota" type="number" value="56" style="width:150px">
+        </div>
+        <div class="field" style="flex:0 0 150px">
+          <label>結轉 (小時)</label>
+          <input id="eCarry" type="number" value="0" style="width:150px">
+        </div>
+        <div class="field-auto" style="padding-bottom:1px">
+          <button class="btn btn-gold" id="eUpsert">儲存配額</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">年度總覽</div>
+      <div class="row" style="margin-bottom:12px">
+        <div class="field" style="flex:0 0 140px">
+          <label>篩選年度</label>
+          <input id="eYearView" type="number" value="${yr}" style="width:140px">
+        </div>
+      </div>
+      <div class="tbl-wrap" id="eTblWrap"></div>
+    </div>
+  `;
+
+  const buildTable = () => {
+    const year = +document.getElementById("eYearView").value;
+    const usedMap = new Map();
+    for (const l of state.leaves) {
+      if (new Date(l.startISO).getFullYear()!==year || l.type!=="annual") continue;
+      usedMap.set(l.staffId, (usedMap.get(l.staffId)||0)+(+l.hours||0));
+    }
+    const list = state.entitlements.filter(e=>+e.year===year);
+    const wrap = document.getElementById("eTblWrap");
+    if (!list.length) { wrap.innerHTML=`<div class="info-empty">該年度尚無配額資料</div>`; return; }
+
+    wrap.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>員工</th><th class="td-right">配額 h</th><th class="td-right">結轉 h</th>
+          <th class="td-right">已用 h</th><th class="td-right">剩餘 h</th><th></th>
+        </tr></thead>
+        <tbody>${list.map(e=>{
+          const used=usedMap.get(e.staffId)||0;
+          const remain=(+e.quotaHours||0)+(+e.carryHours||0)-used;
+          return `<tr>
+            <td class="td-name">${esc(staffName(e.staffId))}</td>
+            <td class="td-right td-mono">${e.quotaHours}</td>
+            <td class="td-right td-mono">${e.carryHours}</td>
+            <td class="td-right td-mono">${used}</td>
+            <td class="td-right td-mono"><strong class="${remain<0?'text-danger':'text-gold'}">${remain}</strong></td>
+            <td><button class="btn btn-danger e-del" data-id="${e.id}">刪除</button></td>
+          </tr>`;
+        }).join("")}</tbody>
+      </table>`;
+
+    wrap.querySelectorAll(".e-del").forEach(btn => {
+      btn.onclick = () => {
+        if (!confirm("確定刪除此配額？")) return;
+        state.entitlements = state.entitlements.filter(x=>x.id!==btn.dataset.id);
+        renderEntitlement();
+      };
+    });
+  };
+
+  document.getElementById("eYearView").onchange = buildTable;
+
+  document.getElementById("eUpsert").onclick = () => {
+    const year = +document.getElementById("eYear").value;
+    const sid = document.getElementById("eStaff").value;
+    if (!sid) return alert("請選擇員工");
+    const q = +document.getElementById("eQuota").value;
+    const c = +document.getElementById("eCarry").value;
+    if (isNaN(q)||q<0||isNaN(c)||c<0) return alert("請輸入有效數值");
+    const idx = state.entitlements.findIndex(e=>e.staffId===sid&&+e.year===year);
+    const row = {id:idx>=0?state.entitlements[idx].id:uid(),staffId:sid,year,quotaHours:q,carryHours:c,updatedAt:Date.now()};
+    if (idx>=0) state.entitlements[idx]=row; else state.entitlements.unshift(row);
+    buildTable();
+    save();
+  };
+
+  buildTable();
+}
+
+/* ═══════════════════════════════════════════════
+   PAGE: TRAINING
+═══════════════════════════════════════════════ */
+function renderTraining() {
+  const staffOpts = activeStaff().map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+  const today = todayYmd();
+  const total = state.trainings.reduce((a,x)=>a+(+x.tuition||0),0);
+
+  document.getElementById("page").innerHTML = `
+    <h1 class="page-title">進修管理</h1>
+    <p class="page-subtitle">// PROFESSIONAL DEVELOPMENT · 課程與學費追蹤</p>
+
+    <div class="stats-row mb-20">
+      <div class="stat-box"><div class="num">${state.trainings.length}</div><div class="lbl">進修紀錄</div></div>
+      <div class="stat-box"><div class="num gold">$${total.toLocaleString()}</div><div class="lbl">學費總計</div></div>
+    </div>
+
+    <div class="card mb-20">
+      <div class="card-title">新增進修</div>
+      <div class="row mb-12">
+        <div class="field" style="flex:0 0 180px">
+          <label>員工</label>
+          <select id="tStaff">${staffOpts||`<option value="">(請先新增員工)</option>`}</select>
+        </div>
+        <div class="field">
+          <label>課程名稱</label>
+          <input id="tCourse" type="text" placeholder="必填">
+        </div>
+        <div class="field">
+          <label>主辦單位</label>
+          <input id="tProvider" type="text" placeholder="可選">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>開始日期</label>
+          <input id="tStart" type="date" value="${today}">
+        </div>
+        <div class="field">
+          <label>結束日期</label>
+          <input id="tEnd" type="date" value="${today}">
+        </div>
+        <div class="field">
+          <label>學費 (NT$)</label>
+          <input id="tTuition" type="number" value="0" min="0">
+        </div>
+        <div class="field">
+          <label>備註</label>
+          <input id="tNote" type="text" placeholder="可選">
+        </div>
+        <div class="field-auto" style="padding-bottom:1px">
+          <button class="btn btn-gold" id="tAdd">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">進修列表</div>
+      <div class="tbl-wrap" id="tTblWrap"></div>
+    </div>
+  `;
+
+  // 開始日期變更時，將結束日期同步到同一個月
+  document.getElementById("tStart").addEventListener("change", () => {
+    const startVal = document.getElementById("tStart").value;
+    const endEl    = document.getElementById("tEnd");
+    if (!startVal || !endEl.value) return;
+    const [sy, sm] = startVal.split("-").map(Number);
+    const endDay   = +endEl.value.split("-")[2];
+    const lastDay  = new Date(sy, sm, 0).getDate();
+    const safeDay  = Math.min(endDay, lastDay);
+    const newEnd   = `${sy}-${String(sm).padStart(2,"0")}-${String(safeDay).padStart(2,"0")}`;
+    endEl.value = newEnd < startVal ? startVal : newEnd;
+  });
+
+  document.getElementById("tAdd").onclick = () => {
+    const sid = document.getElementById("tStaff").value;
+    if (!sid) return alert("請選擇員工");
+    const c = document.getElementById("tCourse").value.trim();
+    if (!c) return alert("請填課程名稱");
+    const t = +document.getElementById("tTuition").value;
+    if (isNaN(t)||t<0) return alert("學費需為非負數");
+    state.trainings.unshift({
+      id:uid(), staffId:sid, courseName:c,
+      provider:document.getElementById("tProvider").value.trim(),
+      startDate:document.getElementById("tStart").value,
+      endDate:document.getElementById("tEnd").value,
+      tuition:t,
+      note:document.getElementById("tNote").value.trim(),
+      createdAt:Date.now()
+    });
+    document.getElementById("tCourse").value="";
+    document.getElementById("tNote").value="";
+    document.getElementById("tTuition").value="0";
+    renderTraining();
+  };
+
+  const list = [...state.trainings].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const wrap = document.getElementById("tTblWrap");
+  if (!list.length) { wrap.innerHTML=`<div class="info-empty">尚無進修紀錄</div>`; return; }
+
+  wrap.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>員工</th><th>課程</th><th>日期</th><th class="td-right">學費</th><th>主辦</th><th>備註</th><th></th>
+      </tr></thead>
+      <tbody>${list.map(r=>{
+        const range = (r.endDate&&r.endDate!==r.startDate)?`${r.startDate} → ${r.endDate}`:r.startDate;
+        return `<tr>
+          <td class="td-name">${esc(staffName(r.staffId))}</td>
+          <td>${esc(r.courseName)}</td>
+          <td class="td-mono small">${esc(range)}</td>
+          <td class="td-right td-mono">$${(+r.tuition||0).toLocaleString()}</td>
+          <td class="text-muted">${esc(r.provider||'')}</td>
+          <td class="text-muted small">${esc(r.note||'')}</td>
+          <td><button class="btn btn-danger t-del" data-id="${r.id}">刪除</button></td>
+        </tr>`;
+      }).join("")}</tbody>
+    </table>`;
+
+  wrap.querySelectorAll(".t-del").forEach(btn => {
+    btn.onclick = () => {
+      if (!confirm("確定刪除此筆進修？")) return;
+      state.trainings = state.trainings.filter(x=>x.id!==btn.dataset.id);
+      renderTraining();
+    };
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   PAGE: STAFF
+═══════════════════════════════════════════════ */
+function renderStaff() {
+  const active = state.staff.filter(s=>s.active).length;
+
+  document.getElementById("page").innerHTML = `
+    <h1 class="page-title">員工管理</h1>
+    <p class="page-subtitle">// STAFF MANAGEMENT</p>
+
+    <div class="stats-row mb-20">
+      <div class="stat-box"><div class="num gold">${active}</div><div class="lbl">在職</div></div>
+      <div class="stat-box"><div class="num">${state.staff.length}</div><div class="lbl">總計</div></div>
+    </div>
+
+    <div class="card mb-20">
+      <div class="card-title">新增員工</div>
+      <div class="row">
+        <div class="field">
+          <label>姓名</label>
+          <input id="sName" type="text" placeholder="輸入員工姓名">
+        </div>
+        <div class="field-auto" style="padding-bottom:1px">
+          <button class="btn btn-gold" id="sAdd">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">員工列表</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>姓名</th><th>狀態</th><th></th></tr></thead>
+          <tbody id="sTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  const nameEl = document.getElementById("sName");
+  const addBtn = document.getElementById("sAdd");
+
+  const buildTable = () => {
+    const tb = document.getElementById("sTbody");
+    tb.innerHTML = state.staff.map(s=>`
+      <tr>
+        <td><input class="inline-name s-rename" data-id="${s.id}" value="${esc(s.name)}"></td>
+        <td><span class="badge ${s.active?'badge-active':'badge-inactive'}">${s.active?'在職':'停用'}</span></td>
+        <td><button class="btn btn-ghost s-toggle" data-id="${s.id}" style="font-size:12px;padding:6px 12px">${s.active?'停用':'啟用'}</button></td>
+      </tr>`).join("");
+
+    tb.querySelectorAll(".s-toggle").forEach(btn => {
+      btn.onclick = () => {
+        state.staff = state.staff.map(x=>x.id===btn.dataset.id?{...x,active:!x.active}:x);
+        renderStaff();
+      };
+    });
+
+    tb.querySelectorAll(".s-rename").forEach(inp => {
+      inp.onblur = () => {
+        const n = inp.value.trim();
+        if (!n) { inp.value=staffName(inp.dataset.id); return; }
+        state.staff = state.staff.map(x=>x.id===inp.dataset.id?{...x,name:n}:x);
+        save();
+      };
+      inp.onkeydown = e => { if(e.key==="Enter") inp.blur(); };
+    });
+  };
+
+  addBtn.onclick = () => {
+    const n = nameEl.value.trim();
+    if (!n) return;
+    state.staff.unshift({id:uid(),name:n,active:true,createdAt:Date.now()});
+    nameEl.value="";
+    buildTable();
+    save();
+  };
+
+  nameEl.onkeydown = e => { if(e.key==="Enter") addBtn.click(); };
+
+  buildTable();
+}
+
+/* ═══════════════════════════════════════════════
+   PAGE: BACKUP
+═══════════════════════════════════════════════ */
+function renderBackup() {
+  document.getElementById("page").innerHTML = `
+    <h1 class="page-title">備份 / 還原</h1>
+    <p class="page-subtitle">// BACKUP & RESTORE · 資料存於瀏覽器 localStorage</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;max-width:700px" class="mb-20">
+
+      <label class="backup-action" id="bkExportBtn" style="cursor:pointer">
+        <div class="backup-icon">⬇</div>
+        <div class="backup-title">匯出備份</div>
+        <div class="backup-desc">下載 JSON 檔案</div>
+      </label>
+
+      <label class="backup-action" for="bkFile" style="cursor:pointer">
+        <div class="backup-icon">⬆</div>
+        <div class="backup-title">匯入還原</div>
+        <div class="backup-desc">選擇備份 JSON</div>
+        <input type="file" id="bkFile" accept=".json" style="display:none">
+      </label>
+
+      <label class="backup-action" id="bkResetBtn" style="cursor:pointer;border-color:#e0b0b0">
+        <div class="backup-icon">🗑</div>
+        <div class="backup-title" style="color:var(--danger)">清空資料</div>
+        <div class="backup-desc">無法復原</div>
+      </label>
+
+    </div>
+
+    <div id="bkMsg"></div>
+
+    <div class="card" style="max-width:500px">
+      <div class="card-title">資料摘要</div>
+      <table>
+        <tbody>
+          <tr><td class="text-muted">員工</td><td class="td-right td-mono">${state.staff.length} 位</td></tr>
+          <tr><td class="text-muted">請假紀錄</td><td class="td-right td-mono">${state.leaves.length} 筆</td></tr>
+          <tr><td class="text-muted">特休配額</td><td class="td-right td-mono">${state.entitlements.length} 筆</td></tr>
+          <tr><td class="text-muted">進修紀錄</td><td class="td-right td-mono">${state.trainings.length} 筆</td></tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  document.getElementById("bkExportBtn").onclick = () => {
+    const blob = new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+    const a = Object.assign(document.createElement("a"),{
+      href:URL.createObjectURL(blob),
+      download:`alice-hr-${todayYmd()}.json`
+    });
+    a.click(); URL.revokeObjectURL(a.href);
+  };
+
+  document.getElementById("bkFile").onchange = e => {
+    const file = e.target.files?.[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const msg = document.getElementById("bkMsg");
+      try {
+        const s = JSON.parse(String(reader.result));
+        state = {
+          staff: Array.isArray(s.staff)?s.staff:defaults().staff,
+          entitlements: Array.isArray(s.entitlements)?s.entitlements:[],
+          leaves: Array.isArray(s.leaves)?s.leaves:[],
+          trainings: Array.isArray(s.trainings)?s.trainings:[],
+        };
+        save();
+        msg.innerHTML = `<div class="message ok">✓ 匯入完成，已覆蓋現有資料</div>`;
+        setTimeout(render, 500);
+      } catch {
+        msg.innerHTML = `<div class="message err">✕ 匯入失敗：不是有效的 JSON 檔案</div>`;
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  document.getElementById("bkResetBtn").onclick = () => {
+    if (!confirm("確定清空所有資料？此動作無法復原（除非已有備份）。")) return;
+    localStorage.removeItem(KEY);
+    state = defaults();
+    render();
+  };
+}
+
+/* ─── Boot ─── */
+render();
+</script>
+</body>
+</html>
