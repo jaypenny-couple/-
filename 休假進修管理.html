@@ -642,11 +642,10 @@
 
   <main class="wrap" id="page"></main>
 
-<script>
+<script type="module">
 /* ═══════════════════════════════════════════════
    CONSTANTS & DATA LAYER
 ═══════════════════════════════════════════════ */
-const KEY = "SALON_HR_ALICE_V1";
 const HOURS_PER_DAY = 9, START_H = 10, END_H = 19;
 
 const LEAVE_TYPES = [
@@ -665,6 +664,25 @@ const TABS = [
   { key:"backup",     label:"備份 / 還原" },
 ];
 
+/* ─── Firebase 設定 ─── */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, onSnapshot, collection, getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC2Wy1oBQKV_FOBOzVauVKatcqkZnvpOro",
+  authDomain: "hr-system-ad937.firebaseapp.com",
+  projectId: "hr-system-ad937",
+  storageBucket: "hr-system-ad937.firebasestorage.app",
+  messagingSenderId: "480786232097",
+  appId: "1:480786232097:web:28e7dd7ddc3e06bfd9c460"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db    = getFirestore(fbApp);
+const DATA_DOC = doc(db, "salon", "main"); // 單一文件存所有資料
+
 /* ─── State ─── */
 const uid = () => crypto?.randomUUID?.() ?? `${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
@@ -675,22 +693,65 @@ function defaults() {
   };
 }
 
-let state = (() => {
-  try {
-    const s = JSON.parse(localStorage.getItem(KEY) || "null");
-    if (!s) return defaults();
-    return {
-      staff: Array.isArray(s.staff) ? s.staff : defaults().staff,
-      entitlements: Array.isArray(s.entitlements) ? s.entitlements : [],
-      leaves: Array.isArray(s.leaves) ? s.leaves : [],
-      trainings: Array.isArray(s.trainings) ? s.trainings : [],
-    };
-  } catch { return defaults(); }
-})();
-
+let state = defaults();
 let activeTab = "leave";
+let _saveTimer = null;
 
-const save = () => localStorage.setItem(KEY, JSON.stringify(state));
+/* 防抖寫入：500ms 內連續操作只寫一次 */
+async function save() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(async () => {
+    try {
+      await setDoc(DATA_DOC, state);
+    } catch(e) {
+      console.error("Firebase 寫入失敗", e);
+    }
+  }, 500);
+}
+
+/* 載入並即時監聽 Firestore */
+function startSync() {
+  showLoading(true);
+  onSnapshot(DATA_DOC, (snap) => {
+    if (snap.exists()) {
+      const s = snap.data();
+      state = {
+        staff:        Array.isArray(s.staff)        ? s.staff        : defaults().staff,
+        entitlements: Array.isArray(s.entitlements) ? s.entitlements : [],
+        leaves:       Array.isArray(s.leaves)       ? s.leaves       : [],
+        trainings:    Array.isArray(s.trainings)    ? s.trainings    : [],
+      };
+    } else {
+      // 第一次使用：寫入預設資料
+      setDoc(DATA_DOC, state);
+    }
+    showLoading(false);
+    render();
+  }, (err) => {
+    console.error("Firebase 監聽失敗", err);
+    showLoading(false);
+    document.getElementById("page").innerHTML =
+      `<div style="padding:40px;text-align:center;color:var(--danger)">
+        ⚠ 無法連接雲端資料庫，請確認網路或 Firebase 設定。<br>
+        <small style="color:var(--muted)">${err.message}</small>
+      </div>`;
+  });
+}
+
+function showLoading(on) {
+  let el = document.getElementById("loadingOverlay");
+  if (on) {
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "loadingOverlay";
+      el.style.cssText = "position:fixed;inset:0;background:rgba(247,244,239,.85);display:flex;align-items:center;justify-content:center;z-index:9999;font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold-dark);letter-spacing:.1em;";
+      el.innerHTML = `<span>同步中 …</span>`;
+      document.body.appendChild(el);
+    }
+  } else {
+    el?.remove();
+  }
+}
 
 /* ─── Utils ─── */
 const r1 = n => Math.round((+n||0)*10)/10;
@@ -749,9 +810,8 @@ function render() {
     `<button class="nav-btn${activeTab===t.key?' active':''}" data-tab="${t.key}">${esc(t.label)}</button>`
   ).join("");
   document.querySelectorAll(".nav-btn").forEach(b =>
-    b.addEventListener("click", () => { activeTab = b.dataset.tab; save(); render(); })
+    b.addEventListener("click", () => { activeTab = b.dataset.tab; render(); })
   );
-  save();
   const fns = {
     leave: renderLeave, calendar: renderCalendar,
     entitlement: renderEntitlement, training: renderTraining,
@@ -897,7 +957,7 @@ function renderLeave() {
       note:document.getElementById("lNote").value.trim(),
       createdAt:Date.now()
     });
-
+    save();
     document.getElementById("lNote").value="";
     renderLeave();
   };
@@ -936,6 +996,7 @@ function buildLeaveTable(container, list) {
     btn.onclick = () => {
       if (!confirm("確定刪除此筆請假？")) return;
       state.leaves = state.leaves.filter(x=>x.id!==btn.dataset.id);
+      save();
       renderLeave();
     };
   });
@@ -1351,6 +1412,7 @@ function renderTraining() {
       note:document.getElementById("tNote").value.trim(),
       createdAt:Date.now()
     });
+    save();
     document.getElementById("tCourse").value="";
     document.getElementById("tNote").value="";
     document.getElementById("tTuition").value="0";
@@ -1384,6 +1446,7 @@ function renderTraining() {
     btn.onclick = () => {
       if (!confirm("確定刪除此筆進修？")) return;
       state.trainings = state.trainings.filter(x=>x.id!==btn.dataset.id);
+      save();
       renderTraining();
     };
   });
@@ -1443,6 +1506,7 @@ function renderStaff() {
     tb.querySelectorAll(".s-toggle").forEach(btn => {
       btn.onclick = () => {
         state.staff = state.staff.map(x=>x.id===btn.dataset.id?{...x,active:!x.active}:x);
+        save();
         renderStaff();
       };
     });
@@ -1478,7 +1542,7 @@ function renderStaff() {
 function renderBackup() {
   document.getElementById("page").innerHTML = `
     <h1 class="page-title">備份 / 還原</h1>
-    <p class="page-subtitle">// BACKUP & RESTORE · 資料存於瀏覽器 localStorage</p>
+    <p class="page-subtitle">// BACKUP & RESTORE · 資料即時同步至 Firebase 雲端</p>
 
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;max-width:700px" class="mb-20">
 
@@ -1530,7 +1594,7 @@ function renderBackup() {
   document.getElementById("bkFile").onchange = e => {
     const file = e.target.files?.[0]; if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       const msg = document.getElementById("bkMsg");
       try {
         const s = JSON.parse(String(reader.result));
@@ -1540,8 +1604,8 @@ function renderBackup() {
           leaves: Array.isArray(s.leaves)?s.leaves:[],
           trainings: Array.isArray(s.trainings)?s.trainings:[],
         };
-        save();
-        msg.innerHTML = `<div class="message ok">✓ 匯入完成，已覆蓋現有資料</div>`;
+        await setDoc(DATA_DOC, state);
+        msg.innerHTML = `<div class="message ok">✓ 匯入完成，資料已同步至雲端</div>`;
         setTimeout(render, 500);
       } catch {
         msg.innerHTML = `<div class="message err">✕ 匯入失敗：不是有效的 JSON 檔案</div>`;
@@ -1550,16 +1614,16 @@ function renderBackup() {
     reader.readAsText(file);
   };
 
-  document.getElementById("bkResetBtn").onclick = () => {
+  document.getElementById("bkResetBtn").onclick = async () => {
     if (!confirm("確定清空所有資料？此動作無法復原（除非已有備份）。")) return;
-    localStorage.removeItem(KEY);
     state = defaults();
+    await setDoc(DATA_DOC, state);
     render();
   };
 }
 
 /* ─── Boot ─── */
-render();
+startSync();
 </script>
 </body>
 </html>
