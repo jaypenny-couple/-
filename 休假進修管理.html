@@ -81,7 +81,9 @@
       gap: 2px;
       flex: 1;
       overflow-x: auto;
+      scrollbar-width: none;
     }
+    .header-nav::-webkit-scrollbar { display: none; }
 
     .nav-btn {
       font-family: 'DM Sans', sans-serif;
@@ -105,6 +107,60 @@
       color: var(--ink);
       background: var(--gold);
       font-weight: 500;
+    }
+
+    /* ─── MOBILE BOTTOM NAV ─── */
+    .mobile-nav {
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      .header { padding: 0 16px; gap: 12px; height: 54px; }
+      .header-sep { display: none; }
+      .header-nav { display: none; }
+      .header-brand .salon { font-size: 24px; }
+      .header-brand .hr-tag { display: none; }
+
+      /* 底部導航列 */
+      .mobile-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: var(--ink);
+        z-index: 200;
+        border-top: 1px solid #222;
+        padding-bottom: env(safe-area-inset-bottom);
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .mobile-nav::-webkit-scrollbar { display: none; }
+
+      .mob-btn {
+        flex: 1;
+        min-width: 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        padding: 8px 4px;
+        border: none;
+        background: transparent;
+        color: #666;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 10px;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        transition: color 0.15s;
+        white-space: nowrap;
+      }
+
+      .mob-btn .mob-icon { font-size: 18px; line-height: 1; }
+      .mob-btn.active { color: var(--gold); }
+      .mob-btn.active .mob-icon { transform: scale(1.1); }
+
+      /* 底部導航占位 */
+      body { padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
     }
 
     /* ─── LAYOUT ─── */
@@ -131,6 +187,12 @@
       font-family: 'DM Mono', monospace;
     }
 
+    @media (max-width: 640px) {
+      .wrap { padding: 16px 14px; }
+      .page-title { font-size: 30px; margin-bottom: 2px; }
+      .page-subtitle { font-size: 11px; margin-bottom: 16px; }
+    }
+
     /* ─── CARDS ─── */
     .card {
       background: var(--surface);
@@ -138,6 +200,10 @@
       border-radius: var(--r);
       padding: 20px 24px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    @media (max-width: 640px) {
+      .card { padding: 14px 14px; border-radius: 8px; }
     }
 
     .card-title {
@@ -278,6 +344,13 @@
       overflow-x: auto;
       border-radius: var(--r);
       border: 1px solid var(--border);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    @media (max-width: 640px) {
+      th { font-size: 10px; padding: 10px 10px; }
+      td { font-size: 13px; padding: 9px 10px; }
+      .td-mono { font-size: 12px; }
     }
 
     table {
@@ -354,6 +427,12 @@
       gap: 14px;
     }
 
+    @media (max-width: 640px) {
+      .row > .field { min-width: calc(50% - 6px); }
+      .row > .field-auto { flex: 1 1 100%; }
+      .btn-gold, .btn-primary { width: 100%; justify-content: center; }
+    }
+
     .hint {
       font-family: 'DM Mono', monospace;
       font-size: 12px;
@@ -364,6 +443,13 @@
 
     /* ─── STAT BOX ─── */
     .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+
+    @media (max-width: 640px) {
+      .stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+      .stat-box { padding: 10px 12px; }
+      .stat-box .num { font-size: 26px; }
+      .stat-box .lbl { font-size: 9px; }
+    }
 
     .stat-box {
       background: var(--surface);
@@ -396,6 +482,18 @@
     .cal-layout { display: grid; grid-template-columns: 1fr 320px; gap: 16px; }
 
     @media (max-width: 900px) { .cal-layout { grid-template-columns: 1fr; } }
+
+    @media (max-width: 640px) {
+      .cal-cell { min-height: 56px; padding: 5px 5px; }
+      .day-num { font-size: 15px; margin-bottom: 2px; }
+      .day-entry { font-size: 9px; }
+      .day-count { font-size: 9px; }
+      .cal-header { gap: 8px; }
+      .cal-month { font-size: 18px; }
+      .cal-grid { gap: 3px; }
+      .dow { gap: 3px; }
+      .dow > div { font-size: 9px; padding: 4px 0; }
+    }
 
     .cal-header {
       display: flex;
@@ -519,6 +617,11 @@
       width: fit-content;
     }
 
+    @media (max-width: 640px) {
+      .switch-row { width: 100%; }
+      .switch-btn { flex: 1; text-align: center; }
+    }
+
     .switch-btn {
       font-size: 13px;
       font-weight: 400;
@@ -570,6 +673,11 @@
     .inline-name:focus { outline: none; border-color: var(--gold); background: var(--surface); }
 
     /* ─── BACKUP ─── */
+    @media (max-width: 640px) {
+      .backup-grid { grid-template-columns: 1fr !important; max-width: 100% !important; }
+      .mb-20 { margin-bottom: 14px; }
+    }
+
     .backup-action {
       display: flex;
       flex-direction: column;
@@ -639,6 +747,8 @@
     <div class="header-sep"></div>
     <nav id="navBar" class="header-nav"></nav>
   </header>
+
+  <nav class="mobile-nav" id="mobileNav"></nav>
 
   <main class="wrap" id="page"></main>
 
@@ -804,13 +914,33 @@ function computeTimes(dateStr, hoursTotal) {
 }
 
 /* ─── Router ─── */
+const TAB_ICONS = {
+  leave:       "🗓",
+  calendar:    "📅",
+  entitlement: "⭐",
+  training:    "📚",
+  staff:       "👥",
+  backup:      "💾",
+};
+
 function render() {
-  // nav
+  // desktop nav
   document.getElementById("navBar").innerHTML = TABS.map(t =>
     `<button class="nav-btn${activeTab===t.key?' active':''}" data-tab="${t.key}">${esc(t.label)}</button>`
   ).join("");
   document.querySelectorAll(".nav-btn").forEach(b =>
     b.addEventListener("click", () => { activeTab = b.dataset.tab; render(); })
+  );
+
+  // mobile bottom nav
+  document.getElementById("mobileNav").innerHTML = TABS.map(t =>
+    `<button class="mob-btn${activeTab===t.key?' active':''}" data-tab="${t.key}">
+      <span class="mob-icon">${TAB_ICONS[t.key]}</span>
+      <span>${esc(t.label)}</span>
+    </button>`
+  ).join("");
+  document.querySelectorAll(".mob-btn").forEach(b =>
+    b.addEventListener("click", () => { activeTab = b.dataset.tab; render(); window.scrollTo({top:0,behavior:'smooth'}); })
   );
   const fns = {
     leave: renderLeave, calendar: renderCalendar,
@@ -1022,8 +1152,8 @@ function renderCalendar() {
           <button class="btn btn-ghost" id="calPrev">←</button>
           <div class="cal-month" id="calMonth"></div>
           <button class="btn btn-ghost" id="calNext">→</button>
-          <div class="field" style="flex:0 0 180px;margin-bottom:0">
-            <select id="calFilter" style="padding:7px 12px">${staffOpts}</select>
+          <div class="field" style="flex:0 0 auto;min-width:130px;margin-bottom:0">
+            <select id="calFilter">${staffOpts}</select>
           </div>
         </div>
 
@@ -1228,21 +1358,21 @@ function renderEntitlement() {
     <div class="card mb-20">
       <div class="card-title">新增 / 更新配額</div>
       <div class="row">
-        <div class="field" style="flex:0 0 120px">
+        <div class="field" style="flex:0 0 110px;min-width:100px">
           <label>年度</label>
-          <input id="eYear" type="number" value="${yr}" style="width:120px">
+          <input id="eYear" type="number" value="${yr}">
         </div>
-        <div class="field" style="flex:0 0 200px">
+        <div class="field" style="flex:1;min-width:160px">
           <label>員工</label>
-          <select id="eStaff" style="width:200px">${staffOpts||`<option value="">(請先新增員工)</option>`}</select>
+          <select id="eStaff">${staffOpts||`<option value="">(請先新增員工)</option>`}</select>
         </div>
-        <div class="field" style="flex:0 0 150px">
+        <div class="field" style="flex:1;min-width:120px">
           <label>配額 (小時)</label>
-          <input id="eQuota" type="number" value="56" style="width:150px">
+          <input id="eQuota" type="number" value="56">
         </div>
-        <div class="field" style="flex:0 0 150px">
+        <div class="field" style="flex:1;min-width:120px">
           <label>結轉 (小時)</label>
-          <input id="eCarry" type="number" value="0" style="width:150px">
+          <input id="eCarry" type="number" value="0">
         </div>
         <div class="field-auto" style="padding-bottom:1px">
           <button class="btn btn-gold" id="eUpsert">儲存配額</button>
@@ -1253,9 +1383,9 @@ function renderEntitlement() {
     <div class="card">
       <div class="card-title">年度總覽</div>
       <div class="row" style="margin-bottom:12px">
-        <div class="field" style="flex:0 0 140px">
+        <div class="field" style="flex:0 0 130px;min-width:110px">
           <label>篩選年度</label>
-          <input id="eYearView" type="number" value="${yr}" style="width:140px">
+          <input id="eYearView" type="number" value="${yr}">
         </div>
       </div>
       <div class="tbl-wrap" id="eTblWrap"></div>
@@ -1544,7 +1674,7 @@ function renderBackup() {
     <h1 class="page-title">備份 / 還原</h1>
     <p class="page-subtitle">// BACKUP & RESTORE · 資料即時同步至 Firebase 雲端</p>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;max-width:700px" class="mb-20">
+    <div class="backup-grid mb-20" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;max-width:700px">
 
       <label class="backup-action" id="bkExportBtn" style="cursor:pointer">
         <div class="backup-icon">⬇</div>
