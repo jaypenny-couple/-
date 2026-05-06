@@ -1,267 +1,533 @@
-ㄈ<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>顧客商品預訂登記</title>
-    <style>
-        body {
-            background-color: #1a1a1a;
-            color: #333;
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>顧客商品預訂登記</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .container {
-            width: 90%;
-            max-width: 1000px;
-        }
+    body {
+      background-color: #1a1a1a;
+      font-family: 'Arial', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 30px 16px;
+    }
 
-        h1, h2 {
-            text-align: center;
-            color: #ffffff;
-            font-weight: 400;
-            margin-bottom: 20px;
-        }
+    .wrap { width: 100%; max-width: 1050px; }
 
-        form {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
+    h1 {
+      font-size: 20px;
+      font-weight: 500;
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 20px;
+    }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+    h2 {
+      font-size: 15px;
+      font-weight: 500;
+      color: #ffffff;
+      margin: 24px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: #333;
-        }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
 
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
+    .stat {
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
 
-        input[type="date"] {
-            appearance: none;
-            background-color: #fff;
-            cursor: pointer;
-        }
+    .stat-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+    .stat-val   { font-size: 26px; font-weight: 600; color: #ffffff; }
 
-        input:focus, select:focus {
-            outline: none;
-            border-color: #007bff;
-        }
+    .card {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
 
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #28a745;
-            border: none;
-            border-radius: 5px;
-            color: #ffffff;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-        button:hover {
-            background-color: #218838;
-        }
+    .form-group { display: flex; flex-direction: column; }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
+    label {
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
 
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
+    input[type="text"],
+    input[type="tel"],
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #333;
+      background: #fff;
+      transition: border-color 0.2s;
+    }
 
-        th {
-            background-color: #f8f9fa;
-            color: #333;
-        }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #4a90d9;
+    }
 
-        td {
-            color: #333;
-        }
+    .err {
+      font-size: 11px;
+      color: #e74c3c;
+      margin-top: 3px;
+      display: none;
+    }
 
-        .delete-btn {
-            background-color: #dc3545;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            color: #ffffff;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+    .form-footer {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
 
-        .delete-btn:hover {
-            background-color: #c82333;
-        }
+    .btn-clear {
+      flex: 0 0 110px;
+      padding: 11px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      color: #555;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
 
-        .edit-date {
-            width: 150px;
-            padding: 5px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-    </style>
+    .btn-clear:hover { background: #f5f5f5; }
+
+    .btn-submit {
+      flex: 1;
+      padding: 11px;
+      background: #28a745;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-submit:hover { background: #218838; }
+
+    .tbl-card {
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .tbl-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      table-layout: fixed;
+    }
+
+    thead th {
+      background: #f8f9fa;
+      color: #555;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 10px 8px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    thead th[data-sort] { cursor: pointer; user-select: none; }
+    thead th[data-sort]:hover { color: #333; }
+    .sort-icon { font-size: 10px; margin-left: 2px; }
+
+    tbody td {
+      padding: 9px 8px;
+      border-bottom: 1px solid #f0f0f0;
+      color: #333;
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr.done-row { opacity: 0.5; }
+
+    td input[type="date"] {
+      font-size: 12px;
+      padding: 4px 6px;
+      width: 100%;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: #f0f0f0;
+      color: #555;
+      white-space: nowrap;
+    }
+
+    .badge-pending { background: #fff3cd; color: #856404; }
+    .badge-done    { background: #d1edda; color: #155724; }
+
+    .badge-status {
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .badge-status:hover { opacity: 0.75; }
+
+    .del-btn {
+      background: none;
+      border: 1px solid #f5c6cb;
+      color: #dc3545;
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .del-btn:hover { background: #f8d7da; }
+
+    .record-count {
+      font-size: 12px;
+      font-weight: 400;
+      color: #aaa;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 20px;
+      padding: 2px 10px;
+    }
+
+    .date-hint {
+      font-size: 11px;
+      color: #888;
+      margin-top: 3px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+      font-size: 13px;
+    }
+
+    .empty-icon { font-size: 32px; margin-bottom: 8px; }
+
+    @media (max-width: 640px) {
+      .grid2 { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(3, 1fr); }
+      .stat-val { font-size: 20px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>顧客商品預訂登記</h1>
-        <form id="reservationForm">
-            <div class="form-group">
-                <label for="reservationDate">預訂日期</label>
-                <input type="date" id="reservationDate" name="reservationDate" required min="2025-05-26" max="2025-06-25">
-            </div>
-            <div class="form-group">
-                <label for="customerName">顧客姓名</label>
-                <input type="text" id="customerName" name="customerName" required>
-            </div>
-            <div class="form-group">
-                <label for="contactPlatform">聯絡平台</label>
-                <select id="contactPlatform" name="contactPlatform" required>
-                    <option value="" disabled selected>請選擇</option>
-                    <option value="臉書">臉書</option>
-                    <option value="IG">IG</option>
-                    <option value="Google">Google</option>
-                    <option value="脆">脆</option>
-                    <option value="Line@">Line@</option>
-                    <option value="電話">電話</option>
-                    <option value="臨店">臨店</option>
-                    <option value="其他">其他</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="product">預訂商品</label>
-                <input type="text" id="product" name="product" required>
-            </div>
-            <div class="form-group">
-                <label for="phone">聯絡電話</label>
-                <input type="tel" id="phone" name="phone" required>
-            </div>
-            <button type="submit">提交登記</button>
-        </form>
+  <div class="wrap">
+    <h1>顧客商品預訂登記</h1>
 
-        <h2>登記結果</h2>
-        <table id="reservationTable">
-            <thead>
-                <tr>
-                    <th>預訂日期</th>
-                    <th>顧客姓名</th>
-                    <th>聯絡平台</th>
-                    <th>預訂商品</th>
-                    <th>聯絡電話</th>
-                    <th>取貨日期</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody id="reservationList"></tbody>
-        </table>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">區間登記</div>
+        <div class="stat-val" id="s-total">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">待取貨</div>
+        <div class="stat-val" id="s-pending">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">今日預訂</div>
+        <div class="stat-val" id="s-today">0</div>
+      </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // 預訂資料儲存
-            let reservations = JSON.parse(localStorage.getItem('reservations')) || [];
 
-            // 表單提交
-            document.getElementById('reservationForm').addEventListener('submit', (e) => {
-                e.preventDefault();
+    <div class="card">
+      <div class="grid2">
+        <div class="form-group">
+          <label for="reservationDate">預訂日期</label>
+          <input type="date" id="reservationDate" required>
+          <div class="date-hint" id="dateHint"></div>
+          <div class="err" id="err-date">請選擇有效預訂日期</div>
+        </div>
+        <div class="form-group">
+          <label for="customerName">顧客姓名</label>
+          <input type="text" id="customerName" placeholder="請輸入姓名" required>
+          <div class="err" id="err-name">請填寫顧客姓名</div>
+        </div>
+      </div>
 
-                // 初始取貨日期設為預訂日期（可手動修改）
-                const reservationDate = document.getElementById('reservationDate').value;
-                const reservation = {
-                    id: Date.now(),
-                    reservationDate: reservationDate,
-                    customerName: document.getElementById('customerName').value,
-                    contactPlatform: document.getElementById('contactPlatform').value,
-                    product: document.getElementById('product').value,
-                    phone: document.getElementById('phone').value,
-                    pickupDate: reservationDate // 初始值與預訂日期相同
-                };
+      <div class="grid2" style="margin-top:14px">
+        <div class="form-group">
+          <label for="contactPlatform">聯絡平台</label>
+          <select id="contactPlatform" required>
+            <option value="" disabled selected>請選擇</option>
+            <option>臉書</option>
+            <option>IG</option>
+            <option>Google</option>
+            <option>脆</option>
+            <option>Line@</option>
+            <option>電話</option>
+            <option>臨店</option>
+            <option>其他</option>
+          </select>
+          <div class="err" id="err-platform">請選擇聯絡平台</div>
+        </div>
+        <div class="form-group">
+          <label for="phone">聯絡電話</label>
+          <input type="tel" id="phone" placeholder="09xx-xxxxxx" required>
+          <div class="err" id="err-phone">請填寫有效電話</div>
+        </div>
+      </div>
 
-                reservations.push(reservation);
-                localStorage.setItem('reservations', JSON.stringify(reservations));
-                renderReservations();
-                e.target.reset();
-            });
+      <div class="form-group" style="margin-top:14px">
+        <label for="product">預訂商品</label>
+        <input type="text" id="product" placeholder="請輸入商品名稱／品項" required>
+        <div class="err" id="err-product">請填寫預訂商品</div>
+      </div>
 
-            // 渲染預訂記錄
-            function renderReservations() {
-                const reservationList = document.getElementById('reservationList');
-                reservationList.innerHTML = '';
+      <div class="form-footer">
+        <button class="btn-clear" onclick="clearForm()">↺ 清除</button>
+        <button class="btn-submit" onclick="submitForm()">✓ 提交登記</button>
+      </div>
+    </div>
 
-                reservations.forEach(reservation => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${reservation.reservationDate}</td>
-                        <td>${reservation.customerName}</td>
-                        <td>${reservation.contactPlatform}</td>
-                        <td>${reservation.product}</td>
-                        <td>${reservation.phone}</td>
-                        <td>
-                            <input type="date" class="edit-date" value="${reservation.pickupDate}" min="2025-05-26" max="2025-06-25" data-id="${reservation.id}">
-                        </td>
-                        <td><button class="delete-btn" data-id="${reservation.id}">X</button></td>
-                    `;
-                    reservationList.appendChild(row);
-                });
+    <h2>
+      登記記錄
+      <span class="record-count" id="record-count">0 筆</span>
+    </h2>
 
-                // 日期編輯事件
-                document.querySelectorAll('.edit-date').forEach(input => {
-                    input.addEventListener('change', (e) => {
-                        const id = parseInt(e.target.getAttribute('data-id'));
-                        const newPickupDate = e.target.value;
-                        const reservation = reservations.find(res => res.id === id);
-                        if (reservation) {
-                            reservation.pickupDate = newPickupDate;
-                            localStorage.setItem('reservations', JSON.stringify(reservations));
-                            renderReservations(); // 重新渲染以更新顯示
-                        }
-                    });
-                });
+    <div class="tbl-card">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:100px" data-sort="reservationDate">預訂日期<span class="sort-icon" id="sort-reservationDate"></span></th>
+              <th style="width:76px"  data-sort="customerName">顧客<span class="sort-icon" id="sort-customerName"></span></th>
+              <th style="width:62px">平台</th>
+              <th style="min-width:90px">商品</th>
+              <th style="width:100px">聯絡電話</th>
+              <th style="width:112px" data-sort="pickupDate">取貨日期<span class="sort-icon" id="sort-pickupDate"></span></th>
+              <th style="width:54px">狀態</th>
+              <th style="width:48px"></th>
+            </tr>
+          </thead>
+          <tbody id="tblBody"></tbody>
+        </table>
+        <div class="empty" id="emptyMsg">
+          <div class="empty-icon">📋</div>
+          尚無登記記錄
+        </div>
+      </div>
+    </div>
+  </div>
 
-                // 刪除按鈕事件
-                document.querySelectorAll('.delete-btn').forEach(button => {
-                    button.addEventListener('click', () => {
-                        const id = parseInt(button.getAttribute('data-id'));
-                        reservations = reservations.filter(res => res.id !== id);
-                        localStorage.setItem('reservations', JSON.stringify(reservations));
-                        renderReservations();
-                    });
-                });
-            }
+  <script>
+    let reservations = JSON.parse(localStorage.getItem('alice_reservations') || '[]');
+    let sortKey = 'reservationDate';
+    let sortAsc = true;
 
-            // 初始渲染
-            renderReservations();
+    const WINDOW_DAYS = 30; // 可調整：今天起往後幾天
 
-            // 設定日期輸入框的默認值為當前日期
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('reservationDate').value = today;
-        });
-    </script>
+    /* ── 日期工具 ── */
+    function addDays(dateStr, n) {
+      const d = new Date(dateStr + 'T00:00:00');
+      d.setDate(d.getDate() + n);
+      return d.toISOString().split('T')[0];
+    }
+
+    function getToday() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    // 核心修正：min = 今天，max = 今天 + 30 天（滾動區間）
+    function getDateRange() {
+      const min = getToday();
+      const max = addDays(min, WINDOW_DAYS);
+      return { min, max };
+    }
+
+    function formatDisplay(dateStr) {
+      if (!dateStr) return '';
+      const [y, m, d] = dateStr.split('-');
+      return `${y}/${m}/${d}`;
+    }
+
+    function initDateInput() {
+      const { min, max } = getDateRange();
+      const el = document.getElementById('reservationDate');
+      el.min = min;
+      el.max = max;
+      el.value = min; // 預設今天
+      document.getElementById('dateHint').textContent =
+        `可選範圍：${formatDisplay(min)} ～ ${formatDisplay(max)}`;
+    }
+
+    /* ── 表單驗證 ── */
+    function showErr(id, show) {
+      document.getElementById(id).style.display = show ? 'block' : 'none';
+    }
+
+    function validate() {
+      const { min, max } = getDateRange();
+      const d  = document.getElementById('reservationDate').value;
+      const n  = document.getElementById('customerName').value.trim();
+      const pl = document.getElementById('contactPlatform').value;
+      const ph = document.getElementById('phone').value.trim();
+      const pr = document.getElementById('product').value.trim();
+      let ok = true;
+
+      const dateOk = d && d >= min && d <= max;
+      showErr('err-date',     !dateOk); if (!dateOk) ok = false;
+      showErr('err-name',     !n);      if (!n)      ok = false;
+      showErr('err-platform', !pl);     if (!pl)     ok = false;
+      showErr('err-phone',    !ph);     if (!ph)     ok = false;
+      showErr('err-product',  !pr);     if (!pr)     ok = false;
+      return ok;
+    }
+
+    /* ── CRUD ── */
+    function save() {
+      localStorage.setItem('alice_reservations', JSON.stringify(reservations));
+    }
+
+    function submitForm() {
+      if (!validate()) return;
+      const d = document.getElementById('reservationDate').value;
+      reservations.push({
+        id:              Date.now(),
+        reservationDate: d,
+        customerName:    document.getElementById('customerName').value.trim(),
+        contactPlatform: document.getElementById('contactPlatform').value,
+        product:         document.getElementById('product').value.trim(),
+        phone:           document.getElementById('phone').value.trim(),
+        pickupDate:      d,
+        done:            false
+      });
+      save();
+      clearForm();
+      render();
+    }
+
+    function clearForm() {
+      ['customerName', 'phone', 'product'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('contactPlatform').value = '';
+      ['err-date','err-name','err-platform','err-phone','err-product']
+        .forEach(id => showErr(id, false));
+      initDateInput();
+    }
+
+    function deleteRow(id) {
+      if (!confirm('確定要刪除這筆登記？')) return;
+      reservations = reservations.filter(r => r.id !== id);
+      save();
+      render();
+    }
+
+    function updatePickup(id, val) {
+      const r = reservations.find(r => r.id === id);
+      if (r) { r.pickupDate = val; save(); render(); }
+    }
+
+    function toggleDone(id) {
+      const r = reservations.find(r => r.id === id);
+      if (r) { r.done = !r.done; save(); render(); }
+    }
+
+    /* ── 排序 ── */
+    function setSort(key) {
+      if (sortKey === key) sortAsc = !sortAsc;
+      else { sortKey = key; sortAsc = true; }
+      render();
+    }
+
+    /* ── 渲染 ── */
+    function render() {
+      const { min, max } = getDateRange();
+      const today  = getToday();
+      const tbody  = document.getElementById('tblBody');
+      const empty  = document.getElementById('emptyMsg');
+
+      ['reservationDate','customerName','pickupDate'].forEach(k => {
+        const el = document.getElementById('sort-' + k);
+        if (el) el.textContent = sortKey === k ? (sortAsc ? ' ↑' : ' ↓') : '';
+      });
+
+      const sorted = [...reservations].sort((a, b) => {
+        const av = (a[sortKey] || '').toLowerCase();
+        const bv = (b[sortKey] || '').toLowerCase();
+        return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+      });
+
+      document.getElementById('record-count').textContent = sorted.length + ' 筆';
+      document.getElementById('s-total').textContent   = sorted.length;
+      document.getElementById('s-pending').textContent = sorted.filter(r => !r.done).length;
+      document.getElementById('s-today').textContent   = sorted.filter(r => r.reservationDate === today).length;
+
+      if (!sorted.length) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      // 取貨日期的 min/max 與預訂日期相同（30天滾動）
+      tbody.innerHTML = sorted.map(r => `
+        <tr class="${r.done ? 'done-row' : ''}">
+          <td>${r.reservationDate}</td>
+          <td style="font-weight:600">${r.customerName}</td>
+          <td><span class="badge">${r.contactPlatform}</span></td>
+          <td>${r.product}</td>
+          <td style="font-size:12px;color:#777">${r.phone}</td>
+          <td>
+            <input type="date" min="${min}" max="${max}"
+              value="${r.pickupDate}"
+              onchange="updatePickup(${r.id}, this.value)">
+          </td>
+          <td>
+            <span class="badge badge-status ${r.done ? 'badge-done' : 'badge-pending'}"
+              onclick="toggleDone(${r.id})" title="點擊切換取貨狀態">
+              ${r.done ? '✓ 已取' : '⏳ 待取'}
+            </span>
+          </td>
+          <td>
+            <button class="del-btn" onclick="deleteRow(${r.id})">✕</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    /* ── 初始化 ── */
+    document.querySelectorAll('thead th[data-sort]').forEach(th => {
+      th.addEventListener('click', () => setSort(th.getAttribute('data-sort')));
+    });
+
+    initDateInput();
+    render();
+  </script>
 </body>
 </html>
