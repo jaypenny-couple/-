@@ -5,12 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>顧客商品預訂登記</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #333;
@@ -18,373 +13,143 @@
             min-height: 100vh;
             padding: 20px;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
+        .container { max-width: 1200px; margin: 0 auto; }
         h1 {
-            text-align: center;
-            color: #ffffff;
-            font-weight: 300;
-            font-size: 2.5rem;
-            margin-bottom: 30px;
+            text-align: center; color: #ffffff; font-weight: 300;
+            font-size: 2.5rem; margin-bottom: 30px;
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
-
         h2 {
-            text-align: center;
-            color: #ffffff;
-            font-weight: 300;
-            font-size: 1.8rem;
-            margin: 40px 0 20px 0;
+            text-align: center; color: #ffffff; font-weight: 300;
+            font-size: 1.8rem; margin: 40px 0 20px 0;
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
-
         .form-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            margin-bottom: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            padding: 30px; border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 40px; border: 1px solid rgba(255,255,255,0.2);
         }
-
         .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px; margin-bottom: 25px;
         }
-
-        .form-group {
-            position: relative;
-        }
-
+        .form-group { position: relative; }
         label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #555;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            display: block; margin-bottom: 8px; font-size: 14px;
+            font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px;
         }
-
         input, select {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e8ed;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: #ffffff;
+            width: 100%; padding: 15px; border: 2px solid #e1e8ed;
+            border-radius: 12px; font-size: 16px; transition: all 0.3s ease; background: #ffffff;
         }
-
         input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            transform: translateY(-2px);
+            outline: none; border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1); transform: translateY(-2px);
         }
-
         .submit-btn {
-            width: 100%;
-            padding: 18px;
+            width: 100%; padding: 18px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 12px;
-            color: #ffffff;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            border: none; border-radius: 12px; color: #ffffff;
+            font-size: 18px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px;
         }
-
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
+        .submit-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(102,126,234,0.3); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .table-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            border-radius: 20px; overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2);
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
+        table { width: 100%; border-collapse: collapse; }
         th {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff;
-            padding: 20px 15px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: relative;
+            color: #ffffff; padding: 20px 15px; text-align: left;
+            font-weight: 600; font-size: 14px; text-transform: uppercase;
+            letter-spacing: 0.5px; position: relative;
         }
-
-        .sortable {
-            cursor: pointer;
-            user-select: none;
-            transition: background-color 0.3s ease;
-        }
-
-        .sortable:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .sortable::after {
-            content: "↕";
-            position: absolute;
-            right: 10px;
-            opacity: 0.6;
-            font-size: 12px;
-        }
-
-        .sortable.asc::after {
-            content: "↑";
-            opacity: 1;
-        }
-
-        .sortable.desc::after {
-            content: "↓";
-            opacity: 1;
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 14px;
-            color: #555;
-        }
-
-        tr:nth-child(even) {
-            background-color: rgba(102, 126, 234, 0.02);
-        }
-
-        tr:hover {
-            background-color: rgba(102, 126, 234, 0.05);
-            transform: scale(1.001);
-            transition: all 0.2s ease;
-        }
-
+        .sortable { cursor: pointer; user-select: none; transition: background-color 0.3s ease; }
+        .sortable:hover { background: rgba(255,255,255,0.1); }
+        .sortable::after { content: "↕"; position: absolute; right: 10px; opacity: 0.6; font-size: 12px; }
+        .sortable.asc::after { content: "↑"; opacity: 1; }
+        .sortable.desc::after { content: "↓"; opacity: 1; }
+        td { padding: 15px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #555; }
+        tr:nth-child(even) { background-color: rgba(102,126,234,0.02); }
+        tr:hover { background-color: rgba(102,126,234,0.05); transition: all 0.2s ease; }
         .delete-btn {
             background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            color: #ffffff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            font-size: 12px;
+            border: none; padding: 8px 15px; border-radius: 8px;
+            color: #ffffff; cursor: pointer; transition: all 0.3s ease;
+            font-weight: 600; font-size: 12px;
         }
-
-        .delete-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
-        }
-
+        .delete-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,107,107,0.3); }
         .confirm-delete-btn {
             background: linear-gradient(135deg, #dc3545, #c82333);
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            color: #ffffff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            font-size: 11px;
-            margin-right: 5px;
+            border: none; padding: 6px 12px; border-radius: 6px;
+            color: #ffffff; cursor: pointer; transition: all 0.3s ease;
+            font-weight: 600; font-size: 11px; margin-right: 5px;
         }
-
-        .confirm-delete-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(220, 53, 69, 0.4);
-        }
-
         .cancel-delete-btn {
             background: linear-gradient(135deg, #6c757d, #5a6268);
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            color: #ffffff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            font-size: 11px;
+            border: none; padding: 6px 12px; border-radius: 6px;
+            color: #ffffff; cursor: pointer; transition: all 0.3s ease;
+            font-weight: 600; font-size: 11px;
         }
-
-        .cancel-delete-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(108, 117, 125, 0.4);
-        }
-
-        .delete-actions {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-        }
-
+        .delete-actions { display: flex; gap: 5px; align-items: center; }
         .edit-date {
-            width: 140px;
-            padding: 8px;
-            border: 2px solid #e1e8ed;
-            border-radius: 8px;
-            font-size: 13px;
-            transition: all 0.3s ease;
+            width: 140px; padding: 8px; border: 2px solid #e1e8ed;
+            border-radius: 8px; font-size: 13px; transition: all 0.3s ease;
         }
-
-        .edit-date:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
-        }
-
+        .edit-date:focus { border-color: #667eea; box-shadow: 0 0 0 2px rgba(102,126,234,0.1); }
         .quantity-display {
             display: inline-block;
             background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
+            color: white; padding: 4px 12px; border-radius: 20px;
+            font-size: 12px; font-weight: 600;
         }
-
         .connection-status {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 15px;
-            border-radius: 25px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            z-index: 1000;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: fixed; top: 20px; right: 20px; padding: 10px 15px;
+            border-radius: 25px; font-size: 12px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px; z-index: 1000;
+            transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #ffc107, #fd7e14); color: white;
         }
-
         .connection-status.online {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
+            background: linear-gradient(135deg, #28a745, #20c997); color: white;
             animation: pulse-green 2s infinite;
         }
-
         .connection-status.offline {
-            background: linear-gradient(135deg, #dc3545, #fd7e14);
-            color: white;
+            background: linear-gradient(135deg, #dc3545, #fd7e14); color: white;
             animation: pulse-red 2s infinite;
         }
-
-        .connection-status:contains('連接中') {
-            background: linear-gradient(135deg, #ffc107, #fd7e14);
-            color: white;
-            animation: pulse-yellow 1.5s infinite;
-        }
-
         @keyframes pulse-green {
-            0% { box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3); }
-            50% { box-shadow: 0 4px 20px rgba(40, 167, 69, 0.6); }
-            100% { box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3); }
+            0% { box-shadow: 0 4px 12px rgba(40,167,69,0.3); }
+            50% { box-shadow: 0 4px 20px rgba(40,167,69,0.6); }
+            100% { box-shadow: 0 4px 12px rgba(40,167,69,0.3); }
         }
-
         @keyframes pulse-red {
-            0% { box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3); }
-            50% { box-shadow: 0 4px 20px rgba(220, 53, 69, 0.6); }
-            100% { box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3); }
+            0% { box-shadow: 0 4px 12px rgba(220,53,69,0.3); }
+            50% { box-shadow: 0 4px 20px rgba(220,53,69,0.6); }
+            100% { box-shadow: 0 4px 12px rgba(220,53,69,0.3); }
         }
-
-        @keyframes pulse-yellow {
-            0% { box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3); }
-            50% { box-shadow: 0 4px 20px rgba(255, 193, 7, 0.6); }
-            100% { box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3); }
-        }
-
-        .loading {
-            text-align: center;
-            color: white;
-            font-size: 1.2rem;
-            margin: 20px 0;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            table {
-                font-size: 12px;
-            }
-            
-            th, td {
-                padding: 10px 8px;
-            }
-
-            .connection-status {
-                position: relative;
-                top: auto;
-                right: auto;
-                margin: 10px auto;
-                display: inline-block;
-            }
-        }
-
+        .loading { text-align: center; color: white; font-size: 1.2rem; margin: 20px 0; }
         .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px; margin-bottom: 30px;
         }
-
         .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            padding: 20px; border-radius: 15px; text-align: center;
+            color: white; border: 1px solid rgba(255,255,255,0.2);
         }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .stat-number { font-size: 2rem; font-weight: 700; margin-bottom: 5px; }
+        .stat-label { font-size: 0.9rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            table { font-size: 12px; }
+            th, td { padding: 10px 8px; }
+            .connection-status { position: relative; top: auto; right: auto; margin: 10px auto; display: inline-block; }
         }
     </style>
 </head>
@@ -394,7 +159,7 @@
         
         <h1>顧客商品預訂登記系統</h1>
         
-        <div class="stats-container" id="statsContainer">
+        <div class="stats-container">
             <div class="stat-card">
                 <div class="stat-number" id="totalReservations">0</div>
                 <div class="stat-label">總預訂數</div>
@@ -467,8 +232,7 @@
                         <th>操作</th>
                     </tr>
                 </thead>
-                <tbody id="reservationList">
-                </tbody>
+                <tbody id="reservationList"></tbody>
             </table>
         </div>
     </div>
@@ -476,14 +240,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { 
-            getDatabase, 
-            ref, 
-            push, 
-            onValue, 
-            remove, 
-            update,
-            onDisconnect,
-            serverTimestamp
+            getDatabase, ref, push, onValue, remove, update, serverTimestamp
         } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         const firebaseConfig = {
@@ -506,177 +263,136 @@
         let sortDirection = 'asc';
         let isConnected = false;
 
-        let connectionTimeout;
-        const connectedRef = ref(database, '.info/connected');
-        
-        connectionTimeout = setTimeout(() => {
-            const connectionStatus = document.getElementById('connectionStatus');
-            if (connectionStatus.textContent === '連接中...') {
-                connectionStatus.textContent = '連接超時';
-                connectionStatus.className = 'connection-status offline';
-                console.warn('Firebase connection timeout');
+        // 連線狀態監聽
+        let connectionTimeout = setTimeout(() => {
+            const el = document.getElementById('connectionStatus');
+            if (el.textContent === '連接中...') {
+                el.textContent = '連接超時';
+                el.className = 'connection-status offline';
             }
         }, 10000);
-        
-        onValue(connectedRef, (snapshot) => {
+
+        onValue(ref(database, '.info/connected'), (snapshot) => {
             clearTimeout(connectionTimeout);
-            const connectionStatus = document.getElementById('connectionStatus');
-            const submitBtn = document.getElementById('submitBtn');
-            
+            const el = document.getElementById('connectionStatus');
+            const btn = document.getElementById('submitBtn');
             if (snapshot.val() === true) {
                 isConnected = true;
-                connectionStatus.textContent = '已連線';
-                connectionStatus.className = 'connection-status online';
-                submitBtn.disabled = false;
-                console.log('Firebase connected successfully');
+                el.textContent = '已連線';
+                el.className = 'connection-status online';
+                btn.disabled = false;
             } else {
                 isConnected = false;
-                connectionStatus.textContent = '離線';
-                connectionStatus.className = 'connection-status offline';
-                submitBtn.disabled = true;
-                console.warn('Firebase disconnected');
+                el.textContent = '離線';
+                el.className = 'connection-status offline';
+                btn.disabled = true;
             }
         }, (error) => {
             clearTimeout(connectionTimeout);
-            console.error('Firebase connection error:', error);
-            const connectionStatus = document.getElementById('connectionStatus');
-            const submitBtn = document.getElementById('submitBtn');
-            connectionStatus.textContent = '連接錯誤';
-            connectionStatus.className = 'connection-status offline';
-            submitBtn.disabled = true;
+            const el = document.getElementById('connectionStatus');
+            el.textContent = '連接錯誤';
+            el.className = 'connection-status offline';
+            document.getElementById('submitBtn').disabled = true;
         });
 
         function initializeDateInputs() {
             const today = new Date();
             const todayString = today.toISOString().split('T')[0];
-            
             document.getElementById('reservationDate').value = todayString;
-            
+
             const maxDate = new Date();
             maxDate.setMonth(maxDate.getMonth() + 3);
-            const maxDateString = maxDate.toISOString().split('T')[0];
-            
             const minDate = new Date();
             minDate.setMonth(minDate.getMonth() - 3);
-            const minDateString = minDate.toISOString().split('T')[0];
-            
-            document.getElementById('reservationDate').setAttribute('min', minDateString);
-            document.getElementById('reservationDate').setAttribute('max', maxDateString);
+
+            document.getElementById('reservationDate').setAttribute('min', minDate.toISOString().split('T')[0]);
+            document.getElementById('reservationDate').setAttribute('max', maxDate.toISOString().split('T')[0]);
         }
 
-        let loadingTimeout;
-        
         function loadReservations() {
-            loadingTimeout = setTimeout(() => {
-                const loadingIndicator = document.getElementById('loadingIndicator');
-                const tableContainer = document.getElementById('tableContainer');
-                
-                if (loadingIndicator.style.display !== 'none') {
-                    loadingIndicator.textContent = '載入超時,請檢查網路連線';
-                    loadingIndicator.style.color = '#ff6b6b';
-                    
+            const loadingTimeout = setTimeout(() => {
+                const indicator = document.getElementById('loadingIndicator');
+                if (indicator.style.display !== 'none') {
+                    indicator.textContent = '載入超時，請檢查網路連線';
+                    indicator.style.color = '#ff6b6b';
                     setTimeout(() => {
-                        loadingIndicator.style.display = 'none';
-                        tableContainer.style.display = 'block';
+                        indicator.style.display = 'none';
+                        document.getElementById('tableContainer').style.display = 'block';
                         renderReservations();
                         updateStats();
                     }, 3000);
                 }
             }, 8000);
-            
+
             onValue(reservationsRef, (snapshot) => {
                 clearTimeout(loadingTimeout);
                 const data = snapshot.val();
                 reservations = [];
-                
                 if (data) {
                     Object.keys(data).forEach(key => {
-                        reservations.push({
-                            firebaseKey: key,
-                            ...data[key]
-                        });
+                        reservations.push({ firebaseKey: key, ...data[key] });
                     });
                 }
-                
                 renderReservations();
                 updateStats();
-                
                 document.getElementById('loadingIndicator').style.display = 'none';
                 document.getElementById('tableContainer').style.display = 'block';
-                console.log('Reservations loaded successfully:', reservations.length);
             }, (error) => {
                 clearTimeout(loadingTimeout);
-                console.error('Error loading reservations:', error);
-                
-                const loadingIndicator = document.getElementById('loadingIndicator');
-                const tableContainer = document.getElementById('tableContainer');
-                
-                loadingIndicator.textContent = '載入失敗,請重新整理頁面';
-                loadingIndicator.style.color = '#ff6b6b';
-                
+                const indicator = document.getElementById('loadingIndicator');
+                indicator.textContent = '載入失敗，請重新整理頁面';
+                indicator.style.color = '#ff6b6b';
                 setTimeout(() => {
-                    loadingIndicator.style.display = 'none';
-                    tableContainer.style.display = 'block';
+                    indicator.style.display = 'none';
+                    document.getElementById('tableContainer').style.display = 'block';
                     renderReservations();
                     updateStats();
                 }, 3000);
             });
         }
 
-        async function addReservation(reservationData) {
+        async function addReservation(data) {
             try {
-                await push(reservationsRef, {
-                    ...reservationData,
-                    createdAt: serverTimestamp()
-                });
+                await push(reservationsRef, { ...data, createdAt: serverTimestamp() });
                 return true;
-            } catch (error) {
-                console.error('Error adding reservation:', error);
-                alert('新增預訂失敗,請檢查網路連線');
+            } catch (e) {
+                alert('新增預訂失敗，請檢查網路連線');
                 return false;
             }
         }
 
         async function deleteReservation(firebaseKey) {
             try {
-                const reservationRef = ref(database, `reservations/${firebaseKey}`);
-                await remove(reservationRef);
+                await remove(ref(database, `reservations/${firebaseKey}`));
                 return true;
-            } catch (error) {
-                console.error('Error deleting reservation:', error);
-                alert('刪除失敗,請檢查網路連線');
+            } catch (e) {
+                alert('刪除失敗，請檢查網路連線');
                 return false;
             }
         }
 
         async function updatePickupDate(firebaseKey, pickupDate) {
             try {
-                const reservationRef = ref(database, `reservations/${firebaseKey}`);
-                await update(reservationRef, { pickupDate });
+                await update(ref(database, `reservations/${firebaseKey}`), { pickupDate });
                 return true;
-            } catch (error) {
-                console.error('Error updating pickup date:', error);
-                alert('更新日期失敗,請檢查網路連線');
+            } catch (e) {
+                alert('更新日期失敗，請檢查網路連線');
                 return false;
             }
         }
 
         document.getElementById('reservationForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (!isConnected) { alert('目前離線，無法新增預訂'); return; }
 
-            if (!isConnected) {
-                alert('目前離線,無法新增預訂');
-                return;
-            }
-
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = '新增中...';
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = '新增中...';
 
             const reservationDate = document.getElementById('reservationDate').value;
             const reservation = {
                 id: Date.now(),
-                reservationDate: reservationDate,
+                reservationDate,
                 customerName: document.getElementById('customerName').value,
                 contactPlatform: document.getElementById('contactPlatform').value,
                 product: document.getElementById('product').value,
@@ -686,16 +402,13 @@
             };
 
             const success = await addReservation(reservation);
-            
             if (success) {
                 e.target.reset();
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('reservationDate').value = today;
+                document.getElementById('reservationDate').value = new Date().toISOString().split('T')[0];
                 document.getElementById('quantity').value = 1;
             }
-
-            submitBtn.disabled = false;
-            submitBtn.textContent = '新增預訂';
+            btn.disabled = false;
+            btn.textContent = '新增預訂';
         });
 
         function sortReservations(column) {
@@ -705,26 +418,12 @@
                 sortColumn = column;
                 sortDirection = 'asc';
             }
-
             reservations.sort((a, b) => {
-                let aVal = a[column];
-                let bVal = b[column];
-                
-                if (column === 'reservationDate') {
-                    aVal = new Date(aVal);
-                    bVal = new Date(bVal);
-                } else if (typeof aVal === 'string') {
-                    aVal = aVal.toLowerCase();
-                    bVal = bVal.toLowerCase();
-                }
-
-                if (sortDirection === 'asc') {
-                    return aVal > bVal ? 1 : -1;
-                } else {
-                    return aVal < bVal ? 1 : -1;
-                }
+                let aVal = a[column], bVal = b[column];
+                if (column === 'reservationDate') { aVal = new Date(aVal); bVal = new Date(bVal); }
+                else if (typeof aVal === 'string') { aVal = aVal.toLowerCase(); bVal = bVal.toLowerCase(); }
+                return sortDirection === 'asc' ? (aVal > bVal ? 1 : -1) : (aVal < bVal ? 1 : -1);
             });
-
             updateSortHeaders();
             renderReservations();
         }
@@ -732,99 +431,91 @@
         function updateSortHeaders() {
             document.querySelectorAll('.sortable').forEach(th => {
                 th.classList.remove('asc', 'desc');
-                if (th.dataset.column === sortColumn) {
-                    th.classList.add(sortDirection);
-                }
+                if (th.dataset.column === sortColumn) th.classList.add(sortDirection);
             });
         }
 
         function updateStats() {
             const today = new Date().toISOString().split('T')[0];
-            const todayReservations = reservations.filter(r => r.reservationDate === today).length;
-            const totalQuantity = reservations.reduce((sum, r) => sum + (r.quantity || 1), 0);
-
             document.getElementById('totalReservations').textContent = reservations.length;
-            document.getElementById('todayReservations').textContent = todayReservations;
-            document.getElementById('totalQuantity').textContent = totalQuantity;
+            document.getElementById('todayReservations').textContent = reservations.filter(r => r.reservationDate === today).length;
+            document.getElementById('totalQuantity').textContent = reservations.reduce((sum, r) => sum + (r.quantity || 1), 0);
         }
 
         function renderReservations() {
-            const reservationList = document.getElementById('reservationList');
-            reservationList.innerHTML = '';
+            const list = document.getElementById('reservationList');
+            list.innerHTML = '';
+            const maxDateString = (() => { const d = new Date(); d.setMonth(d.getMonth() + 3); return d.toISOString().split('T')[0]; })();
 
-            reservations.forEach(reservation => {
+            reservations.forEach(r => {
                 const row = document.createElement('tr');
-                const maxDate = new Date();
-                maxDate.setMonth(maxDate.getMonth() + 3);
-                const maxDateString = maxDate.toISOString().split('T')[0];
-                
-                const minPickupDate = reservation.reservationDate;
-                
                 row.innerHTML = `
-                    <td>${reservation.reservationDate}</td>
-                    <td>${reservation.customerName}</td>
-                    <td>${reservation.contactPlatform}</td>
-                    <td>${reservation.product}</td>
-                    <td><span class="quantity-display">${reservation.quantity || 1}</span></td>
-                    <td>${reservation.phone}</td>
+                    <td>${r.reservationDate}</td>
+                    <td>${r.customerName}</td>
+                    <td>${r.contactPlatform}</td>
+                    <td>${r.product}</td>
+                    <td><span class="quantity-display">${r.quantity || 1}</span></td>
+                    <td>${r.phone}</td>
                     <td>
-                        <input type="date" class="edit-date" value="${reservation.pickupDate}" 
-                               min="${minPickupDate}" max="${maxDateString}" 
-                               data-firebase-key="${reservation.firebaseKey}"
-                               data-original-value="${reservation.pickupDate}">
+                        <input type="date" class="edit-date"
+                            value="${r.pickupDate || r.reservationDate}"
+                            min="${r.reservationDate}" max="${maxDateString}"
+                            data-firebase-key="${r.firebaseKey}"
+                            data-original-value="${r.pickupDate || r.reservationDate}">
                     </td>
                     <td>
                         <div class="delete-actions">
-                            <button class="delete-btn" data-firebase-key="${reservation.firebaseKey}">刪除</button>
-                            <div class="confirm-actions" style="display: none;" data-firebase-key="${reservation.firebaseKey}">
-                                <button class="confirm-delete-btn" data-firebase-key="${reservation.firebaseKey}">確認刪除?</button>
-                                <button class="cancel-delete-btn" data-firebase-key="${reservation.firebaseKey}">取消</button>
+                            <button class="delete-btn" data-firebase-key="${r.firebaseKey}">刪除</button>
+                            <div class="confirm-actions" style="display:none;" data-firebase-key="${r.firebaseKey}">
+                                <button class="confirm-delete-btn" data-firebase-key="${r.firebaseKey}">確認刪除?</button>
+                                <button class="cancel-delete-btn" data-firebase-key="${r.firebaseKey}">取消</button>
                             </div>
                         </div>
-                    </td>
-                `;
-                reservationList.appendChild(row);
+                    </td>`;
+                list.appendChild(row);
             });
 
-            document.querySelectorAll('.edit-date').forEach(input => {
+            list.querySelectorAll('.edit-date').forEach(input => {
                 input.addEventListener('change', async (e) => {
-                    if (!isConnected) {
-                        alert('目前離線,無法更新日期');
-                        e.target.value = e.target.getAttribute('data-original-value');
-                        return;
-                    }
-
-                    const firebaseKey = e.target.getAttribute('data-firebase-key');
-                    const newPickupDate = e.target.value;
-                    const originalValue = e.target.getAttribute('data-original-value');
-                    
-                    const success = await updatePickupDate(firebaseKey, newPickupDate);
-                    if (!success) {
-                        e.target.value = originalValue;
-                    } else {
-                        e.target.setAttribute('data-original-value', newPickupDate);
-                    }
+                    if (!isConnected) { alert('目前離線，無法更新日期'); e.target.value = e.target.dataset.originalValue; return; }
+                    const ok = await updatePickupDate(e.target.dataset.firebaseKey, e.target.value);
+                    if (!ok) e.target.value = e.target.dataset.originalValue;
+                    else e.target.dataset.originalValue = e.target.value;
                 });
             });
 
-            document.querySelectorAll('.delete-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    if (!isConnected) {
-                        alert('目前離線,無法刪除預訂');
-                        return;
-                    }
-
-                    const firebaseKey = button.getAttribute('data-firebase-key');
-                    button.style.display = 'none';
-                    const confirmActions = button.parentElement.querySelector(`.confirm-actions[data-firebase-key="${firebaseKey}"]`);
-                    confirmActions.style.display = 'flex';
+            list.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (!isConnected) { alert('目前離線，無法刪除預訂'); return; }
+                    btn.style.display = 'none';
+                    btn.parentElement.querySelector(`.confirm-actions[data-firebase-key="${btn.dataset.firebaseKey}"]`).style.display = 'flex';
                 });
             });
 
-            document.querySelectorAll('.confirm-delete-btn').forEach(button => {
-                button.addEventListener('click', async () => {
-                    const firebaseKey = button.getAttribute('data-firebase-key');
-                    button.disabled = true;
-                    button.textContent = '刪除中...';
-                    
-                    await deleteReservation
+            list.querySelectorAll('.confirm-delete-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    btn.disabled = true; btn.textContent = '刪除中...';
+                    await deleteReservation(btn.dataset.firebaseKey);
+                });
+            });
+
+            list.querySelectorAll('.cancel-delete-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const actions = btn.closest('.confirm-actions');
+                    const delBtn = actions.parentElement.querySelector(`.delete-btn[data-firebase-key="${btn.dataset.firebaseKey}"]`);
+                    actions.style.display = 'none';
+                    delBtn.style.display = 'inline-block';
+                });
+            });
+
+            document.querySelectorAll('.sortable').forEach(th => {
+                th.onclick = () => sortReservations(th.dataset.column);
+            });
+        }
+
+        // ✅ 修復：補上遺漏的初始化呼叫
+        initializeDateInputs();
+        loadReservations();
+    </script>
+</body>
+</html>
