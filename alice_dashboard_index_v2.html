@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALICE Hair Salon 管理儀表板</title>
+  <style>
+    :root {
+      --bg: #f7f1ea;
+      --card: rgba(255, 252, 247, 0.92);
+      --text: #3b312b;
+      --muted: #8a786b;
+      --line: #eaded1;
+      --accent: #c98252;
+      --accent-dark: #9f633d;
+      --soft: #fff7ef;
+      --shadow: 0 18px 45px rgba(93, 69, 48, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(201, 130, 82, 0.16), transparent 32%),
+        linear-gradient(135deg, #fbf6f0 0%, #f3e8dc 100%);
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 48px 0 40px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: flex-end;
+      margin-bottom: 32px;
+    }
+
+    .brand-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.54);
+      color: var(--accent-dark);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      margin-bottom: 18px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 5vw, 56px);
+      line-height: 1.08;
+      letter-spacing: 0.02em;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.8;
+    }
+
+    .date-card {
+      flex: 0 0 auto;
+      min-width: 210px;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(255, 252, 247, 0.68);
+      box-shadow: var(--shadow);
+    }
+
+    .date-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .date-card strong {
+      font-size: 20px;
+      letter-spacing: 0.03em;
+    }
+
+    .overview {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .metric {
+      padding: 18px 20px;
+      border-radius: 22px;
+      background: rgba(255, 252, 247, 0.7);
+      border: 1px solid var(--line);
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 24px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 245px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      right: -50px;
+      top: -50px;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: rgba(201, 130, 82, 0.09);
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 22px 55px rgba(93, 69, 48, 0.16);
+      border-color: rgba(201, 130, 82, 0.35);
+    }
+
+    .card-top {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: var(--soft);
+      color: var(--accent-dark);
+      font-size: 24px;
+      border: 1px solid var(--line);
+    }
+
+    .tag {
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(201, 130, 82, 0.1);
+      color: var(--accent-dark);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .card h2 {
+      position: relative;
+      z-index: 1;
+      margin: 0 0 10px;
+      font-size: 24px;
+      letter-spacing: 0.03em;
+    }
+
+    .card p {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .latest {
+      position: relative;
+      z-index: 1;
+      margin-top: auto;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(247, 241, 234, 0.78);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .latest strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .actions {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 18px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: 999px;
+      color: #fff;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      box-shadow: 0 10px 24px rgba(159, 99, 61, 0.22);
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .button:hover {
+      transform: translateX(2px);
+      opacity: 0.95;
+    }
+
+    footer {
+      margin-top: 34px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 860px) {
+      header {
+        display: block;
+      }
+
+      .date-card {
+        margin-top: 22px;
+      }
+
+      .overview {
+        grid-template-columns: 1fr;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        width: min(100% - 24px, 1180px);
+        padding-top: 28px;
+      }
+
+      .card {
+        padding: 22px;
+        border-radius: 26px;
+      }
+
+      .card h2 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <section>
+        <div class="brand-kicker"><span class="dot"></span>ALICE Hair Salon</div>
+        <h1>管理儀表板</h1>
+        <p class="subtitle">整合店務、服務、商品與報價系統，讓日常管理更直覺、更乾淨。</p>
+      </section>
+      <aside class="date-card">
+        <span>Dashboard</span>
+        <strong>店務整合中心</strong>
+      </aside>
+    </header>
+
+    <section class="overview" aria-label="系統總覽">
+      <div class="metric"><span>已整合系統</span><strong>5</strong></div>
+      <div class="metric"><span>資料狀態</span><strong>待同步</strong></div>
+      <div class="metric"><span>部署方式</span><strong>GitHub Pages</strong></div>
+    </section>
+
+    <section class="grid" aria-label="管理系統入口">
+      <article class="card">
+        <div class="card-top">
+          <div class="icon">$</div>
+          <div class="tag">服務管理</div>
+        </div>
+        <h2>價目表</h2>
+        <p>美髮服務項目的簡介及收費標準，提供顧客與店內人員快速查詢。</p>
+        <div class="latest"><strong>最後登記：</strong>尚未同步資料</div>
+        <div class="actions">
+          <a class="button" href="https://jaypenny-couple.github.io/-/%E6%9C%8D%E5%8B%99%E9%A0%85%E7%9B%AECloud.html" target="_blank" rel="noopener">進入系統 →</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div class="icon">休</div>
+          <div class="tag">員工管理</div>
+        </div>
+        <h2>休假進修管理</h2>
+        <p>員工事假、請假與進修登記，方便掌握店內排班與學習安排。</p>
+        <div class="latest"><strong>最後登記：</strong>尚未同步資料</div>
+        <div class="actions">
+          <a class="button" href="https://jaypenny-couple.github.io/-/%E4%BC%91%E5%81%87%E9%80%B2%E4%BF%AE%E7%AE%A1%E7%90%86.html" target="_blank" rel="noopener">進入系統 →</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div class="icon">缺</div>
+          <div class="tag">庫存管理</div>
+        </div>
+        <h2>缺貨登記</h2>
+        <p>紀錄待叫貨品項，減少漏叫、重複叫貨與現場溝通落差。</p>
+        <div class="latest"><strong>最後登記：</strong>尚未同步資料</div>
+        <div class="actions">
+          <a class="button" href="https://jaypenny-couple.github.io/-/shortlist.html" target="_blank" rel="noopener">進入系統 →</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div class="icon">預</div>
+          <div class="tag">商品管理</div>
+        </div>
+        <h2>顧客產品預購</h2>
+        <p>管理顧客預定商品，方便確認品項、數量、取貨與後續通知。</p>
+        <div class="latest"><strong>最後登記：</strong>尚未同步資料</div>
+        <div class="actions">
+          <a class="button" href="https://jaypenny-couple.github.io/-/Product%20Pre-Order.html" target="_blank" rel="noopener">進入系統 →</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div class="icon">報</div>
+          <div class="tag">報價管理</div>
+        </div>
+        <h2>ALICE 報價系統</h2>
+        <p>提供各項服務時間與金額加總，協助快速完成完整報價。</p>
+        <div class="latest"><strong>最後登記：</strong>尚未同步資料</div>
+        <div class="actions">
+          <a class="button" href="https://jaypenny-couple.github.io/-/pricelist.html" target="_blank" rel="noopener">進入系統 →</a>
+        </div>
+      </article>
+    </section>
+
+    <footer>
+      © ALICE Hair Salon｜Japanese minimal dashboard for salon operation.
+    </footer>
+  </main>
+</body>
+</html>
