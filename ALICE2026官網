@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ALICE 愛麗絲髮型沙龍｜桃園南崁剪髮染髮燙髮護髮推薦</title>
+    <meta
+      name="description"
+      content="ALICE 愛麗絲髮型沙龍深耕桃園南崁近 50 年，以科學美髮、頭皮健康與客製化染燙護，陪顧客找到真正適合自己的髮型。"
+    >
+    <meta
+      name="keywords"
+      content="ALICE 愛麗絲髮型沙龍, 桃園南崁剪髮, 南崁染髮推薦, 桃園蘆竹髮廊, 南崁燙髮, 護髮, 頭皮管理, JAY 杰煬"
+    >
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://alicegroup.com.tw/">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:site_name" content="ALICE 愛麗絲髮型沙龍">
+    <meta property="og:title" content="ALICE 愛麗絲髮型沙龍｜桃園南崁剪髮染髮燙髮護髮推薦">
+    <meta
+      property="og:description"
+      content="深耕桃園南崁近 50 年，以科學美髮、頭皮健康與客製化染燙護，陪顧客找到真正適合自己的髮型。"
+    >
+    <meta property="og:url" content="https://alicegroup.com.tw/">
+    <meta property="og:image" content="https://alicegroup.com.tw/assets/images/og-cover.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ALICE 愛麗絲髮型沙龍｜桃園南崁剪髮染髮燙髮護髮推薦">
+    <meta
+      name="twitter:description"
+      content="科學美髮、頭皮健康、客製化染燙護，桃園南崁在地值得信任的髮型沙龍。"
+    >
+    <meta name="theme-color" content="#f7f4ec">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="preload" as="image" href="assets/images/hero.webp">
+    <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "HairSalon",
+        "@id": "https://alicegroup.com.tw/#salon",
+        "name": "ALICE 愛麗絲髮型沙龍",
+        "alternateName": ["Alice 髮型設計沙龍", "ALICE Hair Salon"],
+        "url": "https://alicegroup.com.tw/",
+        "image": "https://alicegroup.com.tw/assets/images/og-cover.jpg",
+        "telephone": ["03-3524645", "0933044645"],
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "TW",
+          "addressRegion": "桃園市",
+          "addressLocality": "蘆竹區",
+          "streetAddress": "新南路一段29號"
+        },
+        "areaServed": ["桃園南崁", "桃園蘆竹", "南崁商圈"],
+        "sameAs": ["https://page.line.me/tqv5483y"],
+        "priceRange": "$$",
+        "description": "深耕桃園南崁近 50 年，以科學美髮、頭皮健康與客製化染燙護，陪顧客找到真正適合自己的髮型。",
+        "makesOffer": [
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "剪髮與髮型設計" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "染髮與白髮設計" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "燙髮與縮毛矯正" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "護髮與頭皮管理" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "男士剪髮" } }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "第一次到 ALICE 適合先預約哪一種服務？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "建議先透過 LINE 說明目前髮況、想改善的問題與可接受的整理時間，由設計師依髮況評估剪髮、染髮、燙髮、護髮或頭皮管理。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "染燙前需要先做髮況判斷嗎？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "需要。ALICE 會先看髮質、藥劑歷史、退色狀況與日常整理習慣，再決定適合的藥劑與操作方式。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "頭皮管理適合什麼狀況？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "若有頭皮出油、敏感、悶癢或不知道如何選擇保養方式，可以先諮詢頭皮管理，由設計師用白話方式說明判斷與照護方向。"
+            }
+          }
+        ]
+      }
+    </script>
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要內容</a>
+
+    <header class="site-header" data-header>
+      <div class="header-inner">
+        <a class="brand-mark" href="#top" aria-label="ALICE 愛麗絲髮型沙龍首頁">
+          <span class="brand-mark__name">ALICE</span>
+          <span class="brand-mark__sub">愛麗絲髮型沙龍</span>
+        </a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span class="sr-only">開啟選單</span>
+        </button>
+        <nav class="site-nav" id="site-nav" aria-label="主要導覽">
+          <a href="#services">服務</a>
+          <a href="#jay">JAY</a>
+          <a href="#science">美髮理科</a>
+          <a href="#works">作品方向</a>
+          <a href="#faq">FAQ</a>
+          <a href="#booking">聯絡預約</a>
+        </nav>
+        <a class="header-cta" href="https://page.line.me/tqv5483y" target="_blank" rel="noopener">LINE 預約</a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <picture class="hero-media" aria-hidden="true">
+          <img src="assets/images/hero.webp" alt="" width="1800" height="1000">
+        </picture>
+        <div class="hero-overlay" aria-hidden="true"></div>
+        <div class="container hero-content">
+          <p class="eyebrow">桃園南崁 · 蘆竹在地沙龍</p>
+          <h1 id="hero-title">
+            <span>ALICE 愛麗絲</span>
+            <span>髮型沙龍</span>
+          </h1>
+          <p class="hero-lede">
+            深耕桃園南崁近 50 年，以科學美髮、頭皮健康與客製化染燙護，陪你找到真正適合自己的髮型。
+          </p>
+          <div class="hero-actions" aria-label="預約與聯絡">
+            <a class="button button-primary" href="https://page.line.me/tqv5483y" target="_blank" rel="noopener">LINE 預約諮詢</a>
+            <a class="button button-secondary" href="tel:033524645">電話 03-3524645</a>
+          </div>
+          <ul class="hero-proof" aria-label="主要服務">
+            <li>剪髮</li>
+            <li>染髮</li>
+            <li>燙髮</li>
+            <li>護髮</li>
+            <li>頭皮管理</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="band band-sage" aria-labelledby="trust-title">
+        <div class="container trust-grid">
+          <div>
+            <p class="section-kicker">Brand Core</p>
+            <h2 id="trust-title">不是只做漂亮髮型，而是把判斷說清楚。</h2>
+            <p class="section-lead">
+              ALICE 的品牌差異來自在地信任、科學美髮內容、頭皮與髮質健康，以及願意先理解需求的溝通方式。
+            </p>
+          </div>
+          <div class="value-grid" aria-label="品牌核心價值">
+            <article class="value-card">
+              <span>01</span>
+              <h3>在地信任</h3>
+              <p>南崁與蘆竹顧客熟悉的長期沙龍，重視關係，不追求一次性推銷。</p>
+            </article>
+            <article class="value-card">
+              <span>02</span>
+              <h3>科學判斷</h3>
+              <p>用髮質、藥劑、頭皮與生活習慣來說明服務選擇。</p>
+            </article>
+            <article class="value-card">
+              <span>03</span>
+              <h3>客製染燙護</h3>
+              <p>先評估髮況，再設計適合日常整理的髮色、線條與護理。</p>
+            </article>
+            <article class="value-card">
+              <span>04</span>
+              <h3>安心溝通</h3>
+              <p>用白話解釋原理、流程與注意事項，讓顧客知道自己在選什麼。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="services" aria-labelledby="services-title">
+        <div class="container">
+          <div class="section-heading">
+            <p class="section-kicker">Services</p>
+            <h2 id="services-title">以髮況判斷開始的服務</h2>
+            <p class="section-lead">
+              每一項服務都先回答三件事：適合誰、想解決什麼、預約前需要注意什麼。
+            </p>
+          </div>
+          <div class="service-feature">
+            <img src="assets/images/consultation.webp" alt="設計師與顧客討論髮質與髮色方向的形象照" width="1200" height="820" loading="lazy">
+            <div class="service-feature__copy">
+              <h3>先理解髮況，再決定設計</h3>
+              <p>
+                染燙護不是固定套餐。ALICE 會先看髮質受損、退色、頭皮狀態、整理習慣與期待風格，再安排合適的操作方式。
+              </p>
+            </div>
+          </div>
+          <div class="card-grid services-grid">
+            <article class="service-card">
+              <h3>剪髮與髮型設計</h3>
+              <p>依臉型、髮流、整理時間與工作生活需求，設計好整理且有輪廓的髮型。</p>
+              <p class="card-note">適合：想整理比例、男士剪髮、商務剪髮、日常好整理髮型。</p>
+            </article>
+            <article class="service-card">
+              <h3>染髮與白髮設計</h3>
+              <p>依膚色、髮質與退色狀況規劃髮色，包含霧感染髮、白髮染與低調自然色系。</p>
+              <p class="card-note">適合：想改善氣色、白髮自然銜接、髮色不想太快失控。</p>
+            </article>
+            <article class="service-card">
+              <h3>燙髮與縮毛矯正</h3>
+              <p>先評估髮況承受度與捲度需求，避免只追求造型而忽略髮質負擔。</p>
+              <p class="card-note">適合：毛躁、自然捲、想要柔順線條或好整理捲度。</p>
+            </article>
+            <article class="service-card">
+              <h3>護髮與頭皮管理</h3>
+              <p>從髮質保護、頭皮油水平衡與敏感狀況切入，用清楚語言說明保養方向。</p>
+              <p class="card-note">適合：頭皮出油、悶癢、髮尾乾燥、染燙後維護。</p>
+            </article>
+            <article class="service-card">
+              <h3>造型與風格諮詢</h3>
+              <p>把流行髮型轉成適合你的版本，重點是能融入日常，而不是只在照片裡好看。</p>
+              <p class="card-note">適合：想改變風格、需要設計師協助判斷方向。</p>
+            </article>
+            <article class="service-card">
+              <h3>預約前髮況溝通</h3>
+              <p>可先透過 LINE 傳目前髮況、想做的服務與過去染燙紀錄，降低到店溝通成本。</p>
+              <p class="card-note">適合：首次到店、複雜染燙、頭皮或髮質疑慮。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="band band-ink" id="jay" aria-labelledby="jay-title">
+        <div class="container jay-grid">
+          <div class="jay-copy">
+            <p class="section-kicker">JAY / 杰煬</p>
+            <h2 id="jay-title">資深髮型設計師，也是「美髮理科小教室」主理人。</h2>
+            <p>
+              JAY 的專業形象不是誇張承諾，而是懂技術、懂科學、懂顧客。網站中的人物介紹不寫成履歷，而是讓顧客感覺到：這位設計師會先理解髮況與需求，再做適合的判斷。
+            </p>
+          </div>
+          <blockquote class="jay-quote">
+            <p>
+              「我們會先看髮況，再決定適合的藥劑與操作方式。不是每一種流行髮型都適合每個人，重點是找到能融入生活的美感。」
+            </p>
+            <cite>ALICE 美髮理科小教室</cite>
+          </blockquote>
+        </div>
+      </section>
+
+      <section class="section" id="science" aria-labelledby="science-title">
+        <div class="container">
+          <div class="section-heading">
+            <p class="section-kicker">Hair Science</p>
+            <h2 id="science-title">把美髮理科小教室變成可被搜尋的內容資產</h2>
+            <p class="section-lead">
+              報告建議將短影音內容整理成 600 到 1,000 字文章，讓搜尋引擎與 AI 更容易理解 ALICE 的專業。
+            </p>
+          </div>
+          <div class="article-layout">
+            <img src="assets/images/care.webp" alt="護髮與頭皮管理情境的形象照" width="1200" height="820" loading="lazy">
+            <div class="article-list">
+              <article>
+                <span>頭皮健康管理</span>
+                <h3>頭皮出油一定要控油嗎？</h3>
+                <p>從油水平衡、清潔頻率與頭皮敏感說起，避免越洗越乾或越保養越悶。</p>
+              </article>
+              <article>
+                <span>染髮前保護</span>
+                <h3>染髮前為什麼要做頭皮隔離？</h3>
+                <p>用白話解釋染前溝通、頭皮保護與藥劑操作的差別。</p>
+              </article>
+              <article>
+                <span>白髮設計</span>
+                <h3>白髮可以不染黑嗎？</h3>
+                <p>把白髮染、白髮銜接與低調髮色規劃講清楚。</p>
+              </article>
+              <article>
+                <span>燙髮判斷</span>
+                <h3>燙髮會傷髮嗎？關鍵在髮況判斷與藥劑強度</h3>
+                <p>說明捲度、髮質承受度與日常整理之間的取捨。</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band band-soft" id="works" aria-labelledby="works-title">
+        <div class="container">
+          <div class="section-heading">
+            <p class="section-kicker">Works Direction</p>
+            <h2 id="works-title">作品集以服務類型與髮況目標分類</h2>
+            <p class="section-lead">
+              第一版先建立分類與說法，正式作品照可在店方提供後加入。建議分類為染髮、燙髮、白髮設計、男士剪髮與頭皮管理。
+            </p>
+          </div>
+          <div class="works-grid">
+            <article class="work-card">
+              <h3>染髮與白髮設計</h3>
+              <p>照片命名與描述加入「南崁染髮推薦、白髮設計、髮色退色情況」等關鍵詞，讓作品也能累積搜尋權重。</p>
+            </article>
+            <article class="work-card">
+              <h3>燙髮與縮毛矯正</h3>
+              <p>紀錄髮況、需求、操作方向與居家整理方式，避免只有前後對比照片。</p>
+            </article>
+            <article class="work-card">
+              <h3>頭皮與髮質管理</h3>
+              <p>以問題解決與日常保養建議為核心，延伸成 FAQ 與文章內容。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="faq" aria-labelledby="faq-title">
+        <div class="container faq-grid">
+          <div>
+            <p class="section-kicker">FAQ</p>
+            <h2 id="faq-title">預約前常見問題</h2>
+            <p class="section-lead">先讓顧客知道流程、評估方式與預約入口，降低第一次到店的不確定感。</p>
+          </div>
+          <div class="faq-list">
+            <article class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="true">
+                第一次到 ALICE 適合先預約哪一種服務？
+              </button>
+              <div class="faq-answer">
+                <p>建議先透過 LINE 說明目前髮況、想改善的問題與可接受的整理時間，由設計師協助判斷剪髮、染髮、燙髮、護髮或頭皮管理。</p>
+              </div>
+            </article>
+            <article class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="false">
+                染燙前需要先做髮況判斷嗎？
+              </button>
+              <div class="faq-answer" hidden>
+                <p>需要。染燙前會看髮質受損、退色、過去藥劑紀錄與頭皮狀態，再決定藥劑與操作方式。</p>
+              </div>
+            </article>
+            <article class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="false">
+                護髮不是把頭髮包油，那真正看什麼？
+              </button>
+              <div class="faq-answer" hidden>
+                <p>重點會放在髮質結構、乾燥或受損原因、染燙後維護方式，以及你平常整理時遇到的問題。</p>
+              </div>
+            </article>
+            <article class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="false">
+                價格與營業時間在哪裡確認？
+              </button>
+              <div class="faq-answer" hidden>
+                <p>價格會依髮況、長度與服務內容評估；營業時間與公休日建議以 LINE 官方帳號或 Google 商家最新資訊為準。</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="booking" id="booking" aria-labelledby="booking-title">
+        <div class="container booking-grid">
+          <div>
+            <p class="section-kicker">Booking</p>
+            <h2 id="booking-title">先傳髮況，再安排適合的服務。</h2>
+            <p>
+              預約時可先提供目前髮況照片、想做的服務、過去一年染燙紀錄與方便到店的時段，讓溝通更有效率。
+            </p>
+            <div class="booking-actions">
+              <a class="button button-primary" href="https://page.line.me/tqv5483y" target="_blank" rel="noopener">加入 LINE 官方帳號</a>
+              <a class="button button-secondary" href="tel:0933044645">手機 0933044645</a>
+            </div>
+          </div>
+          <address class="contact-card">
+            <strong>ALICE 愛麗絲髮型沙龍</strong>
+            <span>桃園市蘆竹區新南路一段 29 號</span>
+            <a href="tel:033524645">03-3524645</a>
+            <a href="tel:0933044645">0933044645</a>
+            <a href="https://www.google.com/maps/search/?api=1&query=%E6%A1%83%E5%9C%92%E5%B8%82%E8%98%86%E7%AB%B9%E5%8D%80%E6%96%B0%E5%8D%97%E8%B7%AF%E4%B8%80%E6%AE%B529%E8%99%9F" target="_blank" rel="noopener">
+              開啟 Google 地圖
+            </a>
+            <span class="contact-note">營業時間與價目請以官方帳號公告及現場髮況評估為準。</span>
+          </address>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>© 2026 ALICE 愛麗絲髮型沙龍</p>
+        <p>桃園南崁剪髮 · 染髮 · 燙髮 · 護髮 · 頭皮管理</p>
+      </div>
+    </footer>
+
+    <div class="mobile-action-bar" aria-label="快速預約">
+      <a href="https://page.line.me/tqv5483y" target="_blank" rel="noopener">LINE 預約</a>
+      <a href="tel:033524645">電話諮詢</a>
+    </div>
+  </body>
+</html>
