@@ -142,7 +142,7 @@
     .mobile-action-bar { display: none; }
     @media (max-width: 1080px) {
       .header-inner { display: flex; justify-content: space-between; }
-      .nav-toggle { display: inline-block; }
+      .nav-toggle { position: fixed; top: 16px; right: 14px; z-index: 120; display: inline-block; }
       .site-nav { position: fixed; inset: 76px 16px auto; display: none; padding: 12px; border: 1px solid rgba(38, 38, 38, .14); border-radius: 8px; background: rgba(255, 250, 241, .98); box-shadow: var(--shadow); }
       .site-nav.is-open { display: grid; }
       .site-nav a { min-height: 48px; }
