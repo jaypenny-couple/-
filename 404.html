@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>頁面轉址中</title>
+  <script>
+    const target = "/-/dye-calculator.html";
+    const path = decodeURIComponent(window.location.pathname);
+
+    if (path.includes("染劑濃度計算.html") || path.includes("dye-calculator")) {
+      window.location.replace(target);
+    }
+  </script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      color: #232323;
+      background: #faf8f3;
+    }
+    main {
+      width: min(92vw, 520px);
+      padding: 32px;
+      border: 1px solid #ddd5c9;
+      background: #fff;
+      text-align: center;
+    }
+    a {
+      color: #8b5e2f;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>頁面不存在</h1>
+    <p>如果你要開啟染劑稀釋計算器，請使用下方連結。</p>
+    <p><a href="/-/dye-calculator.html">前往染劑稀釋計算器</a></p>
+  </main>
+</body>
+</html>
