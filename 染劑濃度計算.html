@@ -1,51 +1,200 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>染劑稀釋計算器</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>染劑稀釋計算器</title>
+
+  <style>
+    body {
+      font-family: Arial, "Noto Sans TC", sans-serif;
+      background: #f7f5f2;
+      color: #333;
+      padding: 24px;
+      max-width: 560px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #3a332e;
+    }
+
+    .card {
+      background: #fff;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    label {
+      display: block;
+      margin-top: 16px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 24px;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: #3a332e;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #5a4f46;
+    }
+
+    .result {
+      margin-top: 24px;
+      padding: 18px;
+      background: #f1ebe5;
+      border-radius: 12px;
+      line-height: 1.8;
+      font-size: 17px;
+    }
+
+    .error {
+      color: #b00020;
+      font-weight: bold;
+    }
+
+    .note {
+      font-size: 14px;
+      color: #666;
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+  </style>
 </head>
+
 <body>
-    <h1>染劑稀釋計算器</h1>
-    <form id="dilutionForm">
-        <label for="originalConcentration">原始濃度:</label>
-        <input type="number" id="originalConcentration" step="0.01" required>
-        <br><br>
-        <label for="targetConcentration">目標濃度:</label>
-        <input type="number" id="targetConcentration" step="0.01" required>
-        <br><br>
-        <label for="totalAmount">染劑總重量 (克):</label>
-        <input type="number" id="totalAmount" step="0.01" required>
-        <br><br>
-        <button type="button" onclick="calculateDiluent()">計算染劑與稀釋劑的重量</button>
-    </form>
-    <h2>結果</h2>
-    <p id="result"></p>
+  <h1>染劑稀釋計算器</h1>
 
-    <script>
-        function calculateDiluent() {
-            // 取得用戶輸入的值
-            let originalConcentration = parseFloat(document.getElementById('originalConcentration').value);
-            let targetConcentration = parseFloat(document.getElementById('targetConcentration').value);
-            let totalAmount = parseFloat(document.getElementById('totalAmount').value);
+  <div class="card">
+    <label for="originalConcentration">原始染劑濃度</label>
+    <input type="number" id="originalConcentration" step="0.01" placeholder="例如：0.2" />
 
-            // 確認輸入值是否有效
-            if (originalConcentration <= 0 || targetConcentration <= 0 || totalAmount <= 0 || targetConcentration >= originalConcentration) {
-                document.getElementById('result').innerText = "請確保輸入的值有效且目標濃度小於原始濃度。";
-                return;
-            }
+    <label for="diluentConcentration">稀釋劑濃度</label>
+    <select id="diluentConcentration">
+      <option value="0">0</option>
+      <option value="0.01">0.01</option>
+      <option value="0.02">0.02</option>
+      <option value="0.05">0.05</option>
+      <option value="0.1">0.1</option>
+      <option value="custom">自訂</option>
+    </select>
 
-            // 計算稀釋倍數
-            let dilutionFactor = originalConcentration / targetConcentration;
+    <input 
+      type="number" 
+      id="customDiluentConcentration" 
+      step="0.01" 
+      placeholder="輸入自訂稀釋劑濃度"
+      style="display:none;"
+    />
 
-            // 計算需要的染劑和稀釋劑的重量
-            let dyeAmount = totalAmount / dilutionFactor;
-            let diluentAmount = totalAmount - dyeAmount;
+    <label for="targetConcentration">目標濃度</label>
+    <input type="number" id="targetConcentration" step="0.01" placeholder="例如：0.1" />
 
-            // 顯示結果
-            document.getElementById('result').innerText = 
-                `染劑重量: ${dyeAmount.toFixed(2)} 克, 稀釋劑重量: ${diluentAmount.toFixed(2)} 克`;
-        }
-    </script>
+    <label for="totalAmount">最終總重量（克）</label>
+    <input type="number" id="totalAmount" step="0.01" placeholder="例如：100" />
+
+    <button type="button" onclick="calculateDilution()">計算</button>
+
+    <div id="result" class="result">請輸入數值後按下計算。</div>
+
+    <div class="note">
+      計算邏輯：原始染劑濃度與稀釋劑濃度共同計算，不再假設稀釋劑一定是 0。
+    </div>
+  </div>
+
+  <script>
+    const diluentSelect = document.getElementById("diluentConcentration");
+    const customDiluentInput = document.getElementById("customDiluentConcentration");
+
+    diluentSelect.addEventListener("change", function () {
+      if (this.value === "custom") {
+        customDiluentInput.style.display = "block";
+      } else {
+        customDiluentInput.style.display = "none";
+        customDiluentInput.value = "";
+      }
+    });
+
+    function calculateDilution() {
+      const originalConcentration = parseFloat(document.getElementById("originalConcentration").value);
+      const targetConcentration = parseFloat(document.getElementById("targetConcentration").value);
+      const totalAmount = parseFloat(document.getElementById("totalAmount").value);
+
+      let diluentConcentration;
+
+      if (diluentSelect.value === "custom") {
+        diluentConcentration = parseFloat(customDiluentInput.value);
+      } else {
+        diluentConcentration = parseFloat(diluentSelect.value);
+      }
+
+      const result = document.getElementById("result");
+
+      if (
+        isNaN(originalConcentration) ||
+        isNaN(diluentConcentration) ||
+        isNaN(targetConcentration) ||
+        isNaN(totalAmount) ||
+        originalConcentration < 0 ||
+        diluentConcentration < 0 ||
+        targetConcentration < 0 ||
+        totalAmount <= 0
+      ) {
+        result.innerHTML = `<span class="error">請輸入有效數值。</span>`;
+        return;
+      }
+
+      if (originalConcentration === diluentConcentration) {
+        result.innerHTML = `<span class="error">原始染劑濃度不可與稀釋劑濃度相同，否則無法調整濃度。</span>`;
+        return;
+      }
+
+      const maxConcentration = Math.max(originalConcentration, diluentConcentration);
+      const minConcentration = Math.min(originalConcentration, diluentConcentration);
+
+      if (targetConcentration > maxConcentration || targetConcentration < minConcentration) {
+        result.innerHTML = `
+          <span class="error">
+            目標濃度必須介於原始染劑濃度與稀釋劑濃度之間。
+          </span>
+        `;
+        return;
+      }
+
+      const dyeAmount =
+        ((targetConcentration - diluentConcentration) * totalAmount) /
+        (originalConcentration - diluentConcentration);
+
+      const diluentAmount = totalAmount - dyeAmount;
+
+      result.innerHTML = `
+        <strong>計算結果</strong><br>
+        原始染劑重量：<strong>${dyeAmount.toFixed(2)} g</strong><br>
+        稀釋劑重量：<strong>${diluentAmount.toFixed(2)} g</strong><br><br>
+        最終總重量：${totalAmount.toFixed(2)} g<br>
+        目標濃度：${targetConcentration}
+      `;
+    }
+  </script>
 </body>
 </html>
