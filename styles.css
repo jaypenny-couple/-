@@ -10,3 +10,7 @@
 .designer-card:not(.featured){display:grid;grid-template-rows:auto 1fr}
 .designer-card:not(.featured) .designer-body{display:flex;flex-direction:column}
 .designer-card.featured .designer-photo{align-self:start;width:100%}
+.works-grid .work-card{grid-template-rows:260px 1fr}
+.works-grid .work-visual{min-height:0;height:100%}
+.work-visual img{object-position:center}
+@media (max-width:560px){.works-grid .work-card{grid-template-rows:220px 1fr}}
