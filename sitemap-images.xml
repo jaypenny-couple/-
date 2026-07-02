@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://alicegroup.com.tw/works.html</loc>
+    <lastmod>2026-06-30</lastmod>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/works/work-mist-color.jpg</image:loc>
+      <image:title>ALICE 霧感染髮作品</image:title>
+      <image:caption>柔和髮色與自然光澤</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/works/work-gray-blending.jpg</image:loc>
+      <image:title>ALICE 白髮銜接作品</image:title>
+      <image:caption>低調挑染與自然灰髮融合</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/works/work-soft-perm.jpg</image:loc>
+      <image:title>ALICE 柔和燙髮作品</image:title>
+      <image:caption>自然捲度與日常好整理線條</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/works/work-hair-treatment.jpg</image:loc>
+      <image:title>ALICE 髮質修護操作</image:title>
+      <image:caption>霧化護髮與髮絲光澤</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/works/work-straightening.jpg</image:loc>
+      <image:title>ALICE 縮毛矯正操作</image:title>
+      <image:caption>改善自然捲與毛躁髮況</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/works/work-scalp-care.jpg</image:loc>
+      <image:title>ALICE 頭皮健康管理操作</image:title>
+      <image:caption>深層淨化與舒緩保養</image:caption>
+    </image:image>
+  </url>
+</urlset>
