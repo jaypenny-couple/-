@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Internal or legacy utility pages are kept out of search crawling.
+Disallow: /404.html
+Disallow: /ALICE2026web.html
+Disallow: /dilution-calculator.html
+Disallow: /alice_dashboard_index_v2.html
+Disallow: /Product%20Pre-Order.html
+
+Sitemap: https://alicegroup.com.tw/sitemap.xml
