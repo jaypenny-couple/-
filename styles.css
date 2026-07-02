@@ -13,4 +13,5 @@
 .works-grid .work-card{grid-template-rows:260px 1fr}
 .works-grid .work-visual{min-height:0;height:100%}
 .work-visual img{object-position:center}
+.responsive-picture{display:contents}
 @media (max-width:560px){.works-grid .work-card{grid-template-rows:220px 1fr}}
