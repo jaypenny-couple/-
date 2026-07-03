@@ -2,120 +2,174 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://alicegroup.com.tw/</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-07-03</lastmod>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/brand/alice-logo.gif</image:loc>
+      <image:title>ALICE Hair Salon ???????????</image:title>
+      <image:caption>???? ALICE Hair Salon ?????? Logo?</image:caption>
+    </image:image>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/hero-alice-salon.jpg</image:loc>
-      <image:title>ALICE 愛麗絲髮型沙龍店內空間主視覺</image:title>
-      <image:caption>桃園南崁日系輕奢沙龍空間</image:caption>
+      <image:title>???? ALICE Hair Salon ??????????</image:title>
+      <image:caption>??????? ALICE ???????????????</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/salon-lounge.jpg</image:loc>
-      <image:title>ALICE 沙龍顧客等候區</image:title>
-      <image:caption>溫暖舒適的沙龍等候與顧客休憩氛圍</image:caption>
+      <image:title>???? ALICE Hair Salon ?????</image:title>
+      <image:caption>??????????????????????</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/designers/jay-jieyang-portrait.png</image:loc>
+      <image:title>ALICE ??? Jay ?????</image:title>
+      <image:caption>Jay ??????????????????</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/designers/iris-meiling-portrait.png</image:loc>
+      <image:title>ALICE ??? Iris ?????</image:title>
+      <image:caption>Iris ??? ALICE ??????</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/designers/cindy-yazhu-portrait.png</image:loc>
+      <image:title>ALICE ??? Cindy ?????</image:title>
+      <image:caption>Cindy ??? ALICE ??????</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/designers/sherry-huiling-portrait.png</image:loc>
+      <image:title>ALICE ??? Sherry ?????</image:title>
+      <image:caption>Sherry ??? ALICE ??????</image:caption>
     </image:image>
   </url>
   <url>
     <loc>https://alicegroup.com.tw/about.html</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-07-03</lastmod>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/about-salon-wide.jpg</image:loc>
-      <image:title>ALICE 愛麗絲髮型沙龍完整空間</image:title>
-      <image:caption>品牌故事頁使用的店內完整空間與專業座位配置</image:caption>
+      <image:title>ALICE Hair Salon ???????????</image:title>
+      <image:caption>?? ALICE ????????????????????</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/archive/founder-lee-hsiu-yi-portrait.jpg</image:loc>
+      <image:title>ALICE ??????????</image:title>
+      <image:caption>???????????ALICE ?????????????</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/archive/founder-alice-early-service.jpg</image:loc>
+      <image:title>ALICE ?????????????</image:title>
+      <image:caption>?????????????????????</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/archive/alice-archive-team-storefront.jpg</image:loc>
+      <image:title>ALICE ?????????</image:title>
+      <image:caption>ALICE Hair Salon ?????????????????????</image:caption>
     </image:image>
   </url>
   <url>
     <loc>https://alicegroup.com.tw/designers.html</loc>
-    <lastmod>2026-06-30</lastmod>
-    <image:image>
-      <image:loc>https://alicegroup.com.tw/assets/images/designers/jay-jieyang-portrait.png</image:loc>
-      <image:title>Jay 杰煬設計師形象照</image:title>
-      <image:caption>ALICE 講師級設計師 Jay 杰煬</image:caption>
-    </image:image>
+    <lastmod>2026-07-03</lastmod>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/designers/iris-meiling-portrait.png</image:loc>
-      <image:title>Iris 渼鈴設計師形象照</image:title>
-      <image:caption>ALICE 資深設計師 Iris 渼鈴</image:caption>
+      <image:title>ALICE ??? Iris ?????</image:title>
+      <image:caption>Iris ?????????????????????</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/designers/cindy-yazhu-portrait.png</image:loc>
-      <image:title>Cindy 雅筑設計師形象照</image:title>
-      <image:caption>ALICE 新秀設計師 Cindy 雅筑</image:caption>
+      <image:title>ALICE ??? Cindy ?????</image:title>
+      <image:caption>Cindy ????????????????</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/designers/sherry-huiling-portrait.png</image:loc>
-      <image:title>Sherry 惠玲設計師形象照</image:title>
-      <image:caption>ALICE 資深設計師 Sherry 惠玲</image:caption>
+      <image:title>ALICE ??? Sherry ?????</image:title>
+      <image:caption>Sherry ??????????????</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/designers/jay-jieyang-portrait.png</image:loc>
+      <image:title>ALICE ??? Jay ?????</image:title>
+      <image:caption>Jay ????????????????????????</image:caption>
     </image:image>
   </url>
   <url>
     <loc>https://alicegroup.com.tw/services.html</loc>
-    <lastmod>2026-06-27</lastmod>
+    <lastmod>2026-07-03</lastmod>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/service-styling-area.jpg</image:loc>
-      <image:title>ALICE 剪染燙服務座位區</image:title>
-      <image:caption>剪髮、染髮與燙髮服務使用的專業造型區</image:caption>
+      <image:title>ALICE ???????????</image:title>
+      <image:caption>???????????????????????</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/shampoo-treatment-area.jpg</image:loc>
-      <image:title>ALICE 洗護與護髮區</image:title>
-      <image:caption>護髮、頭皮管理與洗護服務空間</image:caption>
+      <image:title>ALICE ??????????</image:title>
+      <image:caption>??????????????????????</image:caption>
     </image:image>
   </url>
   <url>
     <loc>https://alicegroup.com.tw/works.html</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-07-03</lastmod>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/works/work-mist-color.jpg</image:loc>
-      <image:title>ALICE 霧感染髮作品</image:title>
-      <image:caption>柔和髮色與自然光澤</image:caption>
+      <image:title>ALICE ??????</image:title>
+      <image:caption>??????????????????????</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/works/work-gray-blending.jpg</image:loc>
-      <image:title>ALICE 白髮銜接作品</image:title>
-      <image:caption>低調挑染與自然灰髮融合</image:caption>
+      <image:title>ALICE ??????</image:title>
+      <image:caption>????????????????????</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/works/work-soft-perm.jpg</image:loc>
-      <image:title>ALICE 柔和燙髮作品</image:title>
-      <image:caption>自然捲度與日常好整理線條</image:caption>
+      <image:title>ALICE ??????</image:title>
+      <image:caption>?????????????????????</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/works/work-hair-treatment.jpg</image:loc>
-      <image:title>ALICE 髮質修護操作</image:title>
-      <image:caption>霧化護髮與髮絲光澤</image:caption>
+      <image:title>ALICE ??????</image:title>
+      <image:caption>????????????????</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/works/work-straightening.jpg</image:loc>
-      <image:title>ALICE 縮毛矯正操作</image:title>
-      <image:caption>改善自然捲與毛躁髮況</image:caption>
+      <image:title>ALICE ??????</image:title>
+      <image:caption>?????????????????</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/works/work-scalp-care.jpg</image:loc>
-      <image:title>ALICE 頭皮健康管理操作</image:title>
-      <image:caption>深層淨化與舒緩保養</image:caption>
+      <image:title>ALICE ????????</image:title>
+      <image:caption>????????????????????</image:caption>
     </image:image>
   </url>
   <url>
     <loc>https://alicegroup.com.tw/hair-science.html</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-07-03</lastmod>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/designers/jay-jieyang-portrait.png</image:loc>
+      <image:title>ALICE ?????????? Jay ??</image:title>
+      <image:caption>Jay ???????????????????????????????</image:caption>
+    </image:image>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/salon-detail-sink.jpg</image:loc>
-      <image:title>ALICE 洗護設備細節</image:title>
-      <image:caption>美髮理科與頭皮管理說明使用的洗護設備質感照</image:caption>
+      <image:title>ALICE ??????????</image:title>
+      <image:caption>????????????????????</image:caption>
     </image:image>
   </url>
   <url>
     <loc>https://alicegroup.com.tw/booking.html</loc>
-    <lastmod>2026-06-27</lastmod>
+    <lastmod>2026-07-03</lastmod>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/alice-storefront.jpg</image:loc>
-      <image:title>ALICE 愛麗絲髮型沙龍店面外觀</image:title>
-      <image:caption>桃園南崁店面外觀，方便新客辨識抵達位置</image:caption>
+      <image:title>ALICE Hair Salon ????</image:title>
+      <image:caption>?????????????? ALICE ????????????</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://alicegroup.com.tw/assets/images/salon-entrance-plants.jpg</image:loc>
-      <image:title>ALICE 沙龍入口植栽</image:title>
-      <image:caption>自然溫暖的入口氛圍與沙龍門面細節</image:caption>
+      <image:title>ALICE ???????????</image:title>
+      <image:caption>??????????????????</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://alicegroup.com.tw/QA.html</loc>
+    <lastmod>2026-07-03</lastmod>
+    <image:image>
+      <image:loc>https://alicegroup.com.tw/assets/images/salon-lounge.jpg</image:loc>
+      <image:title>ALICE Hair Salon ?????????</image:title>
+      <image:caption>FAQ ?????????????????????</image:caption>
     </image:image>
   </url>
 </urlset>
