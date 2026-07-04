@@ -43,3 +43,69 @@ if (navToggle && siteNav) {
     });
   });
 }
+
+(() => {
+  const audio = document.createElement("audio");
+  const interactionEvents = ["click", "touchstart", "scroll", "keydown"];
+  let isPlaying = false;
+
+  audio.src = "assets/audio/alice-bgm.mp3";
+  audio.loop = true;
+  audio.preload = "auto";
+  audio.volume = 0.15;
+  audio.controls = false;
+  audio.setAttribute("aria-hidden", "true");
+  audio.style.display = "none";
+
+  const removeInteractionListeners = () => {
+    interactionEvents.forEach((eventName) => {
+      window.removeEventListener(eventName, playFromInteraction, true);
+    });
+  };
+
+  const playAudio = () => {
+    if (isPlaying) return Promise.resolve();
+
+    const playPromise = audio.play();
+
+    if (!playPromise || typeof playPromise.then !== "function") {
+      isPlaying = true;
+      removeInteractionListeners();
+      return Promise.resolve();
+    }
+
+    return playPromise
+      .then(() => {
+        isPlaying = true;
+        removeInteractionListeners();
+      })
+      .catch(() => {
+        isPlaying = false;
+      });
+  };
+
+  function playFromInteraction() {
+    playAudio();
+  }
+
+  const addInteractionListeners = () => {
+    interactionEvents.forEach((eventName) => {
+      window.addEventListener(eventName, playFromInteraction, {
+        capture: true,
+        passive: true,
+      });
+    });
+  };
+
+  const mountAudio = () => {
+    document.body.appendChild(audio);
+    addInteractionListeners();
+    playAudio();
+  };
+
+  if (document.body) {
+    mountAudio();
+  } else {
+    document.addEventListener("DOMContentLoaded", mountAudio, { once: true });
+  }
+})();
