@@ -15,3 +15,15 @@
 .work-visual img{object-position:center}
 .responsive-picture{display:contents}
 @media (max-width:560px){.works-grid .work-card{grid-template-rows:220px 1fr}}
+
+.designer-photo-link{position:relative;width:100%;height:100%;display:block;overflow:hidden;color:inherit;background:var(--warm)}
+.designer-photo-link img{transition:transform .45s ease}
+.designer-photo-overlay{position:absolute;inset:0;z-index:2;display:grid;place-items:center;align-content:center;gap:10px;padding:24px;text-align:center;color:var(--deep);background:rgba(255,250,244,.74);opacity:0;transition:opacity .28s ease;pointer-events:none}
+.ig-overlay-icon{width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(154,122,63,.38);border-radius:999px;color:var(--gold);background:rgba(255,250,244,.62);font-size:1.15rem;font-weight:900;line-height:1}
+.ig-overlay-icon svg{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.75}
+.designer-photo-overlay span:last-child{max-width:12em;font-size:.9rem;font-weight:800;line-height:1.55;letter-spacing:.02em}
+.designer-photo-link:hover img,.designer-photo-link:focus-visible img{transform:scale(1.03)}
+.designer-photo-link:hover .designer-photo-overlay,.designer-photo-link:focus-visible .designer-photo-overlay{opacity:1}
+.designer-photo-link:focus-visible{outline:2px solid rgba(201,169,109,.72);outline-offset:-2px}
+@media (hover:none){.designer-photo-link:hover img{transform:none}.designer-photo-link:hover .designer-photo-overlay{opacity:0}.designer-instagram{display:inline-flex}}
+@media (prefers-reduced-motion:reduce){.designer-photo-link img,.designer-photo-overlay{transition:none}}
