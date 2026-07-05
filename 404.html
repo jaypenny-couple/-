@@ -8,6 +8,10 @@
     const target = "/-/dye-calculator.html";
     const path = decodeURIComponent(window.location.pathname);
 
+    if (path === "/menu/content/528" || path.startsWith("/menu/content/") || path.startsWith("/-/menu/content/")) {
+      window.location.replace("/services.html");
+    }
+
     if (path.includes("染劑濃度計算.html") || path.includes("dye-calculator")) {
       window.location.replace(target);
     }
