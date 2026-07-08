@@ -11,6 +11,8 @@ const currentPage = getPageName(window.location.pathname);
 
 if (siteNav) {
   siteNav.querySelectorAll("a").forEach((link) => {
+    if (link.classList.contains("lang-switch")) return;
+
     try {
       const linkUrl = new URL(link.getAttribute("href"), window.location.href);
       const linkPage = getPageName(linkUrl.pathname);
@@ -46,10 +48,15 @@ if (navToggle && siteNav) {
 
 (() => {
   const audio = document.createElement("audio");
+  const scriptElement =
+    document.currentScript || document.querySelector('script[src$="script.js"]');
+  const scriptUrl = scriptElement?.src
+    ? new URL(scriptElement.src)
+    : new URL("/script.js", window.location.origin);
   const interactionEvents = ["click", "touchstart", "scroll", "keydown"];
   let isPlaying = false;
 
-  audio.src = "assets/audio/alice-bgm.mp3";
+  audio.src = new URL("assets/audio/alice-bgm.mp3", scriptUrl).href;
   audio.loop = true;
   audio.preload = "auto";
   audio.volume = 0.15;
