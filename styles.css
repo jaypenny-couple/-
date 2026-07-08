@@ -47,3 +47,5 @@
 .site-nav .lang-switch:hover,.site-nav .lang-switch:focus-visible{border-color:rgba(154,122,63,.62);background:rgba(201,169,109,.14);outline:none}
 .site-nav .lang-switch + .line-link{margin-left:4px}
 @media (max-width:1080px){.site-nav .lang-switch{min-height:44px;margin-left:0;justify-content:center}.site-nav .lang-switch + .line-link{margin-left:0}}
+html[lang="en"] .about-value-grid .card{grid-template-columns:minmax(200px,.44fr) 1fr}
+@media (max-width:760px){html[lang="en"] .about-value-grid .card{grid-template-columns:1fr}}
