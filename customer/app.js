@@ -3,6 +3,7 @@
 // 建議先不要公開含權限的 URL；正式部署前由 Codex / Apps Script 完成後端驗證。
 
 const GOOGLE_APPS_SCRIPT_WEBAPP_URL = ""; // 例如：https://script.google.com/macros/s/xxxx/exec
+const ADMIN_MODE = new URLSearchParams(window.location.search).get("admin") === "1";
 
 const state = {
   currentStep: 1,
@@ -17,6 +18,11 @@ const form = $("#customerForm");
 const home = $("#home");
 const resultPanel = $("#resultPanel");
 const jsonOutput = $("#jsonOutput");
+const resultTitle = $("#resultTitle");
+const resultMessage = $("#resultMessage");
+const resultStatus = $("#resultStatus");
+
+document.body.classList.toggle("admin-mode", ADMIN_MODE);
 
 function startForm() {
   home.classList.add("hidden");
@@ -371,18 +377,45 @@ function fileSafeName(payload, ext) {
   return `ALICE_${name}_${date}.${ext}`;
 }
 
-function submitForm(event) {
+async function submitForm(event) {
   event.preventDefault();
   if (!validateStep()) return;
 
   const payload = collectFormData();
   state.latestPayload = payload;
-  localStorage.setItem("aliceSmartCrmLatest", JSON.stringify(payload));
+  localStorage.removeItem("aliceSmartCrmDraft");
+
+  if (ADMIN_MODE) {
+    localStorage.setItem("aliceSmartCrmLatest", JSON.stringify(payload));
+  } else {
+    localStorage.removeItem("aliceSmartCrmLatest");
+  }
 
   form.classList.add("hidden");
   resultPanel.classList.remove("hidden");
-  jsonOutput.textContent = JSON.stringify(payload, null, 2);
+  renderResult();
   window.scrollTo({ top: 0, behavior: "smooth" });
+
+  if (GOOGLE_APPS_SCRIPT_WEBAPP_URL) {
+    await sendWebhook({ silent: !ADMIN_MODE });
+  } else if (ADMIN_MODE) {
+    resultStatus.textContent = "目前尚未設定 Google Apps Script Web App URL，資料尚未送到 Google Sheet。";
+  } else {
+    resultStatus.textContent = "請將此完成畫面交給現場人員確認。";
+  }
+}
+
+function renderResult() {
+  if (ADMIN_MODE) {
+    resultTitle.textContent = "資料已整理完成";
+    resultMessage.textContent = "內部測試模式已啟用，可複製 JSON、下載 CSV / JSON，或測試送到 Google Sheet。";
+    jsonOutput.textContent = JSON.stringify(state.latestPayload, null, 2);
+    return;
+  }
+
+  resultTitle.textContent = "填寫已完成";
+  resultMessage.textContent = "謝謝你完成資料填寫，請將此畫面交給現場人員確認。";
+  jsonOutput.textContent = "";
 }
 
 async function copyJson() {
@@ -391,23 +424,27 @@ async function copyJson() {
   alert("已複製 JSON。");
 }
 
-async function sendWebhook() {
+async function sendWebhook(options = {}) {
+  const { silent = false } = options;
   if (!state.latestPayload) return;
   if (!GOOGLE_APPS_SCRIPT_WEBAPP_URL) {
-    alert("尚未設定 Google Apps Script Web App URL。請先在 app.js 填入 GOOGLE_APPS_SCRIPT_WEBAPP_URL。");
+    resultStatus.textContent = "目前尚未設定 Google Apps Script Web App URL。";
+    if (!silent) alert("尚未設定 Google Apps Script Web App URL。請先在 app.js 填入 GOOGLE_APPS_SCRIPT_WEBAPP_URL。");
     return;
   }
 
   try {
-    const res = await fetch(GOOGLE_APPS_SCRIPT_WEBAPP_URL, {
+    await fetch(GOOGLE_APPS_SCRIPT_WEBAPP_URL, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(state.latestPayload)
     });
-    alert("已送出到 Google Sheet。若使用 no-cors，前端無法讀取詳細回應，請到 Sheet 確認。");
+    resultStatus.textContent = "資料已送出。";
+    if (!silent) alert("已送出到 Google Sheet。若使用 no-cors，前端無法讀取詳細回應，請到 Sheet 確認。");
   } catch (error) {
-    alert(`送出失敗：${error.message}`);
+    resultStatus.textContent = "資料暫時無法送出，請告知現場人員協助確認。";
+    if (!silent) alert(`送出失敗：${error.message}`);
   }
 }
 
@@ -417,12 +454,17 @@ function newForm() {
   resultPanel.classList.add("hidden");
   home.classList.remove("hidden");
   state.latestPayload = null;
+  jsonOutput.textContent = "";
+  resultStatus.textContent = "";
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 document.addEventListener("click", (event) => {
   const action = event.target?.dataset?.action;
   if (!action) return;
+
+  const adminActions = new Set(["load-draft", "save-draft", "copy-json", "download-json", "download-csv", "send-webhook"]);
+  if (adminActions.has(action) && !ADMIN_MODE) return;
 
   const actions = {
     start: startForm,

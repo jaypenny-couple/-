@@ -30,7 +30,7 @@
           約 2–3 分鐘完成。資料僅供 ALICE Hair Design Group 會員服務、預約聯繫、髮型紀錄與後續服務使用。
         </p>
         <button class="primary-btn" type="button" data-action="start">開始填寫</button>
-        <button class="ghost-btn" type="button" data-action="load-draft">載入暫存資料</button>
+        <button class="ghost-btn admin-only" type="button" data-action="load-draft">載入暫存資料</button>
       </section>
 
       <form id="customerForm" class="form-card hidden" autocomplete="on">
@@ -388,51 +388,59 @@
         <!-- Step 9 -->
         <section class="step" data-step="9" data-title="確認送出">
           <h2>確認送出</h2>
-          <p class="hint">送出後會產生 JSON 與 CSV，可交給 Codex / Apps Script / 千軍 E 髮匯入流程使用。</p>
+          <p class="hint">請確認資料無誤後送出。資料僅供 ALICE 會員服務、預約聯繫與髮型紀錄使用。</p>
 
-          <label>設計師 / 接待人員
-            <input name="staff" placeholder="例如：Jay / Iris / Sherry / Cindy" />
-          </label>
+          <div class="admin-only">
+            <label>設計師 / 接待人員
+              <input name="staff" placeholder="例如：Jay / Iris / Sherry / Cindy" />
+            </label>
 
-          <label>今日服務項目
-            <input name="serviceToday" placeholder="例如：剪髮、染髮、燙髮、護髮、頭皮護理" />
-          </label>
+            <label>今日服務項目
+              <input name="serviceToday" placeholder="例如：剪髮、染髮、燙髮、護髮、頭皮護理" />
+            </label>
 
-          <label>內部備註
-            <textarea name="internalNote" rows="4" placeholder="顧客不易整理的原因、預計處理方向、配方備註等"></textarea>
-          </label>
+            <label>內部備註
+              <textarea name="internalNote" rows="4" placeholder="顧客不易整理的原因、預計處理方向、配方備註等"></textarea>
+            </label>
+          </div>
 
           <div class="summary-box">
             <strong>送出前檢查</strong>
             <ul>
               <li>姓名與手機是否正確</li>
               <li>照片授權是否符合顧客意願</li>
-              <li>若需匯入千軍 E 髮，請確認欄位格式</li>
+              <li>送出後請將完成畫面交給現場人員確認</li>
             </ul>
           </div>
         </section>
 
         <div class="form-actions">
           <button class="ghost-btn" type="button" data-action="prev">上一步</button>
-          <button class="ghost-btn" type="button" data-action="save-draft">暫存</button>
+          <button class="ghost-btn admin-only" type="button" data-action="save-draft">暫存</button>
           <button class="primary-btn" type="button" data-action="next">下一步</button>
           <button class="primary-btn hidden" type="submit" data-action="submit">送出資料</button>
         </div>
       </form>
 
       <section id="resultPanel" class="result-panel hidden">
-        <h2>資料已整理完成</h2>
-        <p class="hint">可複製 JSON，或下載 CSV / JSON 檔。若已設定 Google Apps Script Web App URL，也可直接送到 Google Sheet。</p>
+        <h2 id="resultTitle">填寫已完成</h2>
+        <p class="hint" id="resultMessage">謝謝你完成資料填寫，請將此畫面交給現場人員確認。</p>
+        <p class="hint result-status" id="resultStatus" aria-live="polite"></p>
 
         <div class="result-actions">
+          <button class="primary-btn" type="button" data-action="new-form">回到首頁</button>
+        </div>
+
+        <div class="admin-tools admin-only">
+          <p class="hint">內部測試工具：可複製 JSON、下載 CSV / JSON，或測試送到 Google Sheet。正式顧客模式不會顯示這些按鈕。</p>
+          <div class="result-actions">
           <button class="primary-btn" type="button" data-action="copy-json">複製 JSON</button>
           <button class="ghost-btn" type="button" data-action="download-json">下載 JSON</button>
           <button class="ghost-btn" type="button" data-action="download-csv">下載 CSV</button>
           <button class="ghost-btn" type="button" data-action="send-webhook">送到 Google Sheet</button>
-          <button class="ghost-btn" type="button" data-action="new-form">填寫下一位</button>
+          </div>
+          <pre id="jsonOutput"></pre>
         </div>
-
-        <pre id="jsonOutput"></pre>
       </section>
     </main>
 
