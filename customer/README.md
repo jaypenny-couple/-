@@ -59,3 +59,22 @@ https://alicegroup.com.tw/customer/?admin=1
 
 千軍 E 髮的匯入格式必須另外確認。  
 目前此版本先完成「顧客填寫流程」與「內部測試輸出」，後續再串接 Google Apps Script / Google Sheet 與千軍格式轉換。
+
+## Google Sheet 串接
+
+1. 建立一份 Google Sheet，例如：`ALICE Smart CRM 顧客資料`
+2. 點選「擴充功能」->「Apps Script」
+3. 將 `google_apps_script_sample.js` 的內容完整貼上
+4. 儲存後先執行 `setupSheet()`，完成授權
+5. 點選「部署」->「新增部署作業」->「網頁應用程式」
+6. 執行身分選「自己」
+7. 存取權選「知道連結的任何人」
+8. 複製 Web App URL
+9. 將 Web App URL 填入 `app.js`：
+
+```js
+const GOOGLE_APPS_SCRIPT_WEBAPP_URL = "貼上你的 Web App URL";
+```
+
+顧客模式送出後會自動送到 Google Sheet。
+`?admin=1` 內部測試模式可按「送到 Google Sheet」手動測試。

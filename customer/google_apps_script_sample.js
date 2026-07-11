@@ -1,52 +1,157 @@
 /**
- * ALICE Smart CRM v2 - Google Apps Script 範例
+ * ALICE Smart CRM v2 - Google Apps Script 正式範本
  *
  * 使用方式：
  * 1. 建立 Google Sheet
- * 2. 擴充功能 → Apps Script
- * 3. 貼上此檔案
- * 4. 部署 → 新增部署作業 → 網頁應用程式
- * 5. 執行身分：自己
- * 6. 存取權：知道連結的任何人
- * 7. 複製 Web App URL，貼到 app.js 的 GOOGLE_APPS_SCRIPT_WEBAPP_URL
+ * 2. 擴充功能 -> Apps Script
+ * 3. 貼上此檔案並儲存
+ * 4. 回到 Apps Script，執行 setupSheet() 一次並授權
+ * 5. 部署 -> 新增部署作業 -> 網頁應用程式
+ * 6. 執行身分：自己
+ * 7. 存取權：知道連結的任何人
+ * 8. 複製 Web App URL，貼到 customer/app.js 的 GOOGLE_APPS_SCRIPT_WEBAPP_URL
  */
 
 const SHEET_NAME = "customers";
+const RAW_SHEET_NAME = "raw_submissions";
+
+const HEADERS = [
+  "receivedAt",
+  "submissionId",
+  "source",
+  "schemaVersion",
+  "createdAt",
+  "nameZh",
+  "nameEn",
+  "birthday",
+  "gender",
+  "mobile",
+  "phoneHome",
+  "email",
+  "lineId",
+  "city",
+  "district",
+  "address",
+  "contactMethods",
+  "contactTimes",
+  "occupation",
+  "sources",
+  "referrer",
+  "allergyHistory",
+  "selfWash",
+  "homeCare",
+  "favoriteFaceParts",
+  "recommendWillingness",
+  "hairConcerns",
+  "hairConcernOther",
+  "hairColorDepth",
+  "hairTexture",
+  "hairStructure",
+  "hairAmount",
+  "grayHairPercent",
+  "skinTone",
+  "eyeColor",
+  "styleGoals",
+  "improveGoals",
+  "avoidance",
+  "consentData",
+  "consentMarketing",
+  "consentPhoto",
+  "photoNote",
+  "staff",
+  "serviceToday",
+  "internalNote",
+  "rawJson"
+];
+
+function setupSheet() {
+  const sheet = getSheet_(SHEET_NAME);
+  ensureHeaders_(sheet, HEADERS);
+
+  const rawSheet = getSheet_(RAW_SHEET_NAME);
+  ensureHeaders_(rawSheet, ["receivedAt", "submissionId", "rawJson"]);
+
+  SpreadsheetApp.getActiveSpreadsheet().toast("ALICE Smart CRM sheets are ready.");
+}
+
+function doGet() {
+  return json_({
+    ok: true,
+    service: "ALICE Smart CRM v2",
+    message: "Google Apps Script endpoint is ready."
+  });
+}
 
 function doPost(e) {
-  const payload = JSON.parse(e.postData.contents);
-  const sheet = getSheet_();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
 
-  const row = flatten_(payload);
-  const headers = Object.keys(row);
+  try {
+    const raw = e?.postData?.contents || "{}";
+    const payload = JSON.parse(raw);
+    const row = flatten_(payload, raw);
 
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(headers);
+    const sheet = getSheet_(SHEET_NAME);
+    ensureHeaders_(sheet, HEADERS);
+    sheet.appendRow(HEADERS.map((key) => row[key] ?? ""));
+
+    const rawSheet = getSheet_(RAW_SHEET_NAME);
+    ensureHeaders_(rawSheet, ["receivedAt", "submissionId", "rawJson"]);
+    rawSheet.appendRow([row.receivedAt, row.submissionId, raw]);
+
+    return json_({
+      ok: true,
+      submissionId: row.submissionId,
+      receivedAt: row.receivedAt
+    });
+  } catch (error) {
+    return json_({
+      ok: false,
+      message: error.message
+    });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function getSheet_(name) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  return ss.getSheetByName(name) || ss.insertSheet(name);
+}
+
+function ensureHeaders_(sheet, headers) {
+  const lastColumn = Math.max(sheet.getLastColumn(), headers.length);
+  const current = sheet.getRange(1, 1, 1, lastColumn).getValues()[0].filter(Boolean);
+  const missing = headers.filter((header) => !current.includes(header));
+
+  if (current.length === 0) {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    sheet.setFrozenRows(1);
+    return;
   }
 
-  sheet.appendRow(headers.map(h => row[h] ?? ""));
+  if (missing.length) {
+    const nextColumn = current.length + 1;
+    sheet.getRange(1, nextColumn, 1, missing.length).setValues([missing]);
+  }
 
-  // 可選：建立 Google 聯絡人
-  // createGoogleContact_(payload);
-
-  return ContentService
-    .createTextOutput(JSON.stringify({ ok: true, createdAt: new Date().toISOString() }))
-    .setMimeType(ContentService.MimeType.JSON);
+  sheet.setFrozenRows(1);
 }
 
-function getSheet_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  return ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
-}
-
-function flatten_(payload) {
+function flatten_(payload, rawJson) {
   const c = payload.customer || {};
   const q = payload.questionnaire || {};
   const h = payload.hair || {};
   const consent = payload.consent || {};
   const internal = payload.internal || {};
+  const meta = payload.meta || {};
+
   return {
-    createdAt: payload.meta?.createdAt || new Date().toISOString(),
+    receivedAt: new Date().toISOString(),
+    submissionId: meta.submissionId || Utilities.getUuid(),
+    source: meta.source || "ALICE Smart CRM v2",
+    schemaVersion: meta.schemaVersion || "",
+    createdAt: meta.createdAt || "",
     nameZh: c.nameZh || "",
     nameEn: c.nameEn || "",
     birthday: c.birthday || "",
@@ -58,17 +163,17 @@ function flatten_(payload) {
     city: c.city || "",
     district: c.district || "",
     address: c.address || "",
-    contactMethods: (c.contactMethods || []).join("、"),
-    contactTimes: (c.contactTimes || []).join("、"),
+    contactMethods: join_(c.contactMethods),
+    contactTimes: join_(c.contactTimes),
     occupation: c.occupationOther || c.occupation || "",
-    sources: (c.sources || []).join("、"),
+    sources: join_(c.sources),
     referrer: c.referrer || "",
     allergyHistory: q.allergyHistory || "",
     selfWash: q.selfWash || "",
     homeCare: q.homeCare || "",
-    favoriteFaceParts: (q.favoriteFaceParts || []).join("、"),
+    favoriteFaceParts: join_(q.favoriteFaceParts),
     recommendWillingness: q.recommendWillingness || "",
-    hairConcerns: (h.concerns || []).join("、"),
+    hairConcerns: join_(h.concerns),
     hairConcernOther: h.concernOther || "",
     hairColorDepth: h.colorDepth || "",
     hairTexture: h.texture || "",
@@ -77,8 +182,8 @@ function flatten_(payload) {
     grayHairPercent: h.grayHairPercent || "",
     skinTone: h.skinTone || "",
     eyeColor: h.eyeColor || "",
-    styleGoals: (h.styleGoals || []).join("、"),
-    improveGoals: (h.improveGoals || []).join("、"),
+    styleGoals: join_(h.styleGoals),
+    improveGoals: join_(h.improveGoals),
     avoidance: h.avoidance || "",
     consentData: consent.data ? "Y" : "N",
     consentMarketing: consent.marketing ? "Y" : "N",
@@ -86,15 +191,29 @@ function flatten_(payload) {
     photoNote: consent.photoNote || "",
     staff: internal.staff || "",
     serviceToday: internal.serviceToday || "",
-    internalNote: internal.note || ""
+    internalNote: internal.note || "",
+    rawJson: rawJson || JSON.stringify(payload)
   };
 }
 
+function join_(value) {
+  if (Array.isArray(value)) return value.join("、");
+  return value || "";
+}
+
+function json_(data) {
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
 /**
- * Google 聯絡人建立範例
- * 注意：Apps Script 新版建議使用 People API Advanced Service。
+ * 可選：建立 Google 聯絡人
+ *
+ * 注意：
+ * Apps Script 新版建議使用 People API Advanced Service。
  * 若要啟用：
- * 1. Apps Script 左側「服務」→ 加入 People API
+ * 1. Apps Script 左側「服務」-> 加入 People API
  * 2. Google Cloud 專案也需啟用 People API
  */
 function createGoogleContact_(payload) {

@@ -8,7 +8,8 @@ const ADMIN_MODE = new URLSearchParams(window.location.search).get("admin") === 
 const state = {
   currentStep: 1,
   totalSteps: 9,
-  latestPayload: null
+  latestPayload: null,
+  latestSubmissionSent: false
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -78,6 +79,7 @@ function collectFormData() {
     meta: {
       source: "ALICE Smart CRM v2",
       createdAt: timestamp,
+      submissionId: createSubmissionId(),
       schemaVersion: "2.0.0"
     },
     customer: {
@@ -144,6 +146,12 @@ function collectFormData() {
   };
 
   return payload;
+}
+
+function createSubmissionId() {
+  const randomPart = Math.random().toString(36).slice(2, 10);
+  const timePart = Date.now().toString(36);
+  return `alice-${timePart}-${randomPart}`;
 }
 
 function buildContactNote() {
@@ -383,6 +391,7 @@ async function submitForm(event) {
 
   const payload = collectFormData();
   state.latestPayload = payload;
+  state.latestSubmissionSent = false;
   localStorage.removeItem("aliceSmartCrmDraft");
 
   if (ADMIN_MODE) {
@@ -427,6 +436,11 @@ async function copyJson() {
 async function sendWebhook(options = {}) {
   const { silent = false } = options;
   if (!state.latestPayload) return;
+  if (state.latestSubmissionSent) {
+    resultStatus.textContent = "資料已送出，請勿重複送出。";
+    if (!silent) alert("資料已送出，請勿重複送出。");
+    return;
+  }
   if (!GOOGLE_APPS_SCRIPT_WEBAPP_URL) {
     resultStatus.textContent = "目前尚未設定 Google Apps Script Web App URL。";
     if (!silent) alert("尚未設定 Google Apps Script Web App URL。請先在 app.js 填入 GOOGLE_APPS_SCRIPT_WEBAPP_URL。");
@@ -437,9 +451,10 @@ async function sendWebhook(options = {}) {
     await fetch(GOOGLE_APPS_SCRIPT_WEBAPP_URL, {
       method: "POST",
       mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(state.latestPayload)
     });
+    state.latestSubmissionSent = true;
     resultStatus.textContent = "資料已送出。";
     if (!silent) alert("已送出到 Google Sheet。若使用 no-cors，前端無法讀取詳細回應，請到 Sheet 確認。");
   } catch (error) {
@@ -454,6 +469,7 @@ function newForm() {
   resultPanel.classList.add("hidden");
   home.classList.remove("hidden");
   state.latestPayload = null;
+  state.latestSubmissionSent = false;
   jsonOutput.textContent = "";
   resultStatus.textContent = "";
   window.scrollTo({ top: 0, behavior: "smooth" });
