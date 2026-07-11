@@ -2,7 +2,7 @@
 // 修改 GOOGLE_APPS_SCRIPT_WEBAPP_URL 後，可直接送資料到 Google Sheet。
 // 建議先不要公開含權限的 URL；正式部署前由 Codex / Apps Script 完成後端驗證。
 
-const GOOGLE_APPS_SCRIPT_WEBAPP_URL = ""; // 例如：https://script.google.com/macros/s/xxxx/exec
+const GOOGLE_APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzyBymnUFBS_dNT9SaQZYfM2vl6vDxPx-LWhJqFVAQh-WQi40euCklFhcpsdDfkf9SEhQ/exec";
 const ADMIN_MODE = new URLSearchParams(window.location.search).get("admin") === "1";
 
 const state = {

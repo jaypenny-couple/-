@@ -93,11 +93,15 @@ function doPost(e) {
 
     const sheet = getSheet_(SHEET_NAME);
     ensureHeaders_(sheet, HEADERS);
-    sheet.appendRow(HEADERS.map((key) => row[key] ?? ""));
+    appendRowAsText_(sheet, HEADERS, row);
 
     const rawSheet = getSheet_(RAW_SHEET_NAME);
     ensureHeaders_(rawSheet, ["receivedAt", "submissionId", "rawJson"]);
-    rawSheet.appendRow([row.receivedAt, row.submissionId, raw]);
+    appendRowAsText_(rawSheet, ["receivedAt", "submissionId", "rawJson"], {
+      receivedAt: row.receivedAt,
+      submissionId: row.submissionId,
+      rawJson: raw
+    });
 
     return json_({
       ok: true,
@@ -136,6 +140,14 @@ function ensureHeaders_(sheet, headers) {
   }
 
   sheet.setFrozenRows(1);
+  sheet.getRange(2, 1, Math.max(sheet.getMaxRows() - 1, 1), headers.length).setNumberFormat("@");
+}
+
+function appendRowAsText_(sheet, headers, row) {
+  const rowNumber = sheet.getLastRow() + 1;
+  const range = sheet.getRange(rowNumber, 1, 1, headers.length);
+  range.setNumberFormat("@");
+  range.setValues([headers.map((key) => row[key] ?? "")]);
 }
 
 function flatten_(payload, rawJson) {

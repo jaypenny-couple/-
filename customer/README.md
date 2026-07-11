@@ -73,7 +73,7 @@ https://alicegroup.com.tw/customer/?admin=1
 9. 將 Web App URL 填入 `app.js`：
 
 ```js
-const GOOGLE_APPS_SCRIPT_WEBAPP_URL = "貼上你的 Web App URL";
+const GOOGLE_APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzyBymnUFBS_dNT9SaQZYfM2vl6vDxPx-LWhJqFVAQh-WQi40euCklFhcpsdDfkf9SEhQ/exec";
 ```
 
 顧客模式送出後會自動送到 Google Sheet。
