@@ -1,4 +1,4 @@
-const CACHE_NAME = "alice-smart-crm-v2-google-sheet";
+const CACHE_NAME = "alice-smart-crm-v2-disabled-20260711";
 const ASSETS = [
   "./",
   "./index.html",
@@ -21,7 +21,5 @@ self.addEventListener("activate", event => {
 });
 
 self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request))
-  );
+  event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
 });

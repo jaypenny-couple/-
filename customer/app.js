@@ -500,8 +500,26 @@ document.addEventListener("click", (event) => {
 
 form.addEventListener("submit", submitForm);
 
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js").catch(() => {});
-  });
+async function cleanupCustomerCache() {
+  if ("serviceWorker" in navigator) {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(
+      registrations
+        .filter(registration => registration.scope.includes("/customer/"))
+        .map(registration => registration.unregister())
+    );
+  }
+
+  if ("caches" in window) {
+    const keys = await caches.keys();
+    await Promise.all(
+      keys
+        .filter(key => key.startsWith("alice-smart-crm"))
+        .map(key => caches.delete(key))
+    );
+  }
 }
+
+window.addEventListener("load", () => {
+  cleanupCustomerCache().catch(() => {});
+});
