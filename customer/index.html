@@ -8,7 +8,7 @@
   <meta name="robots" content="noindex, nofollow, noarchive" />
   <title>ALICE Smart CRM｜顧客資料填寫</title>
   <link rel="manifest" href="./manifest.json" />
-  <link rel="stylesheet" href="./style.css?v=20260711-sheet" />
+  <link rel="stylesheet" href="./style.css?v=20260711-7steps" />
 </head>
 <body>
   <noscript>此表單需要啟用 JavaScript 才能使用。</noscript>
@@ -36,7 +36,7 @@
       <form id="customerForm" class="form-card hidden" autocomplete="on">
         <div class="progress-wrap">
           <div class="progress-info">
-            <span id="stepLabel">Step 1 / 9</span>
+            <span id="stepLabel">Step 1 / 7</span>
             <span id="progressText">基本資料</span>
           </div>
           <div class="progress-bar"><div id="progressBar"></div></div>
@@ -254,114 +254,7 @@
         </section>
 
         <!-- Step 6 -->
-        <section class="step" data-step="6" data-title="髮況分析">
-          <h2>毛髮・膚色・風格分析</h2>
-          <p class="hint">此區可由設計師補填。</p>
-
-          <fieldset>
-            <legend>髮色深淺</legend>
-            <div class="chips">
-              <label><input type="radio" name="hairColorDepth" value="深 1-2" />深 1–2</label>
-              <label><input type="radio" name="hairColorDepth" value="中 3-4" />中 3–4</label>
-              <label><input type="radio" name="hairColorDepth" value="淺 5-6" />淺 5–6</label>
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>粗細</legend>
-            <div class="chips">
-              <label><input type="radio" name="hairTexture" value="粗" />粗</label>
-              <label><input type="radio" name="hairTexture" value="中" />中</label>
-              <label><input type="radio" name="hairTexture" value="細" />細</label>
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>結構</legend>
-            <div class="chips">
-              <label><input type="radio" name="hairStructure" value="直" />直</label>
-              <label><input type="radio" name="hairStructure" value="波浪" />波浪</label>
-              <label><input type="radio" name="hairStructure" value="捲" />捲</label>
-              <label><input type="radio" name="hairStructure" value="極捲" />極捲</label>
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>髮量</legend>
-            <div class="chips">
-              <label><input type="radio" name="hairAmount" value="多" />多</label>
-              <label><input type="radio" name="hairAmount" value="中" />中</label>
-              <label><input type="radio" name="hairAmount" value="少" />少</label>
-            </div>
-          </fieldset>
-
-          <div class="grid-2">
-            <label>白髮比例 %
-              <input name="grayHairPercent" type="number" min="0" max="100" step="1" placeholder="0-100" />
-            </label>
-            <label>膚色
-              <select name="skinTone">
-                <option value="">請選擇</option>
-                <option>健康</option>
-                <option>白皙</option>
-                <option>偏黃</option>
-                <option>偏紅</option>
-                <option>偏暗沉</option>
-              </select>
-            </label>
-          </div>
-
-          <fieldset>
-            <legend>眼珠色</legend>
-            <div class="chips">
-              <label><input type="radio" name="eyeColor" value="深" />深</label>
-              <label><input type="radio" name="eyeColor" value="淺" />淺</label>
-            </div>
-          </fieldset>
-        </section>
-
-        <!-- Step 7 -->
-        <section class="step" data-step="7" data-title="風格偏好">
-          <h2>風格偏好</h2>
-          <p class="hint">可複選。之後可改成圖片式選擇。</p>
-
-          <fieldset>
-            <legend>希望呈現的髮型印象</legend>
-            <div class="chips">
-              <label><input type="checkbox" name="styleGoals" value="自然" />自然</label>
-              <label><input type="checkbox" name="styleGoals" value="時尚" />時尚</label>
-              <label><input type="checkbox" name="styleGoals" value="簡單" />簡單</label>
-              <label><input type="checkbox" name="styleGoals" value="個性" />個性</label>
-              <label><input type="checkbox" name="styleGoals" value="優雅" />優雅</label>
-              <label><input type="checkbox" name="styleGoals" value="新潮" />新潮</label>
-              <label><input type="checkbox" name="styleGoals" value="商務" />商務</label>
-              <label><input type="checkbox" name="styleGoals" value="韓系" />韓系</label>
-              <label><input type="checkbox" name="styleGoals" value="日系" />日系</label>
-              <label><input type="checkbox" name="styleGoals" value="歐美" />歐美</label>
-              <label><input type="checkbox" name="styleGoals" value="甜美" />甜美</label>
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>希望改善</legend>
-            <div class="chips">
-              <label><input type="checkbox" name="improveGoals" value="增加髮量感" />增加髮量感</label>
-              <label><input type="checkbox" name="improveGoals" value="更好整理" />更好整理</label>
-              <label><input type="checkbox" name="improveGoals" value="更有型" />更有型</label>
-              <label><input type="checkbox" name="improveGoals" value="改善頭皮" />改善頭皮</label>
-              <label><input type="checkbox" name="improveGoals" value="修護髮質" />修護髮質</label>
-              <label><input type="checkbox" name="improveGoals" value="遮白髮" />遮白髮</label>
-              <label><input type="checkbox" name="improveGoals" value="改變形象" />改變形象</label>
-            </div>
-          </fieldset>
-
-          <label>想避免的髮型 / 顏色 / 風格
-            <textarea name="avoidance" rows="3" placeholder="例如：不要太短、不要太紅、不要太可愛"></textarea>
-          </label>
-        </section>
-
-        <!-- Step 8 -->
-        <section class="step" data-step="8" data-title="照片與行銷同意">
+        <section class="step" data-step="6" data-title="照片與行銷同意">
           <h2>同意事項</h2>
           <p class="hint">可依實際法務需求再調整文字。</p>
 
@@ -385,8 +278,8 @@
           </label>
         </section>
 
-        <!-- Step 9 -->
-        <section class="step" data-step="9" data-title="確認送出">
+        <!-- Step 7 -->
+        <section class="step" data-step="7" data-title="確認送出">
           <h2>確認送出</h2>
           <p class="hint">請確認資料無誤後送出。資料僅供 ALICE 會員服務、預約聯繫與髮型紀錄使用。</p>
 
@@ -449,6 +342,6 @@
     </footer>
   </div>
 
-  <script src="./app.js?v=20260711-sheet"></script>
+  <script src="./app.js?v=20260711-7steps"></script>
 </body>
 </html>

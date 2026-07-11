@@ -7,7 +7,7 @@ const ADMIN_MODE = new URLSearchParams(window.location.search).get("admin") === 
 
 const state = {
   currentStep: 1,
-  totalSteps: 9,
+  totalSteps: 7,
   latestPayload: null,
   latestSubmissionSent: false
 };

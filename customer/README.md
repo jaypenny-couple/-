@@ -50,7 +50,6 @@ https://alicegroup.com.tw/customer/?admin=1
 - 職業與來源
 - 問卷資料
 - 頭髮與頭皮困擾
-- 毛髮 / 膚色 / 風格分析
 - 照片授權
 - 行銷通知同意
 - 設計師內部備註
