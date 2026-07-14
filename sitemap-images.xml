@@ -38,20 +38,6 @@
       <image:title>ALICE ??? Sherry ?????</image:title>
       <image:caption>Sherry ??? ALICE ??????</image:caption>
     </image:image>
-    <image:image>
-      <image:loc>https://alicegroup.com.tw/assets/images/news/typhoon-closure-notice-2026-07-10.png</image:loc>
-      <image:title>ALICE 颱風公休公告</image:title>
-      <image:caption>ALICE 愛麗絲髮型沙龍 7/11 颱風公休與 7/12 固定公休公告。</image:caption>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://alicegroup.com.tw/news/2026-typhoon-closure-notice.html</loc>
-    <lastmod>2026-07-10</lastmod>
-    <image:image>
-      <image:loc>https://alicegroup.com.tw/assets/images/news/typhoon-closure-notice-2026-07-10.png</image:loc>
-      <image:title>颱風公休公告｜7/11、7/12 連續 2 天公休</image:title>
-      <image:caption>因應颱風來襲，ALICE 依政府公告調整營業時間，連續 2 天公休。</image:caption>
-    </image:image>
   </url>
   <url>
     <loc>https://alicegroup.com.tw/about.html</loc>
