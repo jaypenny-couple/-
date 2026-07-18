@@ -47,72 +47,165 @@ if (navToggle && siteNav) {
 }
 
 (() => {
-  const audio = document.createElement("audio");
+  const STORAGE_KEY = "alice-bgm-choice";
+  const PLAYING_VALUE = "on";
+  const PAUSED_VALUE = "off";
+  const ICON_PLAY = ">";
+  const ICON_PAUSE = "||";
   const scriptElement =
     document.currentScript || document.querySelector('script[src$="script.js"]');
   const scriptUrl = scriptElement?.src
     ? new URL(scriptElement.src)
     : new URL("/script.js", window.location.origin);
-  const interactionEvents = ["click", "touchstart", "scroll", "keydown"];
+  let audio = null;
   let isPlaying = false;
 
-  audio.src = new URL("assets/audio/alice-bgm.mp3", scriptUrl).href;
-  audio.loop = true;
-  audio.preload = "auto";
-  audio.volume = 0.15;
-  audio.controls = false;
-  audio.setAttribute("aria-hidden", "true");
-  audio.style.display = "none";
-
-  const removeInteractionListeners = () => {
-    interactionEvents.forEach((eventName) => {
-      window.removeEventListener(eventName, playFromInteraction, true);
-    });
+  const getStoredChoice = () => {
+    try {
+      return window.localStorage.getItem(STORAGE_KEY);
+    } catch (error) {
+      return null;
+    }
   };
 
-  const playAudio = () => {
-    if (isPlaying) return Promise.resolve();
+  const storeChoice = (choice) => {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, choice);
+    } catch (error) {
+      // Ignore storage failures; the visible button still controls this page.
+    }
+  };
 
-    const playPromise = audio.play();
+  const createAudio = () => {
+    if (audio) return audio;
+
+    audio = document.createElement("audio");
+    audio.src = new URL("assets/audio/alice-bgm.mp3", scriptUrl).href;
+    audio.loop = true;
+    audio.preload = "none";
+    audio.volume = 0.15;
+    audio.controls = false;
+    audio.setAttribute("aria-hidden", "true");
+    audio.style.display = "none";
+    document.body.appendChild(audio);
+
+    audio.addEventListener("pause", () => {
+      isPlaying = false;
+      updateButton();
+    });
+
+    audio.addEventListener("play", () => {
+      isPlaying = true;
+      updateButton();
+    });
+
+    return audio;
+  };
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "music-toggle";
+  button.setAttribute("aria-live", "polite");
+
+  const style = document.createElement("style");
+  style.textContent = `
+    .music-toggle {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 96;
+      width: 46px;
+      height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(38, 38, 38, .16);
+      border-radius: 999px;
+      color: #262626;
+      background: rgba(255, 250, 244, .94);
+      box-shadow: 0 14px 34px rgba(38, 38, 38, .16);
+      cursor: pointer;
+      font: 800 1rem/1 "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+      backdrop-filter: blur(14px);
+    }
+
+    .music-toggle:hover,
+    .music-toggle:focus-visible {
+      border-color: rgba(201, 169, 109, .62);
+      background: #fffaf4;
+      outline: none;
+    }
+
+    @media (max-width: 860px) {
+      .music-toggle {
+        right: 18px;
+        bottom: 86px;
+      }
+    }
+  `;
+
+  function updateButton() {
+    const label = isPlaying ? "Pause background music" : "Play background music";
+    button.textContent = isPlaying ? ICON_PAUSE : ICON_PLAY;
+    button.setAttribute("aria-label", label);
+    button.setAttribute("title", label);
+    button.setAttribute("aria-pressed", String(isPlaying));
+  }
+
+  const playAudio = () => {
+    const bgm = createAudio();
+    const playPromise = bgm.play();
 
     if (!playPromise || typeof playPromise.then !== "function") {
       isPlaying = true;
-      removeInteractionListeners();
+      updateButton();
       return Promise.resolve();
     }
 
     return playPromise
       .then(() => {
         isPlaying = true;
-        removeInteractionListeners();
+        updateButton();
       })
       .catch(() => {
         isPlaying = false;
+        updateButton();
       });
   };
 
-  function playFromInteraction() {
-    playAudio();
-  }
+  const pauseAudio = () => {
+    if (audio) {
+      audio.pause();
+    }
 
-  const addInteractionListeners = () => {
-    interactionEvents.forEach((eventName) => {
-      window.addEventListener(eventName, playFromInteraction, {
-        capture: true,
-        passive: true,
-      });
+    isPlaying = false;
+    updateButton();
+  };
+
+  const mountMusicControl = () => {
+    document.head.appendChild(style);
+    document.body.appendChild(button);
+    updateButton();
+
+    button.addEventListener("click", () => {
+      if (isPlaying) {
+        storeChoice(PAUSED_VALUE);
+        pauseAudio();
+        return;
+      }
+
+      storeChoice(PLAYING_VALUE);
+      playAudio();
     });
-  };
 
-  const mountAudio = () => {
-    document.body.appendChild(audio);
-    addInteractionListeners();
-    playAudio();
+    if (getStoredChoice() === PLAYING_VALUE) {
+      playAudio();
+    }
   };
 
   if (document.body) {
-    mountAudio();
+    mountMusicControl();
   } else {
-    document.addEventListener("DOMContentLoaded", mountAudio, { once: true });
+    document.addEventListener("DOMContentLoaded", mountMusicControl, { once: true });
   }
 })();
