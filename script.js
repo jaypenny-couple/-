@@ -50,8 +50,13 @@ if (navToggle && siteNav) {
   const STORAGE_KEY = "alice-bgm-choice";
   const PLAYING_VALUE = "on";
   const PAUSED_VALUE = "off";
-  const ICON_PLAY = ">";
-  const ICON_PAUSE = "||";
+  const MUSIC_NOTE_ICON = `
+    <svg class="music-toggle-icon" aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+      <path d="M9 18V5l11-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="17" cy="16" r="3" />
+    </svg>
+  `;
   const scriptElement =
     document.currentScript || document.querySelector('script[src$="script.js"]');
   const scriptUrl = scriptElement?.src
@@ -111,11 +116,11 @@ if (navToggle && siteNav) {
   style.textContent = `
     .music-toggle {
       position: fixed;
-      right: 16px;
-      bottom: 16px;
+      top: 88px;
+      right: 20px;
       z-index: 96;
-      width: 46px;
-      height: 46px;
+      width: 48px;
+      height: 48px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -129,6 +134,24 @@ if (navToggle && siteNav) {
       backdrop-filter: blur(14px);
     }
 
+    .music-toggle.is-playing {
+      color: #fffaf4;
+      border-color: rgba(201, 169, 109, .72);
+      background: rgba(154, 122, 63, .94);
+      box-shadow: 0 14px 34px rgba(154, 122, 63, .24);
+    }
+
+    .music-toggle-icon {
+      width: 22px;
+      height: 22px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
     .music-toggle:hover,
     .music-toggle:focus-visible {
       border-color: rgba(201, 169, 109, .62);
@@ -136,17 +159,50 @@ if (navToggle && siteNav) {
       outline: none;
     }
 
+    .music-toggle.is-playing:hover,
+    .music-toggle.is-playing:focus-visible {
+      color: #fffaf4;
+      background: #8b6b35;
+    }
+
     @media (max-width: 860px) {
       .music-toggle {
-        right: 18px;
-        bottom: 86px;
+        top: 14px;
+        right: 72px;
+        z-index: 119;
+      }
+
+      body.nav-open .music-toggle {
+        display: none;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .music-toggle {
+        top: 13px;
+        right: 66px;
+        width: 44px;
+        height: 44px;
+      }
+
+      .music-toggle-icon {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .music-toggle {
+        top: 76px;
+        right: 16px;
       }
     }
   `;
 
   function updateButton() {
-    const label = isPlaying ? "Pause background music" : "Play background music";
-    button.textContent = isPlaying ? ICON_PAUSE : ICON_PLAY;
+    const label = isPlaying ? "關閉背景音樂" : "開啟背景音樂";
+    button.innerHTML = MUSIC_NOTE_ICON;
+    button.classList.toggle("is-playing", isPlaying);
     button.setAttribute("aria-label", label);
     button.setAttribute("title", label);
     button.setAttribute("aria-pressed", String(isPlaying));
