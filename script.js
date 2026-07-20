@@ -265,3 +265,112 @@ if (navToggle && siteNav) {
     document.addEventListener("DOMContentLoaded", mountMusicControl, { once: true });
   }
 })();
+
+(() => {
+  const monthLabel = document.querySelector("#holiday-current-month");
+  const dateList = document.querySelector("#holiday-date-list");
+  const modal = document.querySelector("#holiday-modal");
+  const openButton = document.querySelector("#holiday-open-button");
+  const closeButtons = document.querySelectorAll("[data-holiday-close]");
+  const closeButton = modal?.querySelector(".holiday-modal__close");
+  const STORAGE_KEY = "alice-holiday-modal-closed";
+
+  if (!monthLabel || !dateList || !modal || !openButton) return;
+
+  const weekdays = [
+    "\u65e5",
+    "\u4e00",
+    "\u4e8c",
+    "\u4e09",
+    "\u56db",
+    "\u4e94",
+    "\u516d",
+  ];
+  const taiwanDateParts = new Intl.DateTimeFormat("zh-TW", {
+    timeZone: "Asia/Taipei",
+    year: "numeric",
+    month: "numeric",
+  }).formatToParts(new Date());
+  const year = Number(
+    taiwanDateParts.find((part) => part.type === "year")?.value
+  );
+  const month =
+    Number(taiwanDateParts.find((part) => part.type === "month")?.value) - 1;
+
+  const getNthWeekday = (targetWeekday, nth) => {
+    const firstDay = new Date(year, month, 1);
+    const offset = (targetWeekday - firstDay.getDay() + 7) % 7;
+
+    return new Date(year, month, 1 + offset + (nth - 1) * 7);
+  };
+
+  const closures = [
+    { date: getNthWeekday(1, 1), label: "\u7b2c 1 \u500b\u661f\u671f\u4e00" },
+    { date: getNthWeekday(0, 2), label: "\u7b2c 2 \u500b\u661f\u671f\u65e5" },
+    { date: getNthWeekday(1, 3), label: "\u7b2c 3 \u500b\u661f\u671f\u4e00" },
+    { date: getNthWeekday(0, 4), label: "\u7b2c 4 \u500b\u661f\u671f\u65e5" },
+  ].sort((a, b) => a.date - b.date);
+
+  monthLabel.textContent = `${year} \u5e74 ${month + 1} \u6708\u516c\u4f11\u65e5`;
+  dateList.replaceChildren(
+    ...closures.map(({ date, label }) => {
+      const item = document.createElement("li");
+      const rule = document.createElement("span");
+
+      item.textContent = `${month + 1} \u6708 ${date.getDate()} \u65e5\uff08${
+        weekdays[date.getDay()]
+      }\uff09`;
+      rule.textContent = label;
+      item.appendChild(rule);
+
+      return item;
+    })
+  );
+
+  const openModal = () => {
+    modal.hidden = false;
+    document.body.classList.add("holiday-modal-open");
+    closeButton?.focus();
+  };
+
+  const closeModal = () => {
+    modal.hidden = true;
+    document.body.classList.remove("holiday-modal-open");
+
+    try {
+      window.sessionStorage.setItem(STORAGE_KEY, "true");
+    } catch (error) {
+      // The modal still closes if session storage is unavailable.
+    }
+  };
+
+  openButton.addEventListener("click", () => {
+    openModal();
+  });
+
+  closeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      closeModal();
+      openButton.focus();
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !modal.hidden) {
+      closeModal();
+      openButton.focus();
+    }
+  });
+
+  let wasClosed = false;
+
+  try {
+    wasClosed = window.sessionStorage.getItem(STORAGE_KEY) === "true";
+  } catch (error) {
+    wasClosed = false;
+  }
+
+  if (!wasClosed) {
+    openModal();
+  }
+})();
