@@ -55,6 +55,7 @@ if (navToggle && siteNav) {
       <path d="M9 18V5l11-2v13" />
       <circle cx="6" cy="18" r="3" />
       <circle cx="17" cy="16" r="3" />
+      <line class="music-toggle-off-mark" x1="3" y1="21" x2="21" y2="3" />
     </svg>
   `;
   const scriptElement =
@@ -64,6 +65,7 @@ if (navToggle && siteNav) {
     : new URL("/script.js", window.location.origin);
   let audio = null;
   let isPlaying = false;
+  let isChanging = false;
 
   const getStoredChoice = () => {
     try {
@@ -152,6 +154,20 @@ if (navToggle && siteNav) {
       stroke-linejoin: round;
     }
 
+    .music-toggle-off-mark {
+      opacity: 1;
+      transition: opacity .18s ease;
+    }
+
+    .music-toggle.is-playing .music-toggle-off-mark {
+      opacity: 0;
+    }
+
+    .music-toggle.is-loading {
+      cursor: wait;
+      opacity: .72;
+    }
+
     .music-toggle:hover,
     .music-toggle:focus-visible {
       border-color: rgba(201, 169, 109, .62);
@@ -201,30 +217,45 @@ if (navToggle && siteNav) {
 
   function updateButton() {
     const label = isPlaying ? "關閉背景音樂" : "開啟背景音樂";
+    const title = isPlaying
+      ? "背景音樂播放中，點擊關閉"
+      : "背景音樂已關閉，點擊開啟";
+
     button.innerHTML = MUSIC_NOTE_ICON;
     button.classList.toggle("is-playing", isPlaying);
-    button.setAttribute("aria-label", label);
-    button.setAttribute("title", label);
+    button.classList.toggle("is-loading", isChanging);
+    button.disabled = isChanging;
+    button.setAttribute("aria-label", isChanging ? "背景音樂處理中" : label);
+    button.setAttribute("title", title);
     button.setAttribute("aria-pressed", String(isPlaying));
   }
 
   const playAudio = () => {
     const bgm = createAudio();
+    isChanging = true;
+    updateButton();
+
     const playPromise = bgm.play();
 
     if (!playPromise || typeof playPromise.then !== "function") {
+      isChanging = false;
       isPlaying = true;
+      storeChoice(PLAYING_VALUE);
       updateButton();
       return Promise.resolve();
     }
 
     return playPromise
       .then(() => {
+        isChanging = false;
         isPlaying = true;
+        storeChoice(PLAYING_VALUE);
         updateButton();
       })
       .catch(() => {
+        isChanging = false;
         isPlaying = false;
+        storeChoice(PAUSED_VALUE);
         updateButton();
       });
   };
@@ -235,6 +266,7 @@ if (navToggle && siteNav) {
     }
 
     isPlaying = false;
+    isChanging = false;
     updateButton();
   };
 
@@ -244,18 +276,20 @@ if (navToggle && siteNav) {
     updateButton();
 
     button.addEventListener("click", () => {
+      if (isChanging) return;
+
       if (isPlaying) {
         storeChoice(PAUSED_VALUE);
         pauseAudio();
         return;
       }
 
-      storeChoice(PLAYING_VALUE);
       playAudio();
     });
 
+    // Browsers can block autoplay on page load, so every visit starts visibly off.
     if (getStoredChoice() === PLAYING_VALUE) {
-      playAudio();
+      storeChoice(PAUSED_VALUE);
     }
   };
 
