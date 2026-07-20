@@ -103,6 +103,25 @@
   font-weight: 800;
 }
 
+.article-cover {
+  margin: 36px 0 0;
+  overflow: hidden;
+  border: 1px solid rgba(38, 38, 38, .1);
+  border-radius: 8px;
+  background: rgba(255, 250, 244, .72);
+  box-shadow: var(--soft);
+}
+
+.article-cover picture,
+.article-cover img {
+  display: block;
+}
+
+.article-cover img {
+  width: 100%;
+  height: auto;
+}
+
 .science-article-section {
   padding: 82px 0;
 }
