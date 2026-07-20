@@ -68,7 +68,13 @@
   </url>
   <url>
     <loc>https://alicegroup.com.tw/hair-science.html</loc>
-    <lastmod>2026-07-03</lastmod>
+    <lastmod>2026-07-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://alicegroup.com.tw/hair-science/bleached-hair-perm.html</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
