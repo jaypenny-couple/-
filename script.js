@@ -55,6 +55,7 @@ if (navToggle && siteNav) {
       <path d="M9 18V5l11-2v13" />
       <circle cx="6" cy="18" r="3" />
       <circle cx="17" cy="16" r="3" />
+      <line class="music-toggle-off-mark" x1="3" y1="21" x2="21" y2="3" />
     </svg>
   `;
   const scriptElement =
@@ -64,6 +65,7 @@ if (navToggle && siteNav) {
     : new URL("/script.js", window.location.origin);
   let audio = null;
   let isPlaying = false;
+  let isChanging = false;
 
   const getStoredChoice = () => {
     try {
@@ -152,6 +154,20 @@ if (navToggle && siteNav) {
       stroke-linejoin: round;
     }
 
+    .music-toggle-off-mark {
+      opacity: 1;
+      transition: opacity .18s ease;
+    }
+
+    .music-toggle.is-playing .music-toggle-off-mark {
+      opacity: 0;
+    }
+
+    .music-toggle.is-loading {
+      cursor: wait;
+      opacity: .72;
+    }
+
     .music-toggle:hover,
     .music-toggle:focus-visible {
       border-color: rgba(201, 169, 109, .62);
@@ -201,30 +217,45 @@ if (navToggle && siteNav) {
 
   function updateButton() {
     const label = isPlaying ? "關閉背景音樂" : "開啟背景音樂";
+    const title = isPlaying
+      ? "背景音樂播放中，點擊關閉"
+      : "背景音樂已關閉，點擊開啟";
+
     button.innerHTML = MUSIC_NOTE_ICON;
     button.classList.toggle("is-playing", isPlaying);
-    button.setAttribute("aria-label", label);
-    button.setAttribute("title", label);
+    button.classList.toggle("is-loading", isChanging);
+    button.disabled = isChanging;
+    button.setAttribute("aria-label", isChanging ? "背景音樂處理中" : label);
+    button.setAttribute("title", title);
     button.setAttribute("aria-pressed", String(isPlaying));
   }
 
   const playAudio = () => {
     const bgm = createAudio();
+    isChanging = true;
+    updateButton();
+
     const playPromise = bgm.play();
 
     if (!playPromise || typeof playPromise.then !== "function") {
+      isChanging = false;
       isPlaying = true;
+      storeChoice(PLAYING_VALUE);
       updateButton();
       return Promise.resolve();
     }
 
     return playPromise
       .then(() => {
+        isChanging = false;
         isPlaying = true;
+        storeChoice(PLAYING_VALUE);
         updateButton();
       })
       .catch(() => {
+        isChanging = false;
         isPlaying = false;
+        storeChoice(PAUSED_VALUE);
         updateButton();
       });
   };
@@ -235,6 +266,7 @@ if (navToggle && siteNav) {
     }
 
     isPlaying = false;
+    isChanging = false;
     updateButton();
   };
 
@@ -244,18 +276,20 @@ if (navToggle && siteNav) {
     updateButton();
 
     button.addEventListener("click", () => {
+      if (isChanging) return;
+
       if (isPlaying) {
         storeChoice(PAUSED_VALUE);
         pauseAudio();
         return;
       }
 
-      storeChoice(PLAYING_VALUE);
       playAudio();
     });
 
+    // Browsers can block autoplay on page load, so every visit starts visibly off.
     if (getStoredChoice() === PLAYING_VALUE) {
-      playAudio();
+      storeChoice(PAUSED_VALUE);
     }
   };
 
@@ -263,114 +297,5 @@ if (navToggle && siteNav) {
     mountMusicControl();
   } else {
     document.addEventListener("DOMContentLoaded", mountMusicControl, { once: true });
-  }
-})();
-
-(() => {
-  const monthLabel = document.querySelector("#holiday-current-month");
-  const dateList = document.querySelector("#holiday-date-list");
-  const modal = document.querySelector("#holiday-modal");
-  const openButton = document.querySelector("#holiday-open-button");
-  const closeButtons = document.querySelectorAll("[data-holiday-close]");
-  const closeButton = modal?.querySelector(".holiday-modal__close");
-  const STORAGE_KEY = "alice-holiday-modal-closed";
-
-  if (!monthLabel || !dateList || !modal || !openButton) return;
-
-  const weekdays = [
-    "\u65e5",
-    "\u4e00",
-    "\u4e8c",
-    "\u4e09",
-    "\u56db",
-    "\u4e94",
-    "\u516d",
-  ];
-  const taiwanDateParts = new Intl.DateTimeFormat("zh-TW", {
-    timeZone: "Asia/Taipei",
-    year: "numeric",
-    month: "numeric",
-  }).formatToParts(new Date());
-  const year = Number(
-    taiwanDateParts.find((part) => part.type === "year")?.value
-  );
-  const month =
-    Number(taiwanDateParts.find((part) => part.type === "month")?.value) - 1;
-
-  const getNthWeekday = (targetWeekday, nth) => {
-    const firstDay = new Date(year, month, 1);
-    const offset = (targetWeekday - firstDay.getDay() + 7) % 7;
-
-    return new Date(year, month, 1 + offset + (nth - 1) * 7);
-  };
-
-  const closures = [
-    { date: getNthWeekday(1, 1), label: "\u7b2c 1 \u500b\u661f\u671f\u4e00" },
-    { date: getNthWeekday(0, 2), label: "\u7b2c 2 \u500b\u661f\u671f\u65e5" },
-    { date: getNthWeekday(1, 3), label: "\u7b2c 3 \u500b\u661f\u671f\u4e00" },
-    { date: getNthWeekday(0, 4), label: "\u7b2c 4 \u500b\u661f\u671f\u65e5" },
-  ].sort((a, b) => a.date - b.date);
-
-  monthLabel.textContent = `${year} \u5e74 ${month + 1} \u6708\u516c\u4f11\u65e5`;
-  dateList.replaceChildren(
-    ...closures.map(({ date, label }) => {
-      const item = document.createElement("li");
-      const rule = document.createElement("span");
-
-      item.textContent = `${month + 1} \u6708 ${date.getDate()} \u65e5\uff08${
-        weekdays[date.getDay()]
-      }\uff09`;
-      rule.textContent = label;
-      item.appendChild(rule);
-
-      return item;
-    })
-  );
-
-  const openModal = () => {
-    modal.hidden = false;
-    document.body.classList.add("holiday-modal-open");
-    closeButton?.focus();
-  };
-
-  const closeModal = () => {
-    modal.hidden = true;
-    document.body.classList.remove("holiday-modal-open");
-
-    try {
-      window.sessionStorage.setItem(STORAGE_KEY, "true");
-    } catch (error) {
-      // The modal still closes if session storage is unavailable.
-    }
-  };
-
-  openButton.addEventListener("click", () => {
-    openModal();
-  });
-
-  closeButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      closeModal();
-      openButton.focus();
-    });
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !modal.hidden) {
-      closeModal();
-      openButton.focus();
-    }
-  });
-
-  let wasClosed = false;
-
-  try {
-    wasClosed = window.sessionStorage.getItem(STORAGE_KEY) === "true";
-  } catch (error) {
-    wasClosed = false;
-  }
-
-  if (!wasClosed) {
-    openModal();
   }
 })();
