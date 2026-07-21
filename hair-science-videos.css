@@ -107,6 +107,14 @@
   width: 100%;
 }
 
+.science-article-card-media {
+  aspect-ratio: 16 / 9;
+}
+
+.science-article-card-media img {
+  object-fit: contain;
+}
+
 @media (max-width: 1080px) {
   .page-hero {
     padding: 62px 0;
