@@ -285,9 +285,39 @@
     }
 
     .home-science-section .science-topic-card {
-      min-height: 210px;
-      padding: 22px;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 18px;
       background: rgba(255, 250, 244, .82);
+    }
+
+    .home-science-section .science-topic-card:hover,
+    .home-science-section .science-topic-card:focus-visible {
+      transform: translateY(-2px);
+      outline: none;
+    }
+
+    .home-science-section .science-topic-media {
+      margin: 0 0 14px;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border: 1px solid rgba(38, 38, 38, .08);
+      border-radius: 7px;
+      background: rgba(255, 250, 244, .6);
+    }
+
+    .home-science-section .science-topic-media picture {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .home-science-section .science-topic-media img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
     }
 
     .home-science-section .science-topic-card h3 {
@@ -296,6 +326,7 @@
     }
 
     .home-science-section .science-topic-card p {
+      margin-top: 10px;
       font-size: .92rem;
       line-height: 1.72;
     }
@@ -355,7 +386,62 @@
   <main id="main">
     <section class="hero" aria-labelledby="hero-title"><picture class="responsive-picture"><source type="image/webp" srcset="./assets/images/hero-alice-salon.webp 1x"><img class="hero-media" src="./assets/images/hero-alice-salon.jpg" alt="桃園南崁 ALICE Hair Salon 店內日系輕奢沙龍空間" srcset="./assets/images/hero-alice-salon.jpg 1x" width="2508" height="1672" decoding="async"></picture><div class="container hero-layout"><div class="hero-copy"><p class="eyebrow">Japanese Minimal Luxury Hair Salon</p><h1 id="hero-title" class="hero-title"><span class="hero-title-main">ALICE 愛麗絲</span><span class="hero-title-sub">桃園南崁的日系</span><span class="hero-title-sub">輕奢髮型沙龍</span></h1><p class="hero-lede">深耕在地超過 50 年，以細緻溝通、髮況判斷與科學美髮，讓剪、染、燙、護不只是造型，而是能融入日常的質感。</p><div class="hero-actions"><a class="button button-gold" href="https://page.line.me/tqv5483y" target="_blank" rel="noopener">LINE 預約諮詢</a><a class="button button-secondary" href="tel:0933044645">電話 0933044645</a><a class="button button-secondary" href="https://g.page/r/CXF25f7dgeanEBM/review" target="_blank" rel="noopener">Google 評論</a></div><p class="hero-consult-note">預約前可先傳目前髮況、過去染燙紀錄與理想風格照片，設計師會依髮況判斷可達成程度與建議流程。</p><div class="hero-proof"><div class="proof-item"><strong>超過 50 年</strong><span>桃園南崁在地信任</span></div><div class="proof-item"><strong>專業設計師群</strong><span>依需求安排團隊服務</span></div><div class="proof-item"><strong>Hair Science</strong><span>美髮理科小教室</span></div></div></div></div></section>
     <section class="section home-designer-summary-section"><div class="container"><div class="section-heading"><p class="section-kicker">Designers</p><h2>想找適合你的設計師？</h2><p class="section-lead">每位設計師都有不同的溝通方式與美感專長，預約前可以先認識團隊，找到更適合自己的服務方向。</p></div><div class="designer-summary-grid"><a class="designer-summary-card" href="designers.html" aria-label="認識 Jay 杰煬設計師"><figure class="designer-summary-photo"><picture class="responsive-picture"><source type="image/webp" srcset="./assets/images/designers/jay-jieyang-portrait.webp 1x"><img src="./assets/images/designers/jay-jieyang-portrait.png" alt="ALICE 設計師 Jay 杰煬，桃園南崁講師級美髮設計師" srcset="./assets/images/designers/jay-jieyang-portrait.png 1x" width="1086" height="1448" decoding="async" loading="lazy"></picture></figure><div class="designer-summary-copy"><h3>Jay 杰煬</h3><span class="role">講師級設計師｜美髮理科主理人</span><p>髮況判斷、染燙規劃與美髮理科說明</p></div></a><a class="designer-summary-card" href="designers.html" aria-label="認識 Iris 渼鈴設計師"><figure class="designer-summary-photo"><picture class="responsive-picture"><source type="image/webp" srcset="./assets/images/designers/iris-meiling-portrait.webp 1x"><img src="./assets/images/designers/iris-meiling-portrait.png" alt="ALICE 設計師 Iris 渼鈴，桃園南崁資深美髮設計師" srcset="./assets/images/designers/iris-meiling-portrait.png 1x" width="1086" height="1448" decoding="async" loading="lazy"></picture></figure><div class="designer-summary-copy"><h3>Iris 渼鈴</h3><span class="role">資深設計師</span><p>成熟穩定、自然整理與質感染髮</p></div></a><a class="designer-summary-card" href="designers.html" aria-label="認識 Cindy 雅筑設計師"><figure class="designer-summary-photo"><picture class="responsive-picture"><source type="image/webp" srcset="./assets/images/designers/cindy-yazhu-portrait.webp 1x"><img src="./assets/images/designers/cindy-yazhu-portrait.png" alt="ALICE 設計師 Cindy 雅筑，桃園南崁新秀美髮設計師" srcset="./assets/images/designers/cindy-yazhu-portrait.png 1x" width="1086" height="1448" decoding="async" loading="lazy"></picture></figure><div class="designer-summary-copy"><h3>Cindy 雅筑</h3><span class="role">新秀設計師</span><p>細心溝通、清新造型與基礎整理</p></div></a><a class="designer-summary-card" href="designers.html" aria-label="認識 Sherry 惠玲設計師"><figure class="designer-summary-photo"><picture class="responsive-picture"><source type="image/webp" srcset="./assets/images/designers/sherry-huiling-portrait.webp 1x"><img src="./assets/images/designers/sherry-huiling-portrait.png" alt="ALICE 設計師 Sherry 惠玲，桃園南崁資深美髮設計師" srcset="./assets/images/designers/sherry-huiling-portrait.png 1x" width="1086" height="1448" decoding="async" loading="lazy"></picture></figure><div class="designer-summary-copy"><h3>Sherry 惠玲</h3><span class="role">資深設計師</span><p>剪裁比例、髮流整理與熟齡質感</p></div></a></div><div class="action-row"><a class="button button-primary" href="designers.html">認識完整設計師團隊</a></div></div></section>
-    <section class="band band-charcoal home-science-section"><div class="container home-science-layout"><div><p class="section-kicker">Hair Science Classroom</p><h2>美髮理科小教室</h2><p>由 Jay 杰煬主理，將染燙護、頭皮、髮質與藥劑原理轉成顧客聽得懂的語言，讓每一次選擇更安心。</p><div class="action-row"><a class="button button-gold" href="hair-science.html">閱讀美髮理科</a></div></div><div class="article-grid home-science-grid"><article class="article-card science-topic-card"><span>頭皮屑判斷</span><h3>用錯洗髮精，頭皮屑更嚴重？！</h3><p>乾性粉末狀皮屑更需要保濕舒緩；若誤用強力去屑產品，反而可能讓頭皮更乾、更不穩定。</p></article><article class="article-card science-topic-card"><span>換季頭皮</span><h3>換季掉髮多，連頭皮屑也變多？！</h3><p>換季時頭皮正在適應氣候，掉髮、乾癢或皮屑變化都可能跟油水平衡與清潔習慣有關。</p></article><article class="article-card science-topic-card"><span>洗髮精選擇</span><h3>洗髮精要常換，不然會越洗越沒效？！</h3><p>不是洗髮精失效，而是頭皮狀況改變；穩定時不必亂換，換季不穩時才調整。</p></article><article class="article-card science-topic-card"><span>漂後燙髮</span><h3>漂過頭髮真的不能燙嗎？！</h3><p>是否能燙，關鍵在髮況承受度與現場評估；漂淺前也要先了解可能風險。</p></article><article class="article-card science-topic-card"><span>服務模式</span><h3>一人服務制 vs 一人服務多人制，哪個好？</h3><p>沒有絕對好壞，重點是服務模式是否符合你的需求、溝通習慣與期待品質。</p></article><article class="article-card science-topic-card"><span>成分判讀</span><h3>何首烏洗髮精、染劑真的好？</h3><p>天然成分常是包裝亮點；染髮仍要看配方邏輯，並在操作前做好敏感測試。</p></article><article class="article-card science-topic-card"><span>價格迷思</span><h3>東京首爾弄頭髮好便宜？！</h3><p>不同城市的價格不能只看表面數字，還要拆解服務內容、藥劑、流程與溝通成本。</p></article><article class="article-card science-topic-card"><span>居家染髮</span><h3>DIY 染髮真的省錢省事？！</h3><p>自己抓劑量與上色很難均勻；若染太深再想提亮，通常更困難也更傷髮。</p></article></div></div></section>
+    <section class="band band-charcoal home-science-section">
+      <div class="container home-science-layout">
+        <div>
+          <p class="section-kicker">Hair Science Classroom</p>
+          <h2>美髮理科小教室</h2>
+          <p>由 Jay 杰煬主理，將染燙護、頭皮、髮質與藥劑原理轉成顧客聽得懂的語言，讓每一次選擇更安心。</p>
+          <div class="action-row"><a class="button button-gold" href="hair-science.html">查看全部美髮理科</a></div>
+        </div>
+        <div class="article-grid home-science-grid">
+          <a class="article-card science-topic-card" href="hair-science/gray-hair-darker-color-coverage.html" data-track-event="hair_science_article_open" data-track-title="白髮染得越深，真的遮得越久嗎？" data-track-slug="gray-hair-darker-color-coverage" data-track-category="color" data-track-position="home-1">
+            <figure class="science-topic-media">
+              <picture>
+                <source type="image/webp" srcset="assets/images/hair-science/gray-hair-darker-color-coverage-cover.webp">
+                <img src="assets/images/hair-science/gray-hair-darker-color-coverage-cover.png" alt="白髮染得越深，真的遮得越久嗎？白髮覆蓋、新生白髮對比與色素累積示意圖" width="1280" height="720" loading="lazy" decoding="async">
+              </picture>
+            </figure>
+            <span>白髮染髮</span>
+            <h3>白髮染得越深，真的遮得越久嗎？</h3>
+            <p>白髮染深可能提高初期覆蓋感，但新生白髮對比、布丁線與髮尾色素累積也要一起評估。</p>
+          </a>
+          <a class="article-card science-topic-card" href="hair-science/diy-hair-color-cost.html" data-track-event="hair_science_article_open" data-track-title="DIY 染髮真的比較省錢省事嗎？" data-track-slug="diy-hair-color-cost" data-track-category="color" data-track-position="home-2">
+            <figure class="science-topic-media">
+              <picture>
+                <source type="image/webp" srcset="assets/images/hair-science/diy-hair-color-cost-cover.webp">
+                <img src="assets/images/hair-science/diy-hair-color-cost-cover.png" alt="DIY 染髮真的比較省錢省事嗎？色差判斷、分區操作與修正成本比較示意圖" width="1280" height="720" loading="lazy" decoding="async">
+              </picture>
+            </figure>
+            <span>居家染髮</span>
+            <h3>DIY 染髮真的比較省錢省事嗎？</h3>
+            <p>DIY 染髮看似費用較低，但染不均、顏色過深或髮質受損，後續修正可能更花時間。</p>
+          </a>
+          <a class="article-card science-topic-card" href="hair-science/wrong-shampoo-dandruff.html" data-track-event="hair_science_article_open" data-track-title="用錯洗髮精，頭皮屑會更嚴重嗎？" data-track-slug="wrong-shampoo-dandruff" data-track-category="scalp" data-track-position="home-3">
+            <figure class="science-topic-media">
+              <picture>
+                <source type="image/webp" srcset="assets/images/hair-science/wrong-shampoo-dandruff-cover.webp">
+                <img src="assets/images/hair-science/wrong-shampoo-dandruff-cover.png" alt="用錯洗髮精，頭皮屑會更嚴重嗎？頭皮清潔平衡、角質代謝與頭皮評估示意圖" width="1280" height="720" loading="lazy" decoding="async">
+              </picture>
+            </figure>
+            <span>頭皮屑判斷</span>
+            <h3>用錯洗髮精，頭皮屑會更嚴重嗎？</h3>
+            <p>清潔力、沖洗殘留、使用頻率與頭皮狀態不匹配，都可能讓乾癢與皮屑更明顯。</p>
+          </a>
+          <a class="article-card science-topic-card" href="hair-science/bleached-hair-perm.html" data-track-event="hair_science_article_open" data-track-title="漂過的頭髮真的不能燙嗎？" data-track-slug="bleached-hair-perm" data-track-category="perm" data-track-position="home-4">
+            <figure class="science-topic-media">
+              <picture>
+                <source type="image/webp" srcset="assets/images/hair-science/bleached-hair-perm-cover.webp">
+                <img src="assets/images/hair-science/bleached-hair-perm-cover.png" alt="漂過的頭髮真的不能燙嗎？漂後髮況、彈性與結構評估示意圖" width="1280" height="720" loading="lazy" decoding="async">
+              </picture>
+            </figure>
+            <span>漂後燙髮</span>
+            <h3>漂過的頭髮真的不能燙嗎？</h3>
+            <p>能不能燙不只看有沒有漂過，而要看髮絲彈性、結構支撐與漂染範圍。</p>
+          </a>
+        </div>
+      </div>
+    </section>
     <section class="section home-news-section">
       <div class="container">
         <div class="section-heading">

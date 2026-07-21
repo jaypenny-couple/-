@@ -307,6 +307,38 @@
   line-height: 1.75;
 }
 
+.article-next-step {
+  background: linear-gradient(135deg, rgba(255, 250, 244, .96), rgba(239, 228, 210, .46));
+}
+
+.article-next-step-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.article-next-step-card {
+  padding: 18px;
+  border: 1px solid rgba(154, 122, 63, .18);
+  border-radius: 8px;
+  background: rgba(255, 250, 244, .82);
+}
+
+.article-next-step-card strong {
+  display: block;
+  color: var(--deep);
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.article-next-step-card p {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: .96rem;
+  line-height: 1.75;
+}
+
 .author-card {
   display: grid;
   grid-template-columns: 132px minmax(0, 1fr);
@@ -433,6 +465,7 @@
 
   .myth-grid,
   .judgement-grid,
+  .article-next-step-grid,
   .related-grid,
   .article-cover-placeholder,
   .author-card {

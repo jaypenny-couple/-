@@ -2,6 +2,72 @@
   background: var(--ivory);
 }
 
+.science-filter-section {
+  padding: 32px 0 14px;
+  background: linear-gradient(180deg, var(--warm), var(--ivory));
+  border-top: 1px solid rgba(38, 38, 38, .06);
+  border-bottom: 1px solid rgba(38, 38, 38, .06);
+}
+
+.science-filter-section .section-heading {
+  margin-bottom: 18px;
+}
+
+.science-filter-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 4px 2px 12px;
+  scrollbar-width: thin;
+}
+
+.science-filter-button {
+  flex: 0 0 auto;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 15px;
+  border: 1px solid rgba(38, 38, 38, .12);
+  border-radius: 999px;
+  color: var(--deep);
+  background: rgba(255, 250, 244, .86);
+  font: 900 .9rem/1.2 "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(38, 38, 38, .05);
+}
+
+.science-filter-button span {
+  min-width: 24px;
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: #5c4320;
+  background: rgba(201, 169, 109, .2);
+  font-size: .78rem;
+}
+
+.science-filter-button.is-active,
+.science-filter-button[aria-pressed="true"] {
+  border-color: rgba(154, 122, 63, .65);
+  color: #fffaf4;
+  background: #7b5f31;
+}
+
+.science-filter-button.is-active span,
+.science-filter-button[aria-pressed="true"] span {
+  color: #262626;
+  background: #f0d299;
+}
+
+.science-filter-button:focus-visible,
+.lite-youtube-button:focus-visible {
+  outline: 3px solid rgba(123, 95, 49, .42);
+  outline-offset: 3px;
+}
+
 /* Hair Science page hero refinement */
 .page-hero {
   padding: 74px 0 70px;
@@ -59,6 +125,27 @@
   box-shadow: var(--soft);
 }
 
+.science-article-card {
+  min-width: 0;
+}
+
+.science-article-grid .news-card-media {
+  margin-bottom: 18px;
+}
+
+.science-article-card h3,
+.science-video-copy h3 {
+  overflow-wrap: anywhere;
+}
+
+.science-article-card p {
+  display: -webkit-box;
+  min-height: 4.9em;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
 .science-video-frame {
   position: relative;
   aspect-ratio: 9 / 16;
@@ -66,11 +153,82 @@
   overflow: hidden;
 }
 
-.science-video-frame iframe {
+.science-video-frame iframe,
+.lite-youtube,
+.lite-youtube-button,
+.lite-youtube-thumbnail {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+.science-video-frame iframe {
   border: 0;
+}
+
+.lite-youtube {
+  position: relative;
+}
+
+.lite-youtube-button {
+  position: relative;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: #1f1f1f;
+  cursor: pointer;
+}
+
+.lite-youtube-thumbnail {
+  object-fit: cover;
+  object-position: center;
+  opacity: .88;
+  transition: transform .28s ease, opacity .28s ease;
+}
+
+.lite-youtube-button:hover .lite-youtube-thumbnail,
+.lite-youtube-button:focus-visible .lite-youtube-thumbnail {
+  transform: scale(1.02);
+  opacity: .98;
+}
+
+.lite-youtube-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 64px;
+  height: 64px;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255, 250, 244, .82);
+  border-radius: 999px;
+  background: rgba(38, 38, 38, .72);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .28);
+}
+
+.lite-youtube-play::before {
+  content: "";
+  position: absolute;
+  left: 25px;
+  top: 19px;
+  border-left: 19px solid #fffaf4;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+}
+
+.lite-youtube.is-playing {
+  background: #111;
+}
+
+.lite-youtube-fallback {
+  position: absolute;
+  inset: auto 12px 12px;
+  z-index: 2;
+  padding: 8px 10px;
+  border-radius: 999px;
+  color: #fffaf4;
+  background: rgba(38, 38, 38, .78);
+  font-size: .78rem;
+  font-weight: 900;
 }
 
 .science-video-copy {
@@ -111,7 +269,16 @@
   aspect-ratio: 16 / 9;
 }
 
+.science-article-card-media picture {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .science-article-card-media img {
+  width: 100%;
+  height: 100%;
+  display: block;
   object-fit: contain;
 }
 

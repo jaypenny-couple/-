@@ -20,28 +20,123 @@
   <link rel="icon" href="favicon.svg">
   <link rel="stylesheet" href="styles.css?v=20260705-news">
   <link rel="stylesheet" href="hair-science-videos.css">
-  <!-- BreadcrumbList Schema -->
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
+  "@graph": [
     {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "首頁",
-      "item": "https://alicegroup.com.tw/"
+      "@type": "BreadcrumbList",
+      "@id": "https://alicegroup.com.tw/hair-science.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首頁",
+          "item": "https://alicegroup.com.tw/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "美髮理科",
+          "item": "https://alicegroup.com.tw/hair-science.html"
+        }
+      ]
     },
     {
-      "@type": "ListItem",
-      "position": 2,
-      "name": "美髮理科",
-      "item": "https://alicegroup.com.tw/hair-science.html"
+      "@type": "CollectionPage",
+      "@id": "https://alicegroup.com.tw/hair-science.html#collection",
+      "url": "https://alicegroup.com.tw/hair-science.html",
+      "name": "美髮理科小教室",
+      "description": "由 ALICE Jay 杰煬整理的頭皮管理、染髮、白髮、燙髮、髮質與洗護知識內容中心。",
+      "inLanguage": "zh-Hant-TW",
+      "author": {
+        "@type": "Person",
+        "name": "Jay 杰煬",
+        "url": "https://alicegroup.com.tw/designers.html"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "ALICE Hair Salon",
+        "url": "https://alicegroup.com.tw/"
+      },
+      "about": [
+        "頭皮管理",
+        "洗髮與頭皮屑",
+        "染髮與白髮",
+        "燙髮與髮質",
+        "美髮產品成分",
+        "沙龍服務"
+      ],
+      "mainEntity": {
+        "@id": "https://alicegroup.com.tw/hair-science.html#article-list"
+      }
+    },
+    {
+      "@type": "ItemList",
+      "@id": "https://alicegroup.com.tw/hair-science.html#article-list",
+      "name": "美髮理科正式文章列表",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "url": "https://alicegroup.com.tw/hair-science/gray-hair-darker-color-coverage.html",
+          "name": "白髮染得越深，真的遮得越久嗎？",
+          "image": "https://alicegroup.com.tw/assets/images/hair-science/gray-hair-darker-color-coverage-cover.png",
+          "description": "白髮染深可能提高初期覆蓋感，但新生白髮對比、布丁線與髮尾色素累積會影響後續維護。"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "url": "https://alicegroup.com.tw/hair-science/natural-herbal-hair-dye-safety.html",
+          "name": "何首烏洗髮精、天然染髮真的比較安全嗎？",
+          "image": "https://alicegroup.com.tw/assets/images/hair-science/natural-herbal-hair-dye-safety-cover.png",
+          "description": "天然、草本或植物來源不等於完全不會過敏，仍要看完整成分、染色機制、產品標示與個人過敏史。"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "url": "https://alicegroup.com.tw/hair-science/diy-hair-color-cost.html",
+          "name": "DIY 染髮真的比較省錢省事嗎？",
+          "image": "https://alicegroup.com.tw/assets/images/hair-science/diy-hair-color-cost-cover.png",
+          "description": "DIY 染髮看似省下當下費用，但染不均、顏色過深與後續修正成本都需要一起評估。"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "url": "https://alicegroup.com.tw/hair-science/seasonal-hair-shedding-dandruff.html",
+          "name": "換季掉髮多，連頭皮屑也變多嗎？",
+          "image": "https://alicegroup.com.tw/assets/images/hair-science/seasonal-hair-shedding-dandruff-cover.png",
+          "description": "換季時掉髮與頭皮屑可能同時被注意到，但不一定來自同一原因，需觀察頭皮、洗護與生活變化。"
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "url": "https://alicegroup.com.tw/hair-science/change-shampoo-regularly.html",
+          "name": "洗髮精需要經常更換，不然會越洗越沒效嗎？",
+          "image": "https://alicegroup.com.tw/assets/images/hair-science/change-shampoo-regularly-cover.png",
+          "description": "洗髮精不會因頭皮習慣就失效，真正需要調整的通常是季節、出油量、造型品使用與頭皮狀態。"
+        },
+        {
+          "@type": "ListItem",
+          "position": 6,
+          "url": "https://alicegroup.com.tw/hair-science/wrong-shampoo-dandruff.html",
+          "name": "用錯洗髮精，頭皮屑會更嚴重嗎？",
+          "image": "https://alicegroup.com.tw/assets/images/hair-science/wrong-shampoo-dandruff-cover.png",
+          "description": "清潔力過強、沖洗殘留或頭皮狀態不匹配，都可能讓乾癢與皮屑變得更明顯。"
+        },
+        {
+          "@type": "ListItem",
+          "position": 7,
+          "url": "https://alicegroup.com.tw/hair-science/bleached-hair-perm.html",
+          "name": "漂過的頭髮真的不能燙嗎？",
+          "image": "https://alicegroup.com.tw/assets/images/hair-science/bleached-hair-perm-cover.png",
+          "description": "漂後是否能燙不只看是否漂過，而要看髮絲彈性、結構支撐、漂染範圍與現場髮況評估。"
+        }
+      ]
     }
   ]
 }
   </script>
-  <!-- /BreadcrumbList Schema -->
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主要內容</a>
@@ -72,122 +167,32 @@
       </div>
     </section>
 
-    <section class="section science-video-section" aria-labelledby="science-video-title">
+    <section class="science-filter-section" aria-labelledby="science-filter-title">
       <div class="container">
         <div class="section-heading">
-          <p class="section-kicker">Featured Videos</p>
-          <h2 id="science-video-title">最新美髮理科影片</h2>
-          <p class="section-lead">用短影音快速理解頭皮、染髮、燙髮、服務模式與居家整理迷思。看完仍不確定，也可以預約時讓設計師協助判斷。</p>
+          <p class="section-kicker">Topics</p>
+          <h2 id="science-filter-title">依髮況問題快速找到內容</h2>
+          <p class="section-lead">文章與影片都保留在頁面中，分類只協助瀏覽，不會改變網址；沒有 JavaScript 時仍可閱讀全部內容。</p>
         </div>
-        <div class="science-video-grid">
-          <article class="science-video-card">
-            <div class="science-video-frame">
-              <iframe src="https://www.youtube.com/embed/xz3XSY_w1-Y" title="用錯洗髮精，頭皮屑會更嚴重嗎？" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
-            <div class="science-video-copy">
-              <span>頭皮屑判斷</span>
-              <h3>用錯洗髮精，頭皮屑會更嚴重嗎？</h3>
-              <p>乾性粉末狀皮屑更需要保濕舒緩；若誤用強力去屑產品，反而可能讓頭皮更乾、更不穩定。</p>
-              <div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/xz3XSY_w1-Y?si=DDbmNSc-4sp9_OnR" target="_blank" rel="noopener">到 YouTube 觀看</a><a class="button button-secondary" href="hair-science/wrong-shampoo-dandruff.html">閱讀完整文章</a></div>
-            </div>
-          </article>
-
-          <article class="science-video-card">
-            <div class="science-video-frame">
-              <iframe src="https://www.youtube.com/embed/UJYedrdrF7A" title="換季掉髮多，連頭皮屑也變多嗎？" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
-            <div class="science-video-copy">
-              <span>換季頭皮</span>
-              <h3>換季掉髮多，連頭皮屑也變多嗎？</h3>
-              <p>換季時頭皮正在適應氣候，掉髮、乾癢或皮屑變化都可能跟油水平衡與清潔習慣有關。</p>
-              <div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/UJYedrdrF7A?si=ZcMCEm_20Pm-vgss" target="_blank" rel="noopener">到 YouTube 觀看</a><a class="button button-secondary" href="hair-science/seasonal-hair-shedding-dandruff.html">閱讀完整文章</a></div>
-            </div>
-          </article>
-
-          <article class="science-video-card">
-            <div class="science-video-frame">
-              <iframe src="https://www.youtube.com/embed/kNU6Q2RiNOA" title="洗髮精需要經常更換，不然會越洗越沒效嗎？" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
-            <div class="science-video-copy">
-              <span>洗髮精選擇</span>
-              <h3>洗髮精需要經常更換，不然會越洗越沒效嗎？</h3>
-              <p>不是洗髮精失效，而是頭皮狀況改變。穩定時可持續使用；換季、出油或乾癢時，才需要依狀況調整。</p>
-              <div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/kNU6Q2RiNOA?si=8E8pC8pannJ5ChWi" target="_blank" rel="noopener">到 YouTube 觀看</a><a class="button button-secondary" href="hair-science/change-shampoo-regularly.html">閱讀完整文章</a></div>
-            </div>
-          </article>
-
-          <article class="science-video-card">
-            <div class="science-video-frame">
-              <iframe src="https://www.youtube.com/embed/B60z6Qz24RM" title="漂過的頭髮真的不能燙嗎？" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
-            <div class="science-video-copy">
-              <span>漂後燙髮</span>
-              <h3>漂過的頭髮真的不能燙嗎？</h3>
-              <p>漂淺或挑漂前，需要先說明可能風險與結果；是否能燙，關鍵在髮況承受度與現場評估。</p>
-              <div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/B60z6Qz24RM" target="_blank" rel="noopener">到 YouTube 觀看</a><a class="button button-secondary" href="hair-science/bleached-hair-perm.html">閱讀完整文章</a></div>
-            </div>
-          </article>
-
-          <article class="science-video-card">
-            <div class="science-video-frame">
-              <iframe src="https://www.youtube.com/embed/S1SLfYvLuac" title="一人服務制 vs 一人服務多人制 哪個好？" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
-            <div class="science-video-copy">
-              <span>服務模式</span>
-              <h3>一人服務制 vs 一人服務多人制，哪個好？</h3>
-              <p>沒有絕對好壞，重點是服務模式是否符合你的需求、溝通習慣與期待的完成品質。</p>
-              <div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/S1SLfYvLuac" target="_blank" rel="noopener">到 YouTube 觀看</a></div>
-            </div>
-          </article>
-
-          <article class="science-video-card">
-            <div class="science-video-frame">
-              <iframe src="https://www.youtube.com/embed/aBXqXbXQo-I" title="何首烏洗髮精、天然染髮真的比較安全嗎？" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
-            <div class="science-video-copy">
-              <span>成分判讀</span>
-              <h3>何首烏洗髮精、天然染髮真的比較安全嗎？</h3>
-              <p>何首烏、草本或植物來源不等於完全不會過敏。判斷安全性仍要查看完整成分、染色機制、產品標示與個人過敏史。</p>
-              <div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/aBXqXbXQo-I" target="_blank" rel="noopener">到 YouTube 觀看</a><a class="button button-secondary" href="hair-science/natural-herbal-hair-dye-safety.html">閱讀完整文章</a></div>
-            </div>
-          </article>
-
-          <article class="science-video-card">
-            <div class="science-video-frame">
-              <iframe src="https://www.youtube.com/embed/Jp4YHyQHzOc" title="東京首爾弄頭髮好便宜？" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
-            <div class="science-video-copy">
-              <span>價格迷思</span>
-              <h3>東京首爾弄頭髮好便宜？！</h3>
-              <p>不同城市的價格不能只看表面數字，還要拆解服務內容、藥劑、流程與溝通成本。</p>
-              <div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/Jp4YHyQHzOc" target="_blank" rel="noopener">到 YouTube 觀看</a></div>
-            </div>
-          </article>
-
-          <article class="science-video-card">
-            <div class="science-video-frame">
-              <iframe src="https://www.youtube.com/embed/yQa0hAGsA6Q" title="DIY 染髮真的比較省錢省事嗎？" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
-            <div class="science-video-copy">
-              <span>居家染髮</span>
-              <h3>DIY 染髮真的比較省錢省事嗎？</h3>
-              <p>DIY 染髮看似費用較低，但若出現染不均、顏色過深或髮質受損，後續修正可能需要更多時間與成本。</p>
-              <div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/yQa0hAGsA6Q" target="_blank" rel="noopener">到 YouTube 觀看</a><a class="button button-secondary" href="hair-science/diy-hair-color-cost.html">閱讀完整文章</a></div>
-            </div>
-          </article>
+        <div class="science-filter-row" role="group" aria-label="美髮理科主題分類" data-filter-group>
+          <button type="button" class="science-filter-button is-active" data-category-filter="all" aria-pressed="true" data-track-event="hair_science_category_filter" data-track-category="all">全部內容 <span>15</span></button>
+          <button type="button" class="science-filter-button" data-category-filter="scalp" aria-pressed="false" data-track-event="hair_science_category_filter" data-track-category="scalp">頭皮與洗護 <span>6</span></button>
+          <button type="button" class="science-filter-button" data-category-filter="color" aria-pressed="false" data-track-event="hair_science_category_filter" data-track-category="color">染髮與白髮 <span>5</span></button>
+          <button type="button" class="science-filter-button" data-category-filter="perm" aria-pressed="false" data-track-event="hair_science_category_filter" data-track-category="perm">燙髮與髮質 <span>2</span></button>
+          <button type="button" class="science-filter-button" data-category-filter="service" aria-pressed="false" data-track-event="hair_science_category_filter" data-track-category="service">服務與價格 <span>2</span></button>
         </div>
       </div>
     </section>
 
-    <section class="section" aria-labelledby="science-article-title">
+    <section class="section science-article-hub-section" aria-labelledby="science-article-title">
       <div class="container">
         <div class="section-heading">
-          <p class="section-kicker">Latest Articles</p>
-          <h2 id="science-article-title">最新美髮理科文章</h2>
-          <p class="section-lead">有些主題目前沒有完全對應的短影音，我們會先以完整文章整理判斷邏輯，方便預約前閱讀與討論。</p>
+          <p class="section-kicker">Featured Articles</p>
+          <h2 id="science-article-title">精選美髮理科文章</h2>
+          <p class="section-lead">每篇文章都整理成可獨立閱讀的判斷邏輯，適合在預約前先確認自己真正需要問什麼。</p>
         </div>
-        <div class="news-card-grid">
-          <article class="news-card">
+        <div class="news-card-grid science-article-grid" id="science-content-list">
+          <article class="news-card science-article-card" data-content-card data-category="color">
             <figure class="news-card-media science-article-card-media">
               <picture>
                 <source type="image/webp" srcset="assets/images/hair-science/gray-hair-darker-color-coverage-cover.webp">
@@ -201,7 +206,145 @@
             <time class="news-date" datetime="2026-07-21">2026.07.21</time>
             <h3>白髮染得越深，真的遮得越久嗎？</h3>
             <p>白髮染深通常能提高初期覆蓋感，但也可能讓新生白髮對比更明顯；若反覆全頭補深色，髮尾也可能出現色素累積。</p>
-            <a class="news-read-more" href="hair-science/gray-hair-darker-color-coverage.html">閱讀完整文章</a>
+            <a class="news-read-more" href="hair-science/gray-hair-darker-color-coverage.html" data-track-event="hair_science_article_open" data-track-title="白髮染得越深，真的遮得越久嗎？" data-track-slug="gray-hair-darker-color-coverage" data-track-category="color" data-track-position="article-1">閱讀文章</a>
+          </article>
+
+          <article class="news-card science-article-card" data-content-card data-category="color">
+            <figure class="news-card-media science-article-card-media">
+              <picture><source type="image/webp" srcset="assets/images/hair-science/natural-herbal-hair-dye-safety-cover.webp"><img src="assets/images/hair-science/natural-herbal-hair-dye-safety-cover.png" alt="何首烏洗髮精、天然染髮真的比較安全嗎？成分判讀、染色機制與安全評估示意圖" width="1280" height="720" decoding="async" loading="lazy"></picture>
+            </figure>
+            <div class="news-card-top"><span class="news-category">染髮與白髮</span><span class="news-status">完整文章</span></div>
+            <time class="news-date" datetime="2026-07-21">2026.07.21</time>
+            <h3>何首烏洗髮精、天然染髮真的比較安全嗎？</h3>
+            <p>天然、草本或植物來源不等於完全不會過敏，仍要看完整成分、染色機制、產品標示與個人過敏史。</p>
+            <a class="news-read-more" href="hair-science/natural-herbal-hair-dye-safety.html" data-track-event="hair_science_article_open" data-track-title="何首烏洗髮精、天然染髮真的比較安全嗎？" data-track-slug="natural-herbal-hair-dye-safety" data-track-category="color" data-track-position="article-2">閱讀文章</a>
+          </article>
+
+          <article class="news-card science-article-card" data-content-card data-category="color">
+            <figure class="news-card-media science-article-card-media">
+              <picture><source type="image/webp" srcset="assets/images/hair-science/diy-hair-color-cost-cover.webp"><img src="assets/images/hair-science/diy-hair-color-cost-cover.png" alt="DIY 染髮真的比較省錢省事嗎？色差判斷、分區操作與修正成本比較示意圖" width="1280" height="720" decoding="async" loading="lazy"></picture>
+            </figure>
+            <div class="news-card-top"><span class="news-category">染髮與白髮</span><span class="news-status">完整文章</span></div>
+            <time class="news-date" datetime="2026-07-21">2026.07.21</time>
+            <h3>DIY 染髮真的比較省錢省事嗎？</h3>
+            <p>DIY 染髮看似費用較低，但染不均、顏色過深與後續修正，都可能讓時間與成本變得更高。</p>
+            <a class="news-read-more" href="hair-science/diy-hair-color-cost.html" data-track-event="hair_science_article_open" data-track-title="DIY 染髮真的比較省錢省事嗎？" data-track-slug="diy-hair-color-cost" data-track-category="color" data-track-position="article-3">閱讀文章</a>
+          </article>
+
+          <article class="news-card science-article-card" data-content-card data-category="scalp">
+            <figure class="news-card-media science-article-card-media">
+              <picture><source type="image/webp" srcset="assets/images/hair-science/seasonal-hair-shedding-dandruff-cover.webp"><img src="assets/images/hair-science/seasonal-hair-shedding-dandruff-cover.png" alt="換季掉髮多，連頭皮屑也變多嗎？毛髮週期、季節變化與頭皮評估示意圖" width="1280" height="720" decoding="async" loading="lazy"></picture>
+            </figure>
+            <div class="news-card-top"><span class="news-category">頭皮與洗護</span><span class="news-status">完整文章</span></div>
+            <time class="news-date" datetime="2026-07-21">2026.07.21</time>
+            <h3>換季掉髮多，連頭皮屑也變多嗎？</h3>
+            <p>換季時掉髮與頭皮屑可能同時被注意到，但不一定來自同一原因，需要一起看頭皮與生活變化。</p>
+            <a class="news-read-more" href="hair-science/seasonal-hair-shedding-dandruff.html" data-track-event="hair_science_article_open" data-track-title="換季掉髮多，連頭皮屑也變多嗎？" data-track-slug="seasonal-hair-shedding-dandruff" data-track-category="scalp" data-track-position="article-4">閱讀文章</a>
+          </article>
+
+          <article class="news-card science-article-card" data-content-card data-category="scalp">
+            <figure class="news-card-media science-article-card-media">
+              <picture><source type="image/webp" srcset="assets/images/hair-science/change-shampoo-regularly-cover.webp"><img src="assets/images/hair-science/change-shampoo-regularly-cover.png" alt="洗髮精要常換，才不會越洗越沒效嗎？洗護條件、頭皮環境與產品評估示意圖" width="1280" height="720" decoding="async" loading="lazy"></picture>
+            </figure>
+            <div class="news-card-top"><span class="news-category">頭皮與洗護</span><span class="news-status">完整文章</span></div>
+            <time class="news-date" datetime="2026-07-20">2026.07.20</time>
+            <h3>洗髮精需要經常更換，不然會越洗越沒效嗎？</h3>
+            <p>洗髮精不會因為頭皮習慣就失效；更常見的是季節、出油量、造型品與洗護方式改變了。</p>
+            <a class="news-read-more" href="hair-science/change-shampoo-regularly.html" data-track-event="hair_science_article_open" data-track-title="洗髮精需要經常更換，不然會越洗越沒效嗎？" data-track-slug="change-shampoo-regularly" data-track-category="scalp" data-track-position="article-5">閱讀文章</a>
+          </article>
+
+          <article class="news-card science-article-card" data-content-card data-category="scalp">
+            <figure class="news-card-media science-article-card-media">
+              <picture><source type="image/webp" srcset="assets/images/hair-science/wrong-shampoo-dandruff-cover.webp"><img src="assets/images/hair-science/wrong-shampoo-dandruff-cover.png" alt="用錯洗髮精，頭皮屑會更嚴重嗎？頭皮清潔平衡、角質代謝與頭皮評估示意圖" width="1280" height="720" decoding="async" loading="lazy"></picture>
+            </figure>
+            <div class="news-card-top"><span class="news-category">頭皮與洗護</span><span class="news-status">完整文章</span></div>
+            <time class="news-date" datetime="2026-07-20">2026.07.20</time>
+            <h3>用錯洗髮精，頭皮屑會更嚴重嗎？</h3>
+            <p>清潔力過強、沖洗殘留、使用方式不當或既有頭皮問題，都可能讓乾癢與皮屑更明顯。</p>
+            <a class="news-read-more" href="hair-science/wrong-shampoo-dandruff.html" data-track-event="hair_science_article_open" data-track-title="用錯洗髮精，頭皮屑會更嚴重嗎？" data-track-slug="wrong-shampoo-dandruff" data-track-category="scalp" data-track-position="article-6">閱讀文章</a>
+          </article>
+
+          <article class="news-card science-article-card" data-content-card data-category="perm">
+            <figure class="news-card-media science-article-card-media">
+              <picture><source type="image/webp" srcset="assets/images/hair-science/bleached-hair-perm-cover.webp"><img src="assets/images/hair-science/bleached-hair-perm-cover.png" alt="漂過的頭髮真的不能燙嗎？漂後髮況、彈性與結構評估示意圖" width="1280" height="720" decoding="async" loading="lazy"></picture>
+            </figure>
+            <div class="news-card-top"><span class="news-category">燙髮與髮質</span><span class="news-status">完整文章</span></div>
+            <time class="news-date" datetime="2026-07-20">2026.07.20</time>
+            <h3>漂過的頭髮真的不能燙嗎？</h3>
+            <p>漂後是否能燙，不只看是否漂過，而要看髮絲彈性、結構支撐、漂染範圍與現場髮況。</p>
+            <a class="news-read-more" href="hair-science/bleached-hair-perm.html" data-track-event="hair_science_article_open" data-track-title="漂過的頭髮真的不能燙嗎？" data-track-slug="bleached-hair-perm" data-track-category="perm" data-track-position="article-7">閱讀文章</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section science-video-section" aria-labelledby="science-video-title">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker">Featured Videos</p>
+          <h2 id="science-video-title">最新美髮理科影片</h2>
+          <p class="section-lead">影片改為點擊後才載入 YouTube iframe；初始頁面只顯示縮圖、標題與連結，讓手機載入更輕。</p>
+        </div>
+        <div class="science-video-grid">
+          <article class="science-video-card" data-content-card data-category="scalp">
+            <div class="science-video-frame lite-youtube" data-video-id="xz3XSY_w1-Y" data-video-title="用錯洗髮精，頭皮屑會更嚴重嗎？">
+              <button class="lite-youtube-button" type="button" aria-label="播放影片：用錯洗髮精，頭皮屑會更嚴重嗎？" data-track-event="hair_science_video_play" data-track-title="用錯洗髮精，頭皮屑會更嚴重嗎？" data-track-slug="wrong-shampoo-dandruff" data-track-category="scalp" data-video-id="xz3XSY_w1-Y"><img class="lite-youtube-thumbnail" src="https://img.youtube.com/vi/xz3XSY_w1-Y/maxresdefault.jpg" alt="用錯洗髮精，頭皮屑會更嚴重嗎？影片縮圖" width="1280" height="720" loading="lazy" decoding="async" data-fallback-src="https://img.youtube.com/vi/xz3XSY_w1-Y/hqdefault.jpg"><span class="lite-youtube-play" aria-hidden="true"></span></button>
+            </div>
+            <div class="science-video-copy">
+              <span>頭皮與洗護</span>
+              <h3>用錯洗髮精，頭皮屑會更嚴重嗎？</h3>
+              <p>乾性粉末狀皮屑更需要保濕舒緩；若誤用強力去屑產品，反而可能讓頭皮更乾、更不穩定。</p>
+              <div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/xz3XSY_w1-Y?si=DDbmNSc-4sp9_OnR" target="_blank" rel="noopener">到 YouTube 觀看</a><a class="button button-secondary" href="hair-science/wrong-shampoo-dandruff.html" data-track-event="hair_science_article_open" data-track-title="用錯洗髮精，頭皮屑會更嚴重嗎？" data-track-slug="wrong-shampoo-dandruff" data-track-category="scalp" data-track-position="video-1">閱讀完整文章</a></div>
+            </div>
+          </article>
+
+          <article class="science-video-card" data-content-card data-category="scalp">
+            <div class="science-video-frame lite-youtube" data-video-id="UJYedrdrF7A" data-video-title="換季掉髮多，連頭皮屑也變多嗎？">
+              <button class="lite-youtube-button" type="button" aria-label="播放影片：換季掉髮多，連頭皮屑也變多嗎？" data-track-event="hair_science_video_play" data-track-title="換季掉髮多，連頭皮屑也變多嗎？" data-track-slug="seasonal-hair-shedding-dandruff" data-track-category="scalp" data-video-id="UJYedrdrF7A"><img class="lite-youtube-thumbnail" src="https://img.youtube.com/vi/UJYedrdrF7A/maxresdefault.jpg" alt="換季掉髮多，連頭皮屑也變多嗎？影片縮圖" width="1280" height="720" loading="lazy" decoding="async" data-fallback-src="https://img.youtube.com/vi/UJYedrdrF7A/hqdefault.jpg"><span class="lite-youtube-play" aria-hidden="true"></span></button>
+            </div>
+            <div class="science-video-copy"><span>頭皮與洗護</span><h3>換季掉髮多，連頭皮屑也變多嗎？</h3><p>換季時頭皮正在適應氣候，掉髮、乾癢或皮屑變化都可能跟油水平衡與清潔習慣有關。</p><div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/UJYedrdrF7A?si=ZcMCEm_20Pm-vgss" target="_blank" rel="noopener">到 YouTube 觀看</a><a class="button button-secondary" href="hair-science/seasonal-hair-shedding-dandruff.html" data-track-event="hair_science_article_open" data-track-title="換季掉髮多，連頭皮屑也變多嗎？" data-track-slug="seasonal-hair-shedding-dandruff" data-track-category="scalp" data-track-position="video-2">閱讀完整文章</a></div></div>
+          </article>
+
+          <article class="science-video-card" data-content-card data-category="scalp">
+            <div class="science-video-frame lite-youtube" data-video-id="kNU6Q2RiNOA" data-video-title="洗髮精需要經常更換，不然會越洗越沒效嗎？">
+              <button class="lite-youtube-button" type="button" aria-label="播放影片：洗髮精需要經常更換，不然會越洗越沒效嗎？" data-track-event="hair_science_video_play" data-track-title="洗髮精需要經常更換，不然會越洗越沒效嗎？" data-track-slug="change-shampoo-regularly" data-track-category="scalp" data-video-id="kNU6Q2RiNOA"><img class="lite-youtube-thumbnail" src="https://img.youtube.com/vi/kNU6Q2RiNOA/maxresdefault.jpg" alt="洗髮精需要經常更換，不然會越洗越沒效嗎？影片縮圖" width="1280" height="720" loading="lazy" decoding="async" data-fallback-src="https://img.youtube.com/vi/kNU6Q2RiNOA/hqdefault.jpg"><span class="lite-youtube-play" aria-hidden="true"></span></button>
+            </div>
+            <div class="science-video-copy"><span>頭皮與洗護</span><h3>洗髮精需要經常更換，不然會越洗越沒效嗎？</h3><p>不是洗髮精失效，而是頭皮狀況改變。穩定時可持續使用；換季、出油或乾癢時，才需要依狀況調整。</p><div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/kNU6Q2RiNOA?si=8E8pC8pannJ5ChWi" target="_blank" rel="noopener">到 YouTube 觀看</a><a class="button button-secondary" href="hair-science/change-shampoo-regularly.html" data-track-event="hair_science_article_open" data-track-title="洗髮精需要經常更換，不然會越洗越沒效嗎？" data-track-slug="change-shampoo-regularly" data-track-category="scalp" data-track-position="video-3">閱讀完整文章</a></div></div>
+          </article>
+
+          <article class="science-video-card" data-content-card data-category="perm">
+            <div class="science-video-frame lite-youtube" data-video-id="B60z6Qz24RM" data-video-title="漂過的頭髮真的不能燙嗎？">
+              <button class="lite-youtube-button" type="button" aria-label="播放影片：漂過的頭髮真的不能燙嗎？" data-track-event="hair_science_video_play" data-track-title="漂過的頭髮真的不能燙嗎？" data-track-slug="bleached-hair-perm" data-track-category="perm" data-video-id="B60z6Qz24RM"><img class="lite-youtube-thumbnail" src="https://img.youtube.com/vi/B60z6Qz24RM/maxresdefault.jpg" alt="漂過的頭髮真的不能燙嗎？影片縮圖" width="1280" height="720" loading="lazy" decoding="async" data-fallback-src="https://img.youtube.com/vi/B60z6Qz24RM/hqdefault.jpg"><span class="lite-youtube-play" aria-hidden="true"></span></button>
+            </div>
+            <div class="science-video-copy"><span>燙髮與髮質</span><h3>漂過的頭髮真的不能燙嗎？</h3><p>漂淺或挑漂前，需要先說明可能風險與結果；是否能燙，關鍵在髮況承受度與現場評估。</p><div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/B60z6Qz24RM" target="_blank" rel="noopener">到 YouTube 觀看</a><a class="button button-secondary" href="hair-science/bleached-hair-perm.html" data-track-event="hair_science_article_open" data-track-title="漂過的頭髮真的不能燙嗎？" data-track-slug="bleached-hair-perm" data-track-category="perm" data-track-position="video-4">閱讀完整文章</a></div></div>
+          </article>
+
+          <article class="science-video-card" data-content-card data-category="service">
+            <div class="science-video-frame lite-youtube" data-video-id="S1SLfYvLuac" data-video-title="一人服務制 vs 一人服務多人制，哪個好？">
+              <button class="lite-youtube-button" type="button" aria-label="播放影片：一人服務制 vs 一人服務多人制，哪個好？" data-track-event="hair_science_video_play" data-track-title="一人服務制 vs 一人服務多人制，哪個好？" data-track-category="service" data-video-id="S1SLfYvLuac"><img class="lite-youtube-thumbnail" src="https://img.youtube.com/vi/S1SLfYvLuac/maxresdefault.jpg" alt="一人服務制 vs 一人服務多人制，哪個好？影片縮圖" width="1280" height="720" loading="lazy" decoding="async" data-fallback-src="https://img.youtube.com/vi/S1SLfYvLuac/hqdefault.jpg"><span class="lite-youtube-play" aria-hidden="true"></span></button>
+            </div>
+            <div class="science-video-copy"><span>服務與價格</span><h3>一人服務制 vs 一人服務多人制，哪個好？</h3><p>沒有絕對好壞，重點是服務模式是否符合你的需求、溝通習慣與期待的完成品質。</p><div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/S1SLfYvLuac" target="_blank" rel="noopener">到 YouTube 觀看</a></div></div>
+          </article>
+
+          <article class="science-video-card" data-content-card data-category="color">
+            <div class="science-video-frame lite-youtube" data-video-id="aBXqXbXQo-I" data-video-title="何首烏洗髮精、天然染髮真的比較安全嗎？">
+              <button class="lite-youtube-button" type="button" aria-label="播放影片：何首烏洗髮精、天然染髮真的比較安全嗎？" data-track-event="hair_science_video_play" data-track-title="何首烏洗髮精、天然染髮真的比較安全嗎？" data-track-slug="natural-herbal-hair-dye-safety" data-track-category="color" data-video-id="aBXqXbXQo-I"><img class="lite-youtube-thumbnail" src="https://img.youtube.com/vi/aBXqXbXQo-I/maxresdefault.jpg" alt="何首烏洗髮精、天然染髮真的比較安全嗎？影片縮圖" width="1280" height="720" loading="lazy" decoding="async" data-fallback-src="https://img.youtube.com/vi/aBXqXbXQo-I/hqdefault.jpg"><span class="lite-youtube-play" aria-hidden="true"></span></button>
+            </div>
+            <div class="science-video-copy"><span>染髮與白髮</span><h3>何首烏洗髮精、天然染髮真的比較安全嗎？</h3><p>何首烏、草本或植物來源不等於完全不會過敏。判斷安全性仍要查看完整成分、染色機制、產品標示與個人過敏史。</p><div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/aBXqXbXQo-I" target="_blank" rel="noopener">到 YouTube 觀看</a><a class="button button-secondary" href="hair-science/natural-herbal-hair-dye-safety.html" data-track-event="hair_science_article_open" data-track-title="何首烏洗髮精、天然染髮真的比較安全嗎？" data-track-slug="natural-herbal-hair-dye-safety" data-track-category="color" data-track-position="video-6">閱讀完整文章</a></div></div>
+          </article>
+
+          <article class="science-video-card" data-content-card data-category="service">
+            <div class="science-video-frame lite-youtube" data-video-id="Jp4YHyQHzOc" data-video-title="東京首爾弄頭髮好便宜？！">
+              <button class="lite-youtube-button" type="button" aria-label="播放影片：東京首爾弄頭髮好便宜？！" data-track-event="hair_science_video_play" data-track-title="東京首爾弄頭髮好便宜？！" data-track-category="service" data-video-id="Jp4YHyQHzOc"><img class="lite-youtube-thumbnail" src="https://img.youtube.com/vi/Jp4YHyQHzOc/maxresdefault.jpg" alt="東京首爾弄頭髮好便宜？！影片縮圖" width="1280" height="720" loading="lazy" decoding="async" data-fallback-src="https://img.youtube.com/vi/Jp4YHyQHzOc/hqdefault.jpg"><span class="lite-youtube-play" aria-hidden="true"></span></button>
+            </div>
+            <div class="science-video-copy"><span>服務與價格</span><h3>東京首爾弄頭髮好便宜？！</h3><p>不同城市的價格不能只看表面數字，還要拆解服務內容、藥劑、流程與溝通成本。</p><div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/Jp4YHyQHzOc" target="_blank" rel="noopener">到 YouTube 觀看</a></div></div>
+          </article>
+
+          <article class="science-video-card" data-content-card data-category="color">
+            <div class="science-video-frame lite-youtube" data-video-id="yQa0hAGsA6Q" data-video-title="DIY 染髮真的比較省錢省事嗎？">
+              <button class="lite-youtube-button" type="button" aria-label="播放影片：DIY 染髮真的比較省錢省事嗎？" data-track-event="hair_science_video_play" data-track-title="DIY 染髮真的比較省錢省事嗎？" data-track-slug="diy-hair-color-cost" data-track-category="color" data-video-id="yQa0hAGsA6Q"><img class="lite-youtube-thumbnail" src="https://img.youtube.com/vi/yQa0hAGsA6Q/maxresdefault.jpg" alt="DIY 染髮真的比較省錢省事嗎？影片縮圖" width="1280" height="720" loading="lazy" decoding="async" data-fallback-src="https://img.youtube.com/vi/yQa0hAGsA6Q/hqdefault.jpg"><span class="lite-youtube-play" aria-hidden="true"></span></button>
+            </div>
+            <div class="science-video-copy"><span>染髮與白髮</span><h3>DIY 染髮真的比較省錢省事嗎？</h3><p>DIY 染髮看似費用較低，但若出現染不均、顏色過深或髮質受損，後續修正可能需要更多時間與成本。</p><div class="action-row"><a class="button button-secondary" href="https://youtube.com/shorts/yQa0hAGsA6Q" target="_blank" rel="noopener">到 YouTube 觀看</a><a class="button button-secondary" href="hair-science/diy-hair-color-cost.html" data-track-event="hair_science_article_open" data-track-title="DIY 染髮真的比較省錢省事嗎？" data-track-slug="diy-hair-color-cost" data-track-category="color" data-track-position="video-8">閱讀完整文章</a></div></div>
           </article>
         </div>
       </div>
@@ -229,7 +372,7 @@
           <h2>把你的髮況問題傳給我們。</h2>
           <p>不需要先懂所有術語，只要提供照片與需求，ALICE 團隊會協助你判斷下一步。</p>
         </div>
-        <div class="action-row"><a class="button button-gold" href="https://page.line.me/tqv5483y" target="_blank" rel="noopener">LINE 諮詢</a><a class="button button-secondary" href="services.html">查看服務項目</a></div>
+        <div class="action-row"><a class="button button-gold" href="https://page.line.me/tqv5483y" target="_blank" rel="noopener" data-track-event="hair_science_line_click" data-track-title="美髮理科總覽 LINE 諮詢" data-track-category="hub" data-track-position="bottom-cta">LINE 諮詢</a><a class="button button-secondary" href="services.html">查看服務項目</a></div>
       </div>
     </section>
   </main>
