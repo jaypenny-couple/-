@@ -301,6 +301,107 @@ if (navToggle && siteNav) {
 })();
 
 (() => {
+  const filterButtons = document.querySelectorAll("[data-category-filter]");
+  const contentCards = document.querySelectorAll("[data-content-card]");
+
+  if (filterButtons.length && contentCards.length) {
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const selectedCategory = button.dataset.categoryFilter || "all";
+
+        filterButtons.forEach((filterButton) => {
+          const isSelected = filterButton === button;
+
+          filterButton.classList.toggle("is-active", isSelected);
+          filterButton.setAttribute("aria-pressed", String(isSelected));
+        });
+
+        contentCards.forEach((card) => {
+          const shouldHide =
+            selectedCategory !== "all" && card.dataset.category !== selectedCategory;
+
+          card.hidden = shouldHide;
+        });
+      });
+    });
+  }
+
+  document.querySelectorAll(".lite-youtube-thumbnail[data-fallback-src]").forEach((image) => {
+    image.addEventListener("error", () => {
+      const fallbackSrc = image.dataset.fallbackSrc;
+
+      if (!fallbackSrc || image.dataset.fallbackLoaded === "true") return;
+
+      image.dataset.fallbackLoaded = "true";
+      image.src = fallbackSrc;
+    });
+  });
+
+  document.querySelectorAll(".lite-youtube-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      const player = button.closest(".lite-youtube");
+      const videoId = player?.dataset.videoId || button.dataset.videoId;
+
+      if (!player || !videoId || player.querySelector("iframe")) return;
+
+      const videoTitle =
+        player.dataset.videoTitle ||
+        button.dataset.trackTitle ||
+        button.getAttribute("aria-label") ||
+        "ALICE 美髮理科影片";
+      const iframe = document.createElement("iframe");
+
+      iframe.src = `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?autoplay=1`;
+      iframe.title = videoTitle;
+      iframe.allow =
+        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+      iframe.allowFullscreen = true;
+      iframe.loading = "lazy";
+
+      player.classList.add("is-playing");
+      player.replaceChildren(iframe);
+    });
+  });
+
+  const currentArticleSlug = currentPage.replace(/\.html$/, "");
+  const articleCategoryMap = {
+    "bleached-hair-perm": "perm",
+    "wrong-shampoo-dandruff": "scalp",
+    "change-shampoo-regularly": "scalp",
+    "seasonal-hair-shedding-dandruff": "scalp",
+    "diy-hair-color-cost": "color",
+    "natural-herbal-hair-dye-safety": "color",
+    "gray-hair-darker-color-coverage": "color",
+  };
+
+  document
+    .querySelectorAll(".science-article-page .related-grid .mini-card[href]")
+    .forEach((link, index) => {
+      if (link.href.includes("page.line.me") || link.dataset.trackEvent) return;
+
+      const title = link.querySelector("strong")?.textContent?.trim() || link.textContent.trim();
+
+      link.dataset.trackEvent = "hair_science_related_click";
+      link.dataset.trackTitle = title;
+      link.dataset.trackSlug = currentArticleSlug;
+      link.dataset.trackCategory = articleCategoryMap[currentArticleSlug] || "hair-science";
+      link.dataset.trackPosition = `related-${index + 1}`;
+    });
+
+  document
+    .querySelectorAll('.science-article-page a[href*="page.line.me"]')
+    .forEach((link, index) => {
+      if (link.dataset.trackEvent) return;
+
+      link.dataset.trackEvent = "hair_science_line_click";
+      link.dataset.trackTitle = `${document.querySelector("h1")?.textContent?.trim() || "美髮理科文章"} LINE 諮詢`;
+      link.dataset.trackSlug = currentArticleSlug;
+      link.dataset.trackCategory = articleCategoryMap[currentArticleSlug] || "hair-science";
+      link.dataset.trackPosition = `line-${index + 1}`;
+    });
+})();
+
+(() => {
   const monthLabel = document.querySelector("#holiday-current-month");
   const dateList = document.querySelector("#holiday-date-list");
   const modal = document.querySelector("#holiday-modal");
