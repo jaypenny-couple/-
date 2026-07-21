@@ -122,6 +122,74 @@
   height: auto;
 }
 
+.article-cover-placeholder {
+  display: grid;
+  grid-template-columns: minmax(0, .95fr) minmax(260px, .42fr);
+  gap: 28px;
+  align-items: center;
+  padding: clamp(24px, 4vw, 44px);
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, .92), transparent 30%),
+    linear-gradient(135deg, rgba(255, 250, 244, .96), rgba(239, 228, 210, .78));
+}
+
+.article-cover-placeholder h2 {
+  max-width: 720px;
+  font-size: clamp(2rem, 4.4vw, 3.7rem);
+  line-height: 1.18;
+}
+
+.article-cover-placeholder p {
+  max-width: 680px;
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.article-cover-label {
+  display: inline-flex;
+  width: max-content;
+  margin-bottom: 18px;
+  color: var(--gold);
+  font-size: .82rem;
+  font-weight: 900;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.article-cover-visual-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.article-cover-visual-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 56px;
+  padding: 12px 14px;
+  border: 1px solid rgba(201, 169, 109, .22);
+  border-radius: 8px;
+  color: var(--deep);
+  background: rgba(255, 250, 244, .68);
+  font-size: .95rem;
+  font-weight: 900;
+}
+
+.article-cover-visual-list li::after {
+  content: "";
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(201, 169, 109, .72);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, .95), rgba(201, 169, 109, .18));
+}
+
 .science-article-section {
   padding: 82px 0;
 }
@@ -366,6 +434,7 @@
   .myth-grid,
   .judgement-grid,
   .related-grid,
+  .article-cover-placeholder,
   .author-card {
     grid-template-columns: 1fr;
   }
