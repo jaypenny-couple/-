@@ -408,7 +408,7 @@ if (navToggle && siteNav) {
   const openButton = document.querySelector("#holiday-open-button");
   const closeButtons = document.querySelectorAll("[data-holiday-close]");
   const closeButton = modal?.querySelector(".holiday-modal__close");
-  const STORAGE_KEY = "alice-holiday-modal-closed";
+  const STORAGE_KEY = "alice-holiday-modal-closed-2026-08";
 
   if (!monthLabel || !dateList || !modal || !openButton) return;
 
@@ -421,32 +421,19 @@ if (navToggle && siteNav) {
     "\u4e94",
     "\u516d",
   ];
-  const taiwanDateParts = new Intl.DateTimeFormat("zh-TW", {
-    timeZone: "Asia/Taipei",
-    year: "numeric",
-    month: "numeric",
-  }).formatToParts(new Date());
-  const year = Number(
-    taiwanDateParts.find((part) => part.type === "year")?.value
-  );
-  const month =
-    Number(taiwanDateParts.find((part) => part.type === "month")?.value) - 1;
-
-  const getNthWeekday = (targetWeekday, nth) => {
-    const firstDay = new Date(year, month, 1);
-    const offset = (targetWeekday - firstDay.getDay() + 7) % 7;
-
-    return new Date(year, month, 1 + offset + (nth - 1) * 7);
-  };
-
+  const year = 2026;
+  const month = 7;
   const closures = [
-    { date: getNthWeekday(1, 1), label: "\u7b2c 1 \u500b\u661f\u671f\u4e00" },
-    { date: getNthWeekday(0, 2), label: "\u7b2c 2 \u500b\u661f\u671f\u65e5" },
-    { date: getNthWeekday(1, 3), label: "\u7b2c 3 \u500b\u661f\u671f\u4e00" },
-    { date: getNthWeekday(0, 4), label: "\u7b2c 4 \u500b\u661f\u671f\u65e5" },
-  ].sort((a, b) => a.date - b.date);
+    { date: new Date(year, month, 3), label: "\u516c\u4f11" },
+    { date: new Date(year, month, 9), label: "\u54e1\u5de5\u65c5\u904a" },
+    { date: new Date(year, month, 10), label: "\u54e1\u5de5\u65c5\u904a" },
+    { date: new Date(year, month, 11), label: "\u54e1\u5de5\u65c5\u904a" },
+    { date: new Date(year, month, 17), label: "\u516c\u4f11" },
+    { date: new Date(year, month, 23), label: "\u516c\u4f11" },
+    { date: new Date(year, month, 30), label: "\u516c\u4f11" },
+  ];
 
-  monthLabel.textContent = `${year} \u5e74 ${month + 1} \u6708\u516c\u4f11\u65e5`;
+  monthLabel.textContent = `${year} \u5e74 ${month + 1} \u6708\u4f11\u5047\u516c\u544a`;
   dateList.replaceChildren(
     ...closures.map(({ date, label }) => {
       const item = document.createElement("li");
