@@ -449,6 +449,46 @@
       align-items: start;
     }
 
+    .perm-iris-cases {
+      background:
+        linear-gradient(135deg, rgba(255, 250, 244, .96), rgba(239, 228, 210, .68)),
+        var(--warm);
+    }
+
+    .perm-iris-intro {
+      margin: -6px 0 26px;
+      padding: 18px 20px;
+      border-left: 3px solid rgba(154, 122, 63, .45);
+      border-radius: 0 8px 8px 0;
+      color: var(--muted);
+      background: rgba(255, 250, 244, .56);
+      font-weight: 800;
+    }
+
+    .perm-iris-compact-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+      align-items: start;
+    }
+
+    .perm-iris-compact-grid .perm-compact-case {
+      scroll-margin-top: 100px;
+    }
+
+    .perm-case-detail-list {
+      display: grid;
+      gap: 6px;
+      margin: 16px 0 0;
+      padding-left: 1.2em;
+      color: var(--muted);
+    }
+
+    .perm-case-detail-list strong {
+      color: var(--deep);
+    }
+
     .perm-compact-case {
       overflow: hidden;
     }
@@ -646,6 +686,7 @@
       .perm-photo-grid,
       .perm-photo-grid.three,
       .perm-compact-grid,
+      .perm-iris-compact-grid,
       .perm-check-columns {
         grid-template-columns: 1fr;
       }
@@ -970,7 +1011,7 @@
             <a class="button button-gold" href="https://page.line.me/tqv5483y" target="_blank" rel="noopener">LINE 傳髮況照片諮詢</a>
             <a class="button button-secondary" href="#cases">查看真實燙髮案例</a>
           </div>
-          <p class="perm-hero-note">可指定 Jay，也可由 ALICE 團隊協助安排適合的設計師。</p>
+          <p class="perm-hero-note">可指定 Jay 或 IRIS，也可由 ALICE 團隊協助安排適合的設計師。</p>
         </div>
         <figure class="perm-hero-media">
           <img src="../assets/images/services/nankan-perm/p01-nankan-long-hair-digital-perm-after.webp" alt="長髮溫塑燙完成效果，髮根自然直順，髮尾呈現柔和大波浪" width="941" height="1672" decoding="async" fetchpriority="high">
@@ -1067,7 +1108,7 @@
           <p class="section-kicker">Real Cases</p>
           <h2 id="cases-title">從原始髮況到完成效果｜ALICE 真實燙髮案例</h2>
           <p class="section-lead">燙髮效果不能只看完成照片。以下案例會同時說明顧客原始髮況、主要需求、技術規劃與回家整理方式，協助你判斷哪一種方向更接近自己的需求。</p>
-          <p class="section-lead"><strong>本頁第一批燙髮案例皆由 Jay 杰煬設計。</strong></p>
+          <p class="section-lead"><strong>本頁真實燙髮案例由 Jay 杰煬與 IRIS 共同提供，呈現不同髮況、捲度與居家整理需求的設計方向。</strong></p>
         </div>
         <nav class="perm-case-jumps" aria-label="快速跳至燙髮案例">
           <a href="#case-p01">P01 自然捲＋大波浪</a>
@@ -1075,6 +1116,9 @@
           <a href="#case-p06">P06 挑染後燙髮</a>
           <a href="#case-p02">P02 柔和大彎</a>
           <a href="#case-p05">P05 熟齡細軟髮</a>
+          <a href="#case-i01">I01 IRIS 浪漫波浪</a>
+          <a href="#case-i02">I02 IRIS 自然微彎</a>
+          <a href="#case-i03">I03 IRIS 長髮波紋</a>
         </nav>
 
         <article class="perm-case" id="case-p01">
@@ -1184,6 +1228,97 @@
               <p><strong>技術規劃：</strong>先評估白髮染後不同區域的承受度，再安排捲度大小、排列與頂部支撐。</p>
               <p><strong>完成效果：</strong>完成後呈現清楚、立體且富有層次的捲度，視覺髮量與頂部支撐感增加。</p>
               <p><strong>居家整理：</strong>洗髮後使用慕斯，再以烘罩低溫烘乾。若完全拉直吹乾，捲度會較鬆散。</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="band perm-iris-cases" id="iris-perm-cases" aria-labelledby="iris-perm-cases-title">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker">IRIS PERM WORKS</p>
+          <h2 id="iris-perm-cases-title">IRIS 的自然系燙髮作品</h2>
+          <p class="section-lead">IRIS 的燙髮作品以柔和波浪、自然光澤與日常容易整理為主要方向。以下案例包含原生髮、多次染髮與不同捲度需求；實際技術、施作範圍與完成效果，仍需依每位顧客的髮況評估。</p>
+        </div>
+        <p class="perm-iris-intro">可指定 IRIS，也可由 ALICE 團隊依髮況、風格與預約時間協助安排設計師。</p>
+
+        <article class="perm-case" id="case-i01">
+          <header class="perm-case-header">
+            <p class="section-kicker">I01</p>
+            <h3>黑髮也能有柔和光澤｜IRIS 長髮浪漫溫塑燙</h3>
+            <p>顧客為原生髮，髮質中等偏細，帶有輕微自然捲。希望長髮呈現自然、浪漫的波浪感，同時維持回家容易整理的效果。</p>
+          </header>
+          <div class="perm-case-body">
+            <div class="perm-photo-grid">
+              <figure class="perm-photo"><span class="media-label">Before</span><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-before.webp 1086w" sizes="(max-width: 760px) calc(100vw - 64px), (max-width: 1080px) calc((100vw - 96px) / 2), 330px"><img src="../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-before.webp" alt="IRIS 長髮溫塑燙前髮況，原生中等偏細髮帶有輕微自然捲" width="1086" height="1448" loading="lazy" decoding="async"></picture></figure>
+              <figure class="perm-photo"><span class="media-label">After</span><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-after-640.webp 640w, ../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-after-960.webp 960w, ../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-after.webp 1086w" sizes="(max-width: 760px) calc(100vw - 64px), (max-width: 1080px) calc((100vw - 96px) / 2), 330px"><img src="../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-after.webp" alt="IRIS 長髮溫塑燙完成效果，髮面呈現自然光澤與柔和浪漫波浪" width="1086" height="1448" loading="lazy" decoding="async"></picture></figure>
+            </div>
+            <div class="perm-case-copy">
+              <div><h4>原始髮況</h4><p>原生髮，髮質中等偏細，帶有輕微自然捲，整體髮況相對完整。</p></div>
+              <div><h4>顧客需求</h4><p>希望長髮呈現柔和浪漫的波浪，不追求過度密集或厚重的捲度，並希望平時吹乾後能簡單整理。</p></div>
+              <div><h4>技術規劃</h4><p>依原始髮質、髮長與層次，以溫塑燙規劃中段至髮尾的柔和波浪，保留髮根與上半部的自然順度，避免整體捲度過度厚重。</p></div>
+              <div><h4>完成效果</h4><p>髮面呈現自然光澤，中段至髮尾形成柔和、流動的浪漫波浪，整體輪廓輕盈而不僵硬。</p></div>
+              <div><h4>居家整理</h4><p>洗髮後將頭髮吹乾，再將髮尾分區，順著捲度方向簡單繞吹即可。</p></div>
+              <ul>
+                <li>設計師：IRIS</li>
+                <li>髮長：長髮</li>
+                <li>原始髮況：原生髮、中等偏細、輕微自然捲</li>
+                <li>技術：溫塑燙</li>
+                <li>完成風格：自然光澤、柔和浪漫波浪</li>
+                <li>整理方式：吹乾後分區繞吹</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <div class="perm-iris-compact-grid">
+          <article class="perm-compact-case" id="case-i02">
+            <div class="perm-photo-grid">
+              <figure class="perm-photo"><span class="media-label">Before</span><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-before.webp 1086w" sizes="(max-width: 760px) calc(100vw - 72px), (max-width: 1080px) calc((100vw - 96px) / 2), 260px"><img src="../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-before.webp" alt="IRIS 染後中長髮燙髮前髮況，偏軟髮且髮尾有累積乾燥受損" width="1086" height="1448" loading="lazy" decoding="async"></picture></figure>
+              <figure class="perm-photo"><span class="media-label">After</span><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-after-640.webp 640w, ../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-after-960.webp 960w, ../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-after.webp 1086w" sizes="(max-width: 760px) calc(100vw - 72px), (max-width: 1080px) calc((100vw - 96px) / 2), 260px"><img src="../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-after.webp" alt="IRIS 染後中長髮溫塑燙完成效果，頭頂自然直順並於耳下呈現柔和微彎" width="1086" height="1448" loading="lazy" decoding="async"></picture></figure>
+            </div>
+            <div class="perm-compact-copy">
+              <p class="section-kicker">I02</p>
+              <h3>不想太捲的染後中長髮｜IRIS 自然微彎溫塑燙</h3>
+              <p>顧客髮質偏軟，帶有輕微自然捲，曾染髮三次以上，髮尾有累積乾燥與受損。希望髮型自然、好整理，不追求明顯捲度。</p>
+              <p><strong>原始髮況：</strong>偏軟髮，帶有輕微自然捲，曾多次染髮，髮尾有累積乾燥與受損。</p>
+              <p><strong>技術規劃：</strong>先評估多次染髮後髮尾的承受度，再以溫塑燙將捲度集中在耳朵下方，保留頭頂與上半部的自然直順感。</p>
+              <p><strong>完成效果：</strong>頭頂與髮面自然直順，耳下至髮尾呈現柔和微彎，增加輪廓與蓬鬆感，但不會顯得過度捲曲。</p>
+              <p><strong>居家整理：</strong>吹至約九分乾後，將髮尾分區，順著設計方向繞吹即可。</p>
+              <p class="perm-section-note">多次染髮後需先評估髮尾承受度，再決定施作範圍與捲度，不代表所有染後受損髮況都適合相同操作。</p>
+              <ul class="perm-case-detail-list">
+                <li><strong>設計師：</strong>IRIS</li>
+                <li><strong>髮長：</strong>中長髮</li>
+                <li><strong>原始髮況：</strong>偏軟髮、輕微自然捲、多次染髮</li>
+                <li><strong>技術：</strong>溫塑燙</li>
+                <li><strong>完成風格：</strong>頭頂直順、耳下自然微彎</li>
+                <li><strong>整理方式：</strong>九分乾後繞吹</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="perm-compact-case" id="case-i03">
+            <div class="perm-photo-grid">
+              <figure class="perm-photo"><span class="media-label">Before</span><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-before.webp 1086w" sizes="(max-width: 760px) calc(100vw - 72px), (max-width: 1080px) calc((100vw - 96px) / 2), 260px"><img src="../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-before.webp" alt="IRIS 長髮波紋燙前髮況，原生髮帶有輕微自然捲" width="1086" height="1448" loading="lazy" decoding="async"></picture></figure>
+              <figure class="perm-photo"><span class="media-label">After</span><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-after-640.webp 640w, ../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-after-960.webp 960w, ../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-after.webp 1086w" sizes="(max-width: 760px) calc(100vw - 72px), (max-width: 1080px) calc((100vw - 96px) / 2), 260px"><img src="../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-after.webp" alt="IRIS 長髮溫塑波紋燙完成效果，中段至髮尾呈現有光澤的立體柔和捲度" width="1086" height="1448" loading="lazy" decoding="async"></picture></figure>
+            </div>
+            <div class="perm-compact-copy">
+              <p class="section-kicker">I03</p>
+              <h3>自然有光澤的長髮波紋燙｜IRIS 溫塑燙設計</h3>
+              <p>顧客為原生髮，帶有輕微自然捲，希望呈現較有波紋感的長髮捲度，同時兼顧自然光澤與日常整理便利性。</p>
+              <p><strong>原始髮況：</strong>原生髮，帶有輕微自然捲，整體髮況相對完整。</p>
+              <p><strong>技術規劃：</strong>依髮長、層次與原始髮況，以溫塑燙規劃中段至髮尾較清楚的波紋線條，讓捲度具有立體感但不顯僵硬。</p>
+              <p><strong>完成效果：</strong>中段至髮尾形成清楚、柔和且具有層次的波紋，髮面保有自然光澤，比一般柔和大彎更具造型感。</p>
+              <p><strong>居家整理：</strong>吹至約九分乾後，依捲度方向分區繞吹；完成後可使用少量免沖洗保養品整理髮尾。</p>
+              <ul class="perm-case-detail-list">
+                <li><strong>設計師：</strong>IRIS</li>
+                <li><strong>髮長：</strong>長髮</li>
+                <li><strong>原始髮況：</strong>原生髮、輕微自然捲</li>
+                <li><strong>技術：</strong>溫塑燙</li>
+                <li><strong>完成風格：</strong>自然光澤、立體柔和波紋</li>
+                <li><strong>整理方式：</strong>九分乾後分區繞吹</li>
+              </ul>
             </div>
           </article>
         </div>
@@ -1302,10 +1437,10 @@
         <div class="perm-designer-copy">
           <p class="section-kicker">Designer</p>
           <h2 id="designer-title">由髮況判斷開始，而不是只複製參考照片</h2>
-          <p>本頁第一批燙髮案例皆由 Jay 杰煬設計。</p>
+          <p>本頁真實燙髮案例由 Jay 杰煬與 IRIS 共同提供，呈現不同髮況、捲度與居家整理需求的設計方向。</p>
           <p>Jay 為 ALICE Hair Salon 講師級設計師，也是「美髮理科小教室」主理人。燙髮規劃會從髮況、藥劑反應、過往染燙紀錄與居家整理方式進行判斷，並在操作前說明可能的完成效果與限制。</p>
-          <p>ALICE 其他設計師亦可承接燙髮預約。顧客可以指定 Jay，也可以由團隊依髮型需求、時間與設計師專長協助安排。</p>
-          <div class="action-row"><a class="button button-gold" href="../designers.html">認識 Jay 與 ALICE 設計師團隊</a></div>
+          <p>本次新增的 IRIS 案例以自然柔和、保有光澤與日常容易整理的波浪設計為主要特色。顧客可指定 Jay 或 IRIS，也可由 ALICE 團隊依需求協助安排設計師。</p>
+          <div class="action-row"><a class="button button-gold" href="../designers.html">認識 ALICE 設計師團隊</a></div>
         </div>
       </div>
     </section>
