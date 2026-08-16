@@ -548,6 +548,19 @@ if (navToggle && siteNav) {
       text-decoration: underline;
       text-underline-offset: 4px;
     }
+
+    @media (max-width: 860px) {
+      .dashboard-entry {
+        justify-content: flex-start;
+        margin-top: 28px;
+        padding-top: 16px;
+      }
+
+      .dashboard-entry-button {
+        /* Keep the staff link clear of the fixed holiday button on the right. */
+        max-width: calc(100% - 118px);
+      }
+    }
   `;
 
   const sha256 = async (value) => {
