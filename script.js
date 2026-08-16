@@ -496,3 +496,94 @@ if (navToggle && siteNav) {
     openModal();
   }
 })();
+
+(() => {
+  if (currentPage !== "index.html") return;
+
+  const footerInner = document.querySelector(".site-footer .footer-inner");
+  if (!footerInner || document.querySelector(".dashboard-entry")) return;
+
+  const DASHBOARD_PATH = "alice_dashboard_index_v2.html";
+  const PASSWORD_HASH = "e4f76467f7dce76a4575e1951f60501429ae3accf07c138950c4b8df9df07109";
+
+  const entry = document.createElement("div");
+  entry.className = "dashboard-entry";
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "dashboard-entry-button";
+  button.textContent = "STAFF｜管理儀表板";
+  button.setAttribute("aria-label", "開啟 ALICE 管理儀表板");
+
+  const style = document.createElement("style");
+  style.textContent = `
+    .dashboard-entry {
+      width: 100%;
+      flex: 0 0 100%;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, .12);
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .dashboard-entry-button {
+      appearance: none;
+      padding: 4px 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      opacity: .58;
+      cursor: pointer;
+      font: inherit;
+      font-size: .75rem;
+      letter-spacing: .08em;
+      transition: opacity .18s ease;
+    }
+
+    .dashboard-entry-button:hover,
+    .dashboard-entry-button:focus-visible {
+      opacity: 1;
+      outline: none;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+  `;
+
+  const sha256 = async (value) => {
+    const data = new TextEncoder().encode(value);
+    const digest = await window.crypto.subtle.digest("SHA-256", data);
+
+    return Array.from(new Uint8Array(digest))
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+  };
+
+  button.addEventListener("click", async () => {
+    const password = window.prompt("請輸入 ALICE 管理密碼");
+    if (password === null) return;
+
+    if (!window.crypto?.subtle) {
+      window.alert("此瀏覽器無法使用安全驗證功能，請改用最新版瀏覽器。");
+      return;
+    }
+
+    try {
+      const passwordHash = await sha256(password.trim());
+
+      if (passwordHash === PASSWORD_HASH) {
+        window.location.href = DASHBOARD_PATH;
+        return;
+      }
+    } catch (error) {
+      window.alert("密碼驗證暫時無法使用，請稍後再試。");
+      return;
+    }
+
+    window.alert("密碼錯誤，請重新輸入。");
+  });
+
+  document.head.appendChild(style);
+  entry.appendChild(button);
+  footerInner.appendChild(entry);
+})();
