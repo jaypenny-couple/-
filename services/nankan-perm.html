@@ -512,6 +512,33 @@
       padding-left: 4px;
     }
 
+    @media (min-width: 1081px) {
+      .perm-compact-case--single .perm-photo-grid {
+        width: 100%;
+        max-width: 343px;
+      }
+
+      .perm-compact-case--standard {
+        display: grid;
+        grid-template-columns: minmax(0, .82fr) minmax(340px, .6fr);
+        gap: 28px;
+        padding: 22px 28px 28px;
+        align-items: start;
+        position: relative;
+      }
+
+      .perm-compact-case--standard .perm-photo-grid,
+      .perm-compact-case--standard .perm-compact-copy {
+        padding: 0;
+      }
+
+      .perm-compact-case--standard > #defined-curl-cases {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    }
+
     .perm-compact-copy {
       padding: 22px 24px 24px;
     }
@@ -1200,7 +1227,7 @@
             </div>
           </article>
 
-          <article class="perm-compact-case" id="case-p05">
+          <article class="perm-compact-case perm-compact-case--standard" id="case-p05">
             <span id="defined-curl-cases"></span>
             <div class="perm-photo-grid">
               <figure class="perm-photo"><span class="media-label">Before</span><div class="perm-photo-media"><img src="../assets/images/services/nankan-perm/p05-nankan-mature-fine-hair-perm-before.webp" alt="熟齡細軟髮燙髮前髮況，長期染髮後髮中至髮尾較乾燥鬆散" width="492" height="791" loading="lazy" decoding="async"></div></figure>
