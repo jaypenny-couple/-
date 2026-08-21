@@ -369,20 +369,6 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    .perm-p07-photo-grid {
-      align-items: start;
-    }
-
-    .perm-p07-photo-grid .perm-photo {
-      aspect-ratio: 9 / 16;
-    }
-
-    .perm-p07-photo-grid .perm-photo img {
-      height: 100%;
-      object-fit: cover;
-      object-position: center top;
-    }
-
     .perm-photo {
       position: relative;
       margin: 0;
@@ -392,10 +378,24 @@
       background: var(--warm);
     }
 
-    .perm-photo img {
-      width: 100%;
-      height: auto;
+    .perm-photo-media {
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .perm-photo-media picture {
       display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .perm-photo-media img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center;
     }
 
     .perm-photo .media-label {
@@ -510,22 +510,6 @@
 
     .perm-compact-case--single .perm-compact-copy {
       padding-left: 4px;
-    }
-
-    @media (min-width: 769px) {
-      .perm-compact-case--single .perm-photo-grid {
-        align-self: stretch;
-      }
-
-      .perm-compact-case--single .perm-photo {
-        height: 100%;
-      }
-
-      .perm-compact-case--single .perm-photo img {
-        height: 100%;
-        object-fit: cover;
-        object-position: center top;
-      }
     }
 
     .perm-compact-copy {
@@ -1130,8 +1114,8 @@
           <p><a class="news-read-more" href="nankan-hair-straightening.html">想看以自然直順為主的縮毛矯正案例？</a></p>
           <div class="perm-case-body">
             <div class="perm-photo-grid">
-              <figure class="perm-photo"><span class="media-label">Before</span><img src="../assets/images/services/nankan-perm/p01-nankan-long-hair-digital-perm-before-1280.webp" srcset="../assets/images/services/nankan-perm/p01-nankan-long-hair-digital-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/p01-nankan-long-hair-digital-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/p01-nankan-long-hair-digital-perm-before-1280.webp 1280w" sizes="(max-width: 760px) calc(100vw - 64px), (max-width: 1080px) calc((100vw - 96px) / 2), 330px" alt="長髮燙髮前髮況，髮流較鬆散，髮尾線條較不集中" width="1280" height="2274" loading="lazy" decoding="async"></figure>
-              <figure class="perm-photo"><span class="media-label">After</span><img src="../assets/images/services/nankan-perm/p01-nankan-long-hair-digital-perm-after.webp" alt="長髮溫塑燙完成效果，髮根自然直順，髮尾呈現柔和大波浪" width="941" height="1672" loading="lazy" decoding="async"></figure>
+              <figure class="perm-photo"><span class="media-label">Before</span><div class="perm-photo-media"><img src="../assets/images/services/nankan-perm/p01-nankan-long-hair-digital-perm-before-1280.webp" srcset="../assets/images/services/nankan-perm/p01-nankan-long-hair-digital-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/p01-nankan-long-hair-digital-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/p01-nankan-long-hair-digital-perm-before-1280.webp 1280w" sizes="(max-width: 760px) calc(100vw - 64px), (max-width: 1080px) calc((100vw - 96px) / 2), 330px" alt="長髮燙髮前髮況，髮流較鬆散，髮尾線條較不集中" width="1280" height="2274" loading="lazy" decoding="async"></div></figure>
+              <figure class="perm-photo"><span class="media-label">After</span><div class="perm-photo-media"><img src="../assets/images/services/nankan-perm/p01-nankan-long-hair-digital-perm-after.webp" alt="長髮溫塑燙完成效果，髮根自然直順，髮尾呈現柔和大波浪" width="941" height="1672" loading="lazy" decoding="async"></div></figure>
             </div>
             <div class="perm-case-copy">
               <div><h4>原始髮況</h4><p>顧客為中等偏粗髮質，帶有輕度自然捲及輕度受損。整體髮量感明顯，髮中至髮尾線條較鬆散。</p></div>
@@ -1159,9 +1143,9 @@
           </header>
           <div class="perm-case-body">
             <div class="perm-photo-grid three perm-p07-photo-grid">
-              <figure class="perm-photo"><span class="media-label">Before</span><img src="../assets/images/services/nankan-perm/p07-nankan-fine-flat-hair-perm-before-1280.webp" srcset="../assets/images/services/nankan-perm/p07-nankan-fine-flat-hair-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/p07-nankan-fine-flat-hair-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/p07-nankan-fine-flat-hair-perm-before-1280.webp 1280w" sizes="(max-width: 760px) calc(100vw - 64px), (max-width: 1080px) calc((100vw - 96px) / 2), 240px" alt="極細軟中長髮燙髮前髮況，整體較服貼，缺乏蓬鬆與支撐感" width="1280" height="2274" loading="lazy" decoding="async"></figure>
-              <figure class="perm-photo"><span class="media-label">After</span><img src="../assets/images/services/nankan-perm/p07-nankan-fine-flat-hair-perm-after-main.webp" alt="極細軟中長髮溫塑燙完成效果，呈現明顯捲度與整體蓬鬆感" width="1086" height="1448" loading="lazy" decoding="async"></figure>
-              <figure class="perm-photo"><span class="media-label">Angle</span><img src="../assets/images/services/nankan-perm/p07-nankan-fine-flat-hair-perm-after-angle.webp" alt="極細軟中長髮溫塑燙側後方角度，可見立體捲度與空氣感" width="1086" height="1448" loading="lazy" decoding="async"></figure>
+              <figure class="perm-photo"><span class="media-label">Before</span><div class="perm-photo-media"><img src="../assets/images/services/nankan-perm/p07-nankan-fine-flat-hair-perm-before-1280.webp" srcset="../assets/images/services/nankan-perm/p07-nankan-fine-flat-hair-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/p07-nankan-fine-flat-hair-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/p07-nankan-fine-flat-hair-perm-before-1280.webp 1280w" sizes="(max-width: 760px) calc(100vw - 64px), (max-width: 1080px) calc((100vw - 96px) / 2), 240px" alt="極細軟中長髮燙髮前髮況，整體較服貼，缺乏蓬鬆與支撐感" width="1280" height="2274" loading="lazy" decoding="async"></div></figure>
+              <figure class="perm-photo"><span class="media-label">After</span><div class="perm-photo-media"><img src="../assets/images/services/nankan-perm/p07-nankan-fine-flat-hair-perm-after-main.webp" alt="極細軟中長髮溫塑燙完成效果，呈現明顯捲度與整體蓬鬆感" width="1086" height="1448" loading="lazy" decoding="async"></div></figure>
+              <figure class="perm-photo"><span class="media-label">Angle</span><div class="perm-photo-media"><img src="../assets/images/services/nankan-perm/p07-nankan-fine-flat-hair-perm-after-angle.webp" alt="極細軟中長髮溫塑燙側後方角度，可見立體捲度與空氣感" width="1086" height="1448" loading="lazy" decoding="async"></div></figure>
             </div>
             <div class="perm-case-copy">
               <div><h4>技術規劃</h4><p>先評估細軟髮的承受度與支撐條件，再以溫塑燙配置較清楚的捲度。捲度由頂部延伸至髮尾，透過層次與排列增加視覺份量。</p></div>
@@ -1188,8 +1172,8 @@
           </header>
           <div class="perm-case-body">
             <div class="perm-photo-grid">
-              <figure class="perm-photo"><span class="media-label">Before</span><img src="../assets/images/services/nankan-perm/p06-nankan-highlighted-hair-perm-before-1280.webp" srcset="../assets/images/services/nankan-perm/p06-nankan-highlighted-hair-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/p06-nankan-highlighted-hair-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/p06-nankan-highlighted-hair-perm-before-1280.webp 1280w" sizes="(max-width: 760px) calc(100vw - 64px), (max-width: 1080px) calc((100vw - 96px) / 2), 330px" alt="挑染後中長髮燙髮前髮況，髮中至髮尾較乾燥，整體線條較鬆散" width="1280" height="2274" loading="lazy" decoding="async"></figure>
-              <figure class="perm-photo"><span class="media-label">After</span><img src="../assets/images/services/nankan-perm/p06-nankan-highlighted-hair-perm-after.webp" alt="挑染後中長髮溫塑燙完成效果，呈現明顯立體捲度與整體蓬鬆感" width="941" height="1672" loading="lazy" decoding="async"></figure>
+              <figure class="perm-photo"><span class="media-label">Before</span><div class="perm-photo-media"><img src="../assets/images/services/nankan-perm/p06-nankan-highlighted-hair-perm-before-1280.webp" srcset="../assets/images/services/nankan-perm/p06-nankan-highlighted-hair-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/p06-nankan-highlighted-hair-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/p06-nankan-highlighted-hair-perm-before-1280.webp 1280w" sizes="(max-width: 760px) calc(100vw - 64px), (max-width: 1080px) calc((100vw - 96px) / 2), 330px" alt="挑染後中長髮燙髮前髮況，髮中至髮尾較乾燥，整體線條較鬆散" width="1280" height="2274" loading="lazy" decoding="async"></div></figure>
+              <figure class="perm-photo"><span class="media-label">After</span><div class="perm-photo-media"><img src="../assets/images/services/nankan-perm/p06-nankan-highlighted-hair-perm-after.webp" alt="挑染後中長髮溫塑燙完成效果，呈現明顯立體捲度與整體蓬鬆感" width="941" height="1672" loading="lazy" decoding="async"></div></figure>
             </div>
             <div class="perm-case-copy">
               <div><h4>技術規劃</h4><p>先評估染後與挑染區域的彈性、乾燥程度與髮尾狀況，再決定施作範圍與捲度配置。</p></div>
@@ -1204,7 +1188,7 @@
         <div class="perm-compact-grid">
           <article class="perm-compact-case perm-compact-case--single" id="case-p02">
             <div class="perm-photo-grid">
-              <figure class="perm-photo"><span class="media-label">After</span><img src="../assets/images/services/nankan-perm/p02-nankan-medium-long-hair-digital-perm.webp" alt="細軟中長髮溫塑燙完成效果，呈現自然蓬鬆與柔和大彎" width="1086" height="1448" loading="lazy" decoding="async"></figure>
+              <figure class="perm-photo"><span class="media-label">After</span><div class="perm-photo-media"><img src="../assets/images/services/nankan-perm/p02-nankan-medium-long-hair-digital-perm.webp" alt="細軟中長髮溫塑燙完成效果，呈現自然蓬鬆與柔和大彎" width="1086" height="1448" loading="lazy" decoding="async"></div></figure>
             </div>
             <div class="perm-compact-copy">
               <p class="section-kicker">P02</p>
@@ -1219,8 +1203,8 @@
           <article class="perm-compact-case" id="case-p05">
             <span id="defined-curl-cases"></span>
             <div class="perm-photo-grid">
-              <figure class="perm-photo"><span class="media-label">Before</span><img src="../assets/images/services/nankan-perm/p05-nankan-mature-fine-hair-perm-before.webp" alt="熟齡細軟髮燙髮前髮況，長期染髮後髮中至髮尾較乾燥鬆散" width="492" height="791" loading="lazy" decoding="async"></figure>
-              <figure class="perm-photo"><span class="media-label">After</span><img src="../assets/images/services/nankan-perm/p05-nankan-mature-fine-hair-perm-after.webp" alt="熟齡細軟髮溫塑燙完成效果，呈現明顯立體捲度與整體蓬鬆感" width="941" height="1672" loading="lazy" decoding="async"></figure>
+              <figure class="perm-photo"><span class="media-label">Before</span><div class="perm-photo-media"><img src="../assets/images/services/nankan-perm/p05-nankan-mature-fine-hair-perm-before.webp" alt="熟齡細軟髮燙髮前髮況，長期染髮後髮中至髮尾較乾燥鬆散" width="492" height="791" loading="lazy" decoding="async"></div></figure>
+              <figure class="perm-photo"><span class="media-label">After</span><div class="perm-photo-media"><img src="../assets/images/services/nankan-perm/p05-nankan-mature-fine-hair-perm-after.webp" alt="熟齡細軟髮溫塑燙完成效果，呈現明顯立體捲度與整體蓬鬆感" width="941" height="1672" loading="lazy" decoding="async"></div></figure>
             </div>
             <div class="perm-compact-copy">
               <p class="section-kicker">P05</p>
@@ -1252,8 +1236,8 @@
           </header>
           <div class="perm-case-body">
             <div class="perm-photo-grid">
-              <figure class="perm-photo"><span class="media-label">Before</span><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-before.webp 1086w" sizes="(max-width: 760px) calc(100vw - 64px), (max-width: 1080px) calc((100vw - 96px) / 2), 330px"><img src="../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-before.webp" alt="IRIS 長髮溫塑燙前髮況，原生中等偏細髮帶有輕微自然捲" width="1086" height="1448" loading="lazy" decoding="async"></picture></figure>
-              <figure class="perm-photo"><span class="media-label">After</span><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-after-640.webp 640w, ../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-after-960.webp 960w, ../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-after.webp 1086w" sizes="(max-width: 760px) calc(100vw - 64px), (max-width: 1080px) calc((100vw - 96px) / 2), 330px"><img src="../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-after.webp" alt="IRIS 長髮溫塑燙完成效果，髮面呈現自然光澤與柔和浪漫波浪" width="1086" height="1448" loading="lazy" decoding="async"></picture></figure>
+              <figure class="perm-photo"><span class="media-label">Before</span><div class="perm-photo-media"><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-before.webp 1086w" sizes="(max-width: 760px) calc(100vw - 64px), (max-width: 1080px) calc((100vw - 96px) / 2), 330px"><img src="../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-before.webp" alt="IRIS 長髮溫塑燙前髮況，原生中等偏細髮帶有輕微自然捲" width="1086" height="1448" loading="lazy" decoding="async"></picture></div></figure>
+              <figure class="perm-photo"><span class="media-label">After</span><div class="perm-photo-media"><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-after-640.webp 640w, ../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-after-960.webp 960w, ../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-after.webp 1086w" sizes="(max-width: 760px) calc(100vw - 64px), (max-width: 1080px) calc((100vw - 96px) / 2), 330px"><img src="../assets/images/services/nankan-perm/iris/i01-iris-long-hair-romantic-perm-after.webp" alt="IRIS 長髮溫塑燙完成效果，髮面呈現自然光澤與柔和浪漫波浪" width="1086" height="1448" loading="lazy" decoding="async"></picture></div></figure>
             </div>
             <div class="perm-case-copy">
               <div><h4>原始髮況</h4><p>原生髮，髮質中等偏細，帶有輕微自然捲，整體髮況相對完整。</p></div>
@@ -1276,8 +1260,8 @@
         <div class="perm-iris-compact-grid">
           <article class="perm-compact-case" id="case-i02">
             <div class="perm-photo-grid">
-              <figure class="perm-photo"><span class="media-label">Before</span><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-before.webp 1086w" sizes="(max-width: 760px) calc(100vw - 72px), (max-width: 1080px) calc((100vw - 96px) / 2), 260px"><img src="../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-before.webp" alt="IRIS 染後中長髮燙髮前髮況，偏軟髮且髮尾有累積乾燥受損" width="1086" height="1448" loading="lazy" decoding="async"></picture></figure>
-              <figure class="perm-photo"><span class="media-label">After</span><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-after-640.webp 640w, ../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-after-960.webp 960w, ../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-after.webp 1086w" sizes="(max-width: 760px) calc(100vw - 72px), (max-width: 1080px) calc((100vw - 96px) / 2), 260px"><img src="../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-after.webp" alt="IRIS 染後中長髮溫塑燙完成效果，頭頂自然直順並於耳下呈現柔和微彎" width="1086" height="1448" loading="lazy" decoding="async"></picture></figure>
+              <figure class="perm-photo"><span class="media-label">Before</span><div class="perm-photo-media"><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-before.webp 1086w" sizes="(max-width: 760px) calc(100vw - 72px), (max-width: 1080px) calc((100vw - 96px) / 2), 260px"><img src="../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-before.webp" alt="IRIS 染後中長髮燙髮前髮況，偏軟髮且髮尾有累積乾燥受損" width="1086" height="1448" loading="lazy" decoding="async"></picture></div></figure>
+              <figure class="perm-photo"><span class="media-label">After</span><div class="perm-photo-media"><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-after-640.webp 640w, ../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-after-960.webp 960w, ../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-after.webp 1086w" sizes="(max-width: 760px) calc(100vw - 72px), (max-width: 1080px) calc((100vw - 96px) / 2), 260px"><img src="../assets/images/services/nankan-perm/iris/i02-iris-colored-medium-hair-soft-perm-after.webp" alt="IRIS 染後中長髮溫塑燙完成效果，頭頂自然直順並於耳下呈現柔和微彎" width="1086" height="1448" loading="lazy" decoding="async"></picture></div></figure>
             </div>
             <div class="perm-compact-copy">
               <p class="section-kicker">I02</p>
@@ -1301,8 +1285,8 @@
 
           <article class="perm-compact-case" id="case-i03">
             <div class="perm-photo-grid">
-              <figure class="perm-photo"><span class="media-label">Before</span><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-before.webp 1086w" sizes="(max-width: 760px) calc(100vw - 72px), (max-width: 1080px) calc((100vw - 96px) / 2), 260px"><img src="../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-before.webp" alt="IRIS 長髮波紋燙前髮況，原生髮帶有輕微自然捲" width="1086" height="1448" loading="lazy" decoding="async"></picture></figure>
-              <figure class="perm-photo"><span class="media-label">After</span><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-after-640.webp 640w, ../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-after-960.webp 960w, ../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-after.webp 1086w" sizes="(max-width: 760px) calc(100vw - 72px), (max-width: 1080px) calc((100vw - 96px) / 2), 260px"><img src="../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-after.webp" alt="IRIS 長髮溫塑波紋燙完成效果，中段至髮尾呈現有光澤的立體柔和捲度" width="1086" height="1448" loading="lazy" decoding="async"></picture></figure>
+              <figure class="perm-photo"><span class="media-label">Before</span><div class="perm-photo-media"><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-before-640.webp 640w, ../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-before-960.webp 960w, ../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-before.webp 1086w" sizes="(max-width: 760px) calc(100vw - 72px), (max-width: 1080px) calc((100vw - 96px) / 2), 260px"><img src="../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-before.webp" alt="IRIS 長髮波紋燙前髮況，原生髮帶有輕微自然捲" width="1086" height="1448" loading="lazy" decoding="async"></picture></div></figure>
+              <figure class="perm-photo"><span class="media-label">After</span><div class="perm-photo-media"><picture><source type="image/webp" srcset="../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-after-640.webp 640w, ../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-after-960.webp 960w, ../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-after.webp 1086w" sizes="(max-width: 760px) calc(100vw - 72px), (max-width: 1080px) calc((100vw - 96px) / 2), 260px"><img src="../assets/images/services/nankan-perm/iris/i03-iris-long-hair-wave-perm-after.webp" alt="IRIS 長髮溫塑波紋燙完成效果，中段至髮尾呈現有光澤的立體柔和捲度" width="1086" height="1448" loading="lazy" decoding="async"></picture></div></figure>
             </div>
             <div class="perm-compact-copy">
               <p class="section-kicker">I03</p>
