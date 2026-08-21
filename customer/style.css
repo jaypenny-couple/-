@@ -35,17 +35,10 @@ button{cursor:pointer}
   gap:16px;
   padding:8px 2px 18px;
 }
-.logo-text{
-  letter-spacing:.48em;
-  font-size:32px;
-  line-height:1;
-  font-weight:600;
-}
-.logo-sub{
-  letter-spacing:.2em;
-  color:var(--muted);
-  font-size:12px;
-  margin-top:4px;
+.brand-logo{
+  display:block;
+  width:clamp(168px,34vw,220px);
+  height:auto;
 }
 .badge{
   border:1px solid var(--line);
@@ -260,6 +253,6 @@ footer{
   .app-shell{padding:12px}
   .hero,.form-card,.result-panel{padding:20px}
   .grid-2{grid-template-columns:1fr}
-  .logo-text{font-size:27px}
+  .brand-logo{width:168px}
   .form-actions{grid-template-columns:1fr}
 }
