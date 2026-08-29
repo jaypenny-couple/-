@@ -408,7 +408,7 @@ if (navToggle && siteNav) {
   const openButton = document.querySelector("#holiday-open-button");
   const closeButtons = document.querySelectorAll("[data-holiday-close]");
   const closeButton = modal?.querySelector(".holiday-modal__close");
-  const STORAGE_KEY = "alice-holiday-modal-closed-2026-08";
+  const STORAGE_KEY = "alice-holiday-modal-closed-2026-09";
 
   if (!monthLabel || !dateList || !modal || !openButton) return;
 
@@ -422,26 +422,28 @@ if (navToggle && siteNav) {
     "\u516d",
   ];
   const year = 2026;
-  const month = 7;
+  const month = 8;
   const closures = [
-    { date: new Date(year, month, 3), label: "\u516c\u4f11" },
-    { date: new Date(year, month, 9), label: "\u54e1\u5de5\u65c5\u904a" },
-    { date: new Date(year, month, 10), label: "\u54e1\u5de5\u65c5\u904a" },
-    { date: new Date(year, month, 11), label: "\u54e1\u5de5\u65c5\u904a" },
-    { date: new Date(year, month, 17), label: "\u516c\u4f11" },
-    { date: new Date(year, month, 23), label: "\u516c\u4f11" },
-    { date: new Date(year, month, 30), label: "\u516c\u4f11" },
-  ];
+    { date: new Date(year, 7, 30), label: "公休" },
+    {
+      date: new Date(year, month, 3),
+      label: "IRIS CINDY SHERRY 休假到尖石鄉為偏鄉學童義剪",
+      isFeatured: true,
+    },
+    { date: new Date(year, month, 7), label: "公休" },
+    { date: new Date(year, month, 13), label: "公休" },
+    { date: new Date(year, month, 21), label: "公休" },
+    { date: new Date(year, month, 27), label: "公休" },
+  ].sort((a, b) => a.date - b.date);
 
   monthLabel.textContent = `${year} \u5e74 ${month + 1} \u6708\u4f11\u5047\u516c\u544a`;
   dateList.replaceChildren(
-    ...closures.map(({ date, label }) => {
+    ...closures.map(({ date, label, isFeatured }) => {
       const item = document.createElement("li");
       const rule = document.createElement("span");
 
-      item.textContent = `${month + 1} \u6708 ${date.getDate()} \u65e5\uff08${
-        weekdays[date.getDay()]
-      }\uff09`;
+      item.classList.toggle("is-highlight", Boolean(isFeatured));
+      item.textContent = `${date.getMonth() + 1} \u6708 ${date.getDate()} \u65e5\uff08${weekdays[date.getDay()]}\uff09`;
       rule.textContent = label;
       item.appendChild(rule);
 
