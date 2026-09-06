@@ -1,11 +1,18 @@
 User-agent: *
 Allow: /
 
-# Internal or legacy utility pages are kept out of search crawling.
+# Internal pages are deliberately unavailable on the public site. These rules
+# support de-indexing only; access control is enforced by removing the pages.
 Disallow: /404.html
 Disallow: /ALICE2026web.html
 Disallow: /dilution-calculator.html
+Disallow: /dye-calculator.html
+Disallow: /dashboard.html
 Disallow: /alice_dashboard_index_v2.html
 Disallow: /Product%20Pre-Order.html
+Disallow: /shortlist.html
+Disallow: /%E6%96%B0%E5%AE%A2%E7%AE%A1%E7%90%86.html
+Disallow: /%E4%BC%91%E5%81%87%E9%80%B2%E4%BF%AE%E7%AE%A1%E7%90%86.html
+Disallow: /customer/
 
 Sitemap: https://alicegroup.com.tw/sitemap.xml
