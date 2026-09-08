@@ -1,64 +1,346 @@
 <!doctype html>
 <html lang="zh-Hant-TW">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="robots" content="noindex, nofollow, noarchive">
-  <meta name="referrer" content="no-referrer">
-  <title>顧客資料表單維護中｜ALICE Hair Salon</title>
-  <style>
-    :root { color-scheme: light; }
-    * { box-sizing: border-box; }
-    body {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      margin: 0;
-      padding: 24px;
-      color: #2b2926;
-      background: #f7f2ea;
-      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
-    }
-    main {
-      width: min(100%, 520px);
-      padding: clamp(32px, 7vw, 56px);
-      border: 1px solid rgba(164, 125, 67, .25);
-      border-radius: 12px;
-      background: #fffaf4;
-      box-shadow: 0 20px 60px rgba(54, 43, 31, .1);
-      text-align: center;
-    }
-    p { margin: 0; line-height: 1.85; }
-    .eyebrow {
-      margin-bottom: 14px;
-      color: #a47d43;
-      font-size: .75rem;
-      font-weight: 700;
-      letter-spacing: .12em;
-    }
-    h1 { margin: 0 0 16px; font-size: clamp(1.6rem, 6vw, 2.2rem); line-height: 1.35; }
-    .copy { color: #6b6259; }
-    a {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      margin-top: 28px;
-      padding: 0 20px;
-      border-radius: 7px;
-      color: #fff;
-      background: #262626;
-      font-weight: 700;
-      text-decoration: none;
-    }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#111111" />
+  <meta name="description" content="ALICE Smart CRM 顧客資料手機填寫表單" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <title>ALICE Smart CRM｜顧客資料填寫</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="./style.css?v=20260821-logo" />
 </head>
 <body>
-  <main>
-    <p class="eyebrow">ALICE HAIR SALON</p>
-    <h1>顧客資料表單暫時維護中</h1>
-    <p class="copy">為提升資料保護措施，線上填寫功能目前暫停使用。請由現場人員協助完成資料登記，謝謝您的理解。</p>
-    <a href="../index.html">返回 ALICE 官網</a>
-  </main>
+  <noscript>此表單需要啟用 JavaScript 才能使用。</noscript>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-logo" src="../assets/brand/alice-logo-transparent.webp" alt="ALICE hair design group" width="821" height="283" decoding="async" />
+      </div>
+      <div class="badge">Smart CRM v2</div>
+    </header>
+
+    <main>
+      <section class="hero" id="home">
+        <p class="eyebrow">第一次來店資料填寫</p>
+        <h1>讓設計師更快了解你的髮況與需求</h1>
+        <p class="hero-copy">
+          約 2–3 分鐘完成。資料僅供 ALICE Hair Design Group 會員服務、預約聯繫、髮型紀錄與後續服務使用。
+        </p>
+        <button class="primary-btn" type="button" data-action="start">開始填寫</button>
+        <button class="ghost-btn admin-only" type="button" data-action="load-draft">載入暫存資料</button>
+      </section>
+
+      <form id="customerForm" class="form-card hidden" autocomplete="on">
+        <div class="progress-wrap">
+          <div class="progress-info">
+            <span id="stepLabel">Step 1 / 7</span>
+            <span id="progressText">基本資料</span>
+          </div>
+          <div class="progress-bar"><div id="progressBar"></div></div>
+        </div>
+
+        <!-- Step 1 -->
+        <section class="step active" data-step="1" data-title="基本資料">
+          <h2>基本資料</h2>
+          <p class="hint">＊為必要欄位。</p>
+
+          <label>姓名（中文）＊
+            <input name="nameZh" required placeholder="例如：王小美" />
+          </label>
+
+          <label>姓名（英文）
+            <input name="nameEn" placeholder="Optional" />
+          </label>
+
+          <div class="grid-2">
+            <label>生日＊
+              <input name="birthday" type="date" required />
+            </label>
+            <label>性別
+              <select name="gender">
+                <option value="">請選擇</option>
+                <option>男</option>
+                <option>女</option>
+                <option>其他 / 不透露</option>
+              </select>
+            </label>
+          </div>
+
+          <label>手機＊
+            <input name="mobile" inputmode="tel" required placeholder="09xxxxxxxx" />
+          </label>
+
+          <label>市話
+            <input name="phoneHome" inputmode="tel" placeholder="可留空" />
+          </label>
+
+          <label>Email
+            <input name="email" type="email" placeholder="name@example.com" />
+          </label>
+
+          <label>LINE ID
+            <input name="lineId" placeholder="若不知道可留空" />
+          </label>
+        </section>
+
+        <!-- Step 2 -->
+        <section class="step" data-step="2" data-title="聯絡與地址">
+          <h2>聯絡與地址</h2>
+
+          <div class="grid-2">
+            <label>縣市
+              <input name="city" placeholder="桃園市" />
+            </label>
+            <label>區域
+              <input name="district" placeholder="蘆竹區 / 南崁" />
+            </label>
+          </div>
+
+          <label>通訊地址
+            <input name="address" placeholder="可留空" />
+          </label>
+
+          <fieldset>
+            <legend>偏好的聯絡方式</legend>
+            <div class="chips">
+              <label><input type="checkbox" name="contactMethods" value="住宅電話" />住宅電話</label>
+              <label><input type="checkbox" name="contactMethods" value="行動電話" />行動電話</label>
+              <label><input type="checkbox" name="contactMethods" value="Email" />E-mail</label>
+              <label><input type="checkbox" name="contactMethods" value="簡訊" />簡訊</label>
+              <label><input type="checkbox" name="contactMethods" value="LINE" />LINE</label>
+              <label><input type="checkbox" name="contactMethods" value="Facebook" />FB</label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>方便聯絡時間</legend>
+            <div class="chips">
+              <label><input type="checkbox" name="contactTimes" value="09:00-12:00" />09:00–12:00</label>
+              <label><input type="checkbox" name="contactTimes" value="12:00-18:00" />12:00–18:00</label>
+              <label><input type="checkbox" name="contactTimes" value="18:00-21:00" />18:00–21:00</label>
+            </div>
+          </fieldset>
+        </section>
+
+        <!-- Step 3 -->
+        <section class="step" data-step="3" data-title="職業與來源">
+          <h2>職業與認識來源</h2>
+
+          <fieldset>
+            <legend>職業</legend>
+            <div class="chips">
+              <label><input type="radio" name="occupation" value="金融 / 保險" />金融 / 保險</label>
+              <label><input type="radio" name="occupation" value="房地產" />房地產</label>
+              <label><input type="radio" name="occupation" value="軍公教" />軍公教</label>
+              <label><input type="radio" name="occupation" value="經商" />經商</label>
+              <label><input type="radio" name="occupation" value="製造 / 營造" />製造 / 營造</label>
+              <label><input type="radio" name="occupation" value="資訊" />資訊</label>
+              <label><input type="radio" name="occupation" value="服務 / 娛樂" />服務 / 娛樂</label>
+              <label><input type="radio" name="occupation" value="藝術 / 文化" />藝術 / 文化</label>
+              <label><input type="radio" name="occupation" value="家管 / 學生" />家管 / 學生</label>
+              <label><input type="radio" name="occupation" value="其他" />其他</label>
+            </div>
+          </fieldset>
+
+          <label>其他職業 / 職稱
+            <input name="occupationOther" placeholder="例如：工程師、老師、自由業" />
+          </label>
+
+          <fieldset>
+            <legend>您為何會選擇我們？</legend>
+            <div class="chips">
+              <label><input type="checkbox" name="sources" value="朋友介紹" />朋友介紹</label>
+              <label><input type="checkbox" name="sources" value="雜誌媒體" />雜誌媒體</label>
+              <label><input type="checkbox" name="sources" value="電腦網路" />電腦網路</label>
+              <label><input type="checkbox" name="sources" value="裝潢氣氛" />裝潢氣氛</label>
+              <label><input type="checkbox" name="sources" value="路過" />路過</label>
+              <label><input type="checkbox" name="sources" value="Google" />Google</label>
+              <label><input type="checkbox" name="sources" value="Instagram" />IG</label>
+              <label><input type="checkbox" name="sources" value="Facebook" />FB</label>
+              <label><input type="checkbox" name="sources" value="Threads" />Threads</label>
+              <label><input type="checkbox" name="sources" value="小紅書" />小紅書</label>
+              <label><input type="checkbox" name="sources" value="LINE" />LINE</label>
+            </div>
+          </fieldset>
+
+          <label>介紹人
+            <input name="referrer" placeholder="若由親友介紹，請填寫介紹人" />
+          </label>
+        </section>
+
+        <!-- Step 4 -->
+        <section class="step" data-step="4" data-title="問卷資料">
+          <h2>問卷資料</h2>
+
+          <fieldset>
+            <legend>是否有因染燙而引起過敏症狀？</legend>
+            <div class="chips">
+              <label><input type="radio" name="allergyHistory" value="是" />是</label>
+              <label><input type="radio" name="allergyHistory" value="否" />否</label>
+              <label><input type="radio" name="allergyHistory" value="不確定" />不確定</label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>平常自己洗髮嗎？</legend>
+            <div class="chips">
+              <label><input type="radio" name="selfWash" value="是" />是</label>
+              <label><input type="radio" name="selfWash" value="上美容院" />上美容院</label>
+              <label><input type="radio" name="selfWash" value="偶而上美容院" />偶而上美容院</label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>有居家護髮習慣嗎？</legend>
+            <div class="chips">
+              <label><input type="radio" name="homeCare" value="有" />有</label>
+              <label><input type="radio" name="homeCare" value="沒有" />沒有</label>
+              <label><input type="radio" name="homeCare" value="偶而" />偶而</label>
+              <label><input type="radio" name="homeCare" value="上美容院" />上美容院</label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>滿意自己臉部哪一部分？</legend>
+            <div class="chips">
+              <label><input type="checkbox" name="favoriteFaceParts" value="眼睛" />眼睛</label>
+              <label><input type="checkbox" name="favoriteFaceParts" value="耳朵" />耳朵</label>
+              <label><input type="checkbox" name="favoriteFaceParts" value="鼻子" />鼻子</label>
+              <label><input type="checkbox" name="favoriteFaceParts" value="嘴巴" />嘴巴</label>
+              <label><input type="checkbox" name="favoriteFaceParts" value="眉型" />眉型</label>
+              <label><input type="checkbox" name="favoriteFaceParts" value="臉型" />臉型</label>
+              <label><input type="checkbox" name="favoriteFaceParts" value="以上皆是" />以上皆是</label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>如果您滿意我們的服務，是否願意向親友推薦？</legend>
+            <div class="chips">
+              <label><input type="radio" name="recommendWillingness" value="是" />是</label>
+              <label><input type="radio" name="recommendWillingness" value="否" />否</label>
+            </div>
+          </fieldset>
+        </section>
+
+        <!-- Step 5 -->
+        <section class="step" data-step="5" data-title="頭髮困擾">
+          <h2>頭髮與頭皮困擾</h2>
+          <p class="hint">可複選。</p>
+
+          <fieldset>
+            <legend>頭髮上最大的困擾</legend>
+            <div class="chips">
+              <label><input type="checkbox" name="hairConcerns" value="不易整理" />不易整理</label>
+              <label><input type="checkbox" name="hairConcerns" value="太花時間" />太花時間</label>
+              <label><input type="checkbox" name="hairConcerns" value="髮型無法持久" />髮型無法持久</label>
+              <label><input type="checkbox" name="hairConcerns" value="頭皮屑 / 癢" />頭皮屑 / 癢</label>
+              <label><input type="checkbox" name="hairConcerns" value="過敏" />過敏</label>
+              <label><input type="checkbox" name="hairConcerns" value="掉髮" />掉髮</label>
+              <label><input type="checkbox" name="hairConcerns" value="乾燥" />乾燥</label>
+              <label><input type="checkbox" name="hairConcerns" value="出油" />出油</label>
+              <label><input type="checkbox" name="hairConcerns" value="毛躁" />毛躁</label>
+              <label><input type="checkbox" name="hairConcerns" value="自然捲" />自然捲</label>
+              <label><input type="checkbox" name="hairConcerns" value="扁塌細軟" />扁塌細軟</label>
+              <label><input type="checkbox" name="hairConcerns" value="白髮" />白髮</label>
+            </div>
+          </fieldset>
+
+          <label>其他困擾
+            <textarea name="hairConcernOther" rows="3" placeholder="例如：漂後髮尾容易斷、染後頭皮緊繃等"></textarea>
+          </label>
+        </section>
+
+        <!-- Step 6 -->
+        <section class="step" data-step="6" data-title="照片與行銷同意">
+          <h2>同意事項</h2>
+          <p class="hint">可依實際法務需求再調整文字。</p>
+
+          <label class="agree">
+            <input type="checkbox" name="consentData" required />
+            <span>我同意 ALICE Hair Design Group 保存我的會員資料，作為預約、服務紀錄、售後聯繫與會員管理使用。＊</span>
+          </label>
+
+          <label class="agree">
+            <input type="checkbox" name="consentMarketing" />
+            <span>我同意接收 ALICE 活動通知、保養提醒與會員優惠訊息。</span>
+          </label>
+
+          <label class="agree">
+            <input type="checkbox" name="consentPhoto" />
+            <span>我同意 ALICE 可使用我的髮型作品照片作為社群、官網、Google 商家或作品集展示。</span>
+          </label>
+
+          <label>照片授權備註
+            <textarea name="photoConsentNote" rows="3" placeholder="例如：可拍背面，不露臉；需再次確認後才能發布。"></textarea>
+          </label>
+        </section>
+
+        <!-- Step 7 -->
+        <section class="step" data-step="7" data-title="確認送出">
+          <h2>確認送出</h2>
+          <p class="hint">請確認資料無誤後送出。資料僅供 ALICE 會員服務、預約聯繫與髮型紀錄使用。</p>
+
+          <div class="admin-only">
+            <label>設計師 / 接待人員
+              <input name="staff" placeholder="例如：Jay / Iris / Sherry / Cindy" />
+            </label>
+
+            <label>今日服務項目
+              <input name="serviceToday" placeholder="例如：剪髮、染髮、燙髮、護髮、頭皮護理" />
+            </label>
+
+            <label>內部備註
+              <textarea name="internalNote" rows="4" placeholder="顧客不易整理的原因、預計處理方向、配方備註等"></textarea>
+            </label>
+          </div>
+
+          <div class="summary-box">
+            <strong>送出前檢查</strong>
+            <ul>
+              <li>姓名與手機是否正確</li>
+              <li>照片授權是否符合顧客意願</li>
+              <li>送出後請將完成畫面交給現場人員確認</li>
+            </ul>
+          </div>
+        </section>
+
+        <div class="form-actions">
+          <button class="ghost-btn" type="button" data-action="prev">上一步</button>
+          <button class="ghost-btn admin-only" type="button" data-action="save-draft">暫存</button>
+          <button class="primary-btn" type="button" data-action="next">下一步</button>
+          <button class="primary-btn hidden" type="submit" data-action="submit">送出資料</button>
+        </div>
+      </form>
+
+      <section id="resultPanel" class="result-panel hidden">
+        <h2 id="resultTitle">填寫已完成</h2>
+        <p class="hint" id="resultMessage">謝謝你完成資料填寫，請將此畫面交給現場人員確認。</p>
+        <p class="hint result-status" id="resultStatus" aria-live="polite"></p>
+
+        <div class="result-actions">
+          <button class="primary-btn" type="button" data-action="new-form">回到首頁</button>
+        </div>
+
+        <div class="admin-tools admin-only">
+          <p class="hint">內部測試工具：可複製 JSON、下載 CSV / JSON，或測試送到 Google Sheet。正式顧客模式不會顯示這些按鈕。</p>
+          <div class="result-actions">
+          <button class="primary-btn" type="button" data-action="copy-json">複製 JSON</button>
+          <button class="ghost-btn" type="button" data-action="download-json">下載 JSON</button>
+          <button class="ghost-btn" type="button" data-action="download-csv">下載 CSV</button>
+          <button class="ghost-btn" type="button" data-action="send-webhook">送到 Google Sheet</button>
+          </div>
+          <pre id="jsonOutput"></pre>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>ALICE Hair Design Group｜Customer Data Automation</p>
+    </footer>
+  </div>
+
+  <script src="./app.js?v=20260711-7steps"></script>
 </body>
 </html>
