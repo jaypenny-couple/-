@@ -10,13 +10,13 @@
   <meta property="og:title" content="張杰煬 Jay｜ALICE Hair Salon｜美髮理科小教室">
   <meta property="og:description" content="ALICE Hair Salon 講師級髮型設計師、美髮理科小教室主理人，專注染髮、燙髮、縮毛矯正與美髮理科知識。">
   <meta property="og:url" content="https://alicegroup.com.tw/designers/jay-chang.html">
-  <meta property="og:image" content="https://alicegroup.com.tw/assets/images/designers/jay-jieyang-portrait.png">
+  <meta property="og:image" content="https://alicegroup.com.tw/assets/images/designers/jay-chang-profile.jpg">
   <meta property="og:site_name" content="ALICE Hair Salon">
   <meta property="og:locale" content="zh_TW">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="張杰煬 Jay｜ALICE Hair Salon｜美髮理科小教室">
   <meta name="twitter:description" content="ALICE Hair Salon 講師級髮型設計師、美髮理科小教室主理人，專注染髮、燙髮、縮毛矯正與美髮理科知識。">
-  <meta name="twitter:image" content="https://alicegroup.com.tw/assets/images/designers/jay-jieyang-portrait.png">
+  <meta name="twitter:image" content="https://alicegroup.com.tw/assets/images/designers/jay-chang-profile.jpg">
   <link rel="icon" href="/favicon.svg">
   <link rel="stylesheet" href="/styles.css?v=20260705-news">
   <style>
@@ -26,7 +26,7 @@
     .profile-role{margin:16px 0 0;color:var(--gold);font-weight:900;font-size:1.08rem}
     .profile-lede{max-width:760px;margin:22px 0 0;color:var(--muted);font-size:1.07rem}
     .profile-photo{margin:0;overflow:hidden;border:1px solid rgba(38,38,38,.12);border-radius:8px;background:var(--ivory);box-shadow:var(--shadow)}
-    .profile-photo img{display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;object-position:center}
+    .profile-photo img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;object-position:center}
     .profile-photo figcaption{padding:12px 16px;color:var(--muted);font-size:.86rem}
     .profile-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:28px}
     .profile-fact{padding:18px;border:1px solid rgba(38,38,38,.11);border-radius:8px;background:rgba(255,250,244,.72)}
@@ -54,6 +54,7 @@
         "name": "張杰煬 Jay｜ALICE Hair Salon 講師級設計師・美髮理科小教室主理人",
         "description": "張杰煬 Jay 為桃園南崁 ALICE Hair Salon 講師級髮型設計師，也是美髮理科小教室主理人，長期專注於染髮、燙髮、縮毛矯正、頭皮、毛髮與美髮藥劑相關知識與實務。",
         "mainEntity": {"@id": "https://alicegroup.com.tw/designers/jay-chang.html#person"},
+        "isPartOf": {"@id": "https://alicegroup.com.tw/#website"},
         "breadcrumb": {"@id": "https://alicegroup.com.tw/designers/jay-chang.html#breadcrumb"}
       },
       {
@@ -65,11 +66,11 @@
         "mainEntityOfPage": {"@id": "https://alicegroup.com.tw/designers/jay-chang.html#profilepage"},
         "image": {
           "@type": "ImageObject",
-          "url": "https://alicegroup.com.tw/assets/images/designers/jay-jieyang-portrait.png",
+          "url": "https://alicegroup.com.tw/assets/images/designers/jay-chang-profile.jpg",
           "caption": "張杰煬 Jay｜ALICE Hair Salon 講師級髮型設計師・美髮理科小教室主理人"
         },
         "description": "張杰煬 Jay 為桃園南崁 ALICE Hair Salon 講師級髮型設計師，也是美髮理科小教室主理人，長期專注於染髮、燙髮、縮毛矯正、頭皮、毛髮與美髮藥劑相關知識與實務。",
-        "jobTitle": "講師級髮型設計師",
+        "jobTitle": ["講師級髮型設計師", "美髮理科小教室主理人"],
         "worksFor": {"@id": "https://alicegroup.com.tw/#hair-salon"},
         "knowsAbout": [
           "染髮與染髮化學",
@@ -105,6 +106,15 @@
         "name": "ALICE Hair Salon",
         "alternateName": "ALICE 愛麗絲髮型沙龍",
         "url": "https://alicegroup.com.tw/",
+        "telephone": "0933-044-645",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "新南路一段 29 號",
+          "addressLocality": "蘆竹區",
+          "addressRegion": "桃園市",
+          "postalCode": "338",
+          "addressCountry": "TW"
+        },
         "employee": {"@id": "https://alicegroup.com.tw/designers/jay-chang.html#person"}
       },
       {
@@ -115,6 +125,13 @@
         "url": "https://alicegroup.com.tw/hair-science.html",
         "description": "由張杰煬 Jay 主理的美髮知識內容系列，聚焦染髮、燙髮、縮毛矯正、頭皮、毛髮與美髮藥劑相關知識。",
         "creator": {"@id": "https://alicegroup.com.tw/designers/jay-chang.html#person"},
+        "publisher": {"@id": "https://alicegroup.com.tw/#hair-salon"}
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://alicegroup.com.tw/#website",
+        "url": "https://alicegroup.com.tw/",
+        "name": "ALICE Hair Salon",
         "publisher": {"@id": "https://alicegroup.com.tw/#hair-salon"}
       },
       {
@@ -174,7 +191,7 @@
           </div>
         </div>
         <figure class="profile-photo">
-          <img src="/assets/images/designers/jay-jieyang-portrait.png" alt="張杰煬 Jay｜ALICE Hair Salon 講師級髮型設計師・美髮理科小教室主理人" width="1086" height="1448" decoding="async" fetchpriority="high">
+          <img src="/assets/images/designers/jay-chang-profile.jpg" alt="張杰煬 Jay｜ALICE Hair Salon 講師級髮型設計師・美髮理科小教室主理人" width="922" height="922" decoding="async" fetchpriority="high">
           <figcaption>張杰煬 Jay｜ALICE Hair Salon・美髮理科小教室</figcaption>
         </figure>
       </div>
