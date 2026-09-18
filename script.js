@@ -1,3 +1,78 @@
+// ALICE GA4 analytics
+(() => {
+  const MEASUREMENT_ID = "G-S15BYRDG8L";
+
+  if (window.__aliceGa4Initialized) return;
+  window.__aliceGa4Initialized = true;
+
+  window.dataLayer = window.dataLayer || [];
+  window.gtag =
+    window.gtag ||
+    function gtag() {
+      window.dataLayer.push(arguments);
+    };
+
+  window.gtag("js", new Date());
+  window.gtag("config", MEASUREMENT_ID, {
+    send_page_view: true,
+  });
+
+  const gaScript = document.createElement("script");
+  gaScript.async = true;
+  gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(
+    MEASUREMENT_ID
+  )}`;
+  document.head.appendChild(gaScript);
+
+  const sendEvent = (eventName, params = {}) => {
+    if (!eventName || typeof window.gtag !== "function") return;
+
+    window.gtag("event", eventName, {
+      page_path: window.location.pathname,
+      page_title: document.title,
+      ...params,
+    });
+  };
+
+  document.addEventListener("click", (event) => {
+    const trackedElement = event.target.closest("[data-track-event]");
+
+    if (trackedElement) {
+      sendEvent(trackedElement.dataset.trackEvent, {
+        content_title:
+          trackedElement.dataset.trackTitle ||
+          trackedElement.textContent?.trim().slice(0, 120) ||
+          undefined,
+        content_slug: trackedElement.dataset.trackSlug || undefined,
+        content_category: trackedElement.dataset.trackCategory || undefined,
+        content_position: trackedElement.dataset.trackPosition || undefined,
+        link_url: trackedElement.href || undefined,
+      });
+      return;
+    }
+
+    const link = event.target.closest("a[href]");
+    if (!link) return;
+
+    const href = link.getAttribute("href") || "";
+
+    if (href.includes("page.line.me")) {
+      sendEvent("line_click", {
+        link_url: link.href,
+        link_text: link.textContent?.trim().slice(0, 120) || undefined,
+      });
+      return;
+    }
+
+    if (href.startsWith("tel:")) {
+      sendEvent("phone_click", {
+        link_url: href,
+        link_text: link.textContent?.trim().slice(0, 120) || undefined,
+      });
+    }
+  });
+})();
+
 const navToggle = document.querySelector(".nav-toggle");
 const siteNav = document.querySelector(".site-nav");
 
