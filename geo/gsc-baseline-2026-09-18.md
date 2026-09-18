@@ -78,7 +78,7 @@ GSC 狀態為「URL is unknown to Google」，不是拒絕索引，也沒有 rob
 
 ## 尚待外部授權 / 設定
 
-- GA4 已授權給 GSC Wizard，並建立 `ALICE Hair Salon` Property（Property ID：554851962；Measurement ID：G-S15BYRDG8L）。官網已於 2026-09-18 安裝 GA4；目前尚待在 GSC Wizard 將此 GA4 Property 對應到 `https://alicegroup.com.tw/`。
+- GA4 已授權給 GSC Wizard，並建立 `ALICE Hair Salon` Property（Property ID：554851962；Measurement ID：G-S15BYRDG8L）。官網已於 2026-09-18 安裝 GA4，並已在 GSC Wizard 將此 GA4 Property 對應到 `https://alicegroup.com.tw/`。
 - GSC Wizard 尚未設定 IndexNow key；目前可讀設定但本次 MCP 介面沒有提供寫入 key 的動作。
 
 ## 下一次比較建議
