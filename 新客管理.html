@@ -438,6 +438,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
     import { getDatabase, ref, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
     const app = initializeApp({
       apiKey: "AIzaSyAuKPbvzmLv7H8gTIADUugGMGCOrlKJL7I",
@@ -455,7 +456,8 @@
 
     // 載入資料
     function loadData() {
-      onValue(ref(db, 'records'), (snap) => {
+      if (unsubscribeRecords) unsubscribeRecords();
+      unsubscribeRecords = onValue(ref(db, 'records'), (snap) => {
         allData = [];
         if (snap.exists()) {
           Object.entries(snap.val()).forEach(([k, v]) => {
@@ -720,8 +722,46 @@
       URL.revokeObjectURL(url);
     });
 
-    // 初始化
-    loadData();
+    // 登入 / 登出
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const errBox = document.getElementById('loginError');
+      errBox.textContent = '';
+      try {
+        await signInWithPopup(auth, googleProvider);
+      } catch (err) {
+        console.error(err);
+        errBox.textContent = '登入失敗，請確認此 Firebase 專案已啟用 Google 登入。';
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      const loginGate = document.getElementById('loginGate');
+      const appContainer = document.getElementById('appContainer');
+      const signedInUser = document.getElementById('signedInUser');
+
+      if (user) {
+        loginGate.style.display = 'none';
+        appContainer.style.display = 'block';
+        signedInUser.textContent = user.displayName || user.email || '已登入';
+        loadData();
+      } else {
+        if (unsubscribeRecords) {
+          unsubscribeRecords();
+          unsubscribeRecords = null;
+        }
+        allData = [];
+        currentDesigner = '';
+        document.getElementById('currentDesigner').value = '';
+        document.getElementById('designerSection').style.display = 'none';
+        signedInUser.textContent = '';
+        appContainer.style.display = 'none';
+        loginGate.style.display = 'flex';
+      }
+    });
   </script>
 </body>
 </html>
