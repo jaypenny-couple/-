@@ -1,0 +1,49 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "records": {
+      ".read": "auth != null && auth.token.email_verified == true && auth.token.firebase.sign_in_provider == 'google.com'",
+      ".write": "auth != null && auth.token.email_verified == true && auth.token.firebase.sign_in_provider == 'google.com'",
+      "$recordId": {
+        ".validate": "newData.hasChildren(['name','designer','createdAt'])",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80"
+        },
+        "designer": {
+          ".validate": "newData.isString() && (newData.val() == 'JAY' || newData.val() == 'IRIS' || newData.val() == 'SHERRY' || newData.val() == 'CINDY')"
+        },
+        "services": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 300)"
+        },
+        "product": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 300)"
+        },
+        "visitDate": {
+          ".validate": "!newData.exists() || newData.isString()"
+        },
+        "contactDate": {
+          ".validate": "!newData.exists() || newData.isString()"
+        },
+        "contact": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 300)"
+        },
+        "reason": {
+          ".validate": "!newData.exists() || (newData.val() == '親友推薦' || newData.val() == '網路' || newData.val() == '路過')"
+        },
+        "result": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 1000)"
+        },
+        "returned": {
+          ".validate": "!newData.exists() || newData.val() == '' || newData.val() == '是' || newData.val() == '否'"
+        },
+        "createdAt": {
+          ".validate": "newData.isString()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    }
+  }
+}
