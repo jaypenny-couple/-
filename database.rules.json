@@ -1,0 +1,10 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "records": {
+      ".read": "auth != null && auth.token.email_verified == true && auth.token.firebase.sign_in_provider == 'google.com'",
+      ".write": "auth != null && auth.token.email_verified == true && auth.token.firebase.sign_in_provider == 'google.com'"
+    }
+  }
+}
