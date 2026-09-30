@@ -483,7 +483,7 @@ if (navToggle && siteNav) {
   const openButton = document.querySelector("#holiday-open-button");
   const closeButtons = document.querySelectorAll("[data-holiday-close]");
   const closeButton = modal?.querySelector(".holiday-modal__close");
-  const STORAGE_KEY = "alice-holiday-modal-closed-2026-09";
+  const STORAGE_KEY = "alice-holiday-modal-closed-2026-10";
 
   if (!monthLabel || !dateList || !modal || !openButton) return;
 
@@ -497,18 +497,17 @@ if (navToggle && siteNav) {
     "\u516d",
   ];
   const year = 2026;
-  const month = 8;
+  const month = 9;
   const closures = [
-    { date: new Date(year, 7, 30), label: "公休" },
+    { date: new Date(year, month, 5), label: "公休" },
     {
-      date: new Date(year, month, 3),
-      label: "IRIS CINDY SHERRY 休假到尖石鄉為偏鄉學童義剪",
+      date: new Date(year, month, 8),
+      label: "月會，下午 1 點開始營業",
       isFeatured: true,
     },
-    { date: new Date(year, month, 7), label: "公休" },
-    { date: new Date(year, month, 13), label: "公休" },
-    { date: new Date(year, month, 21), label: "公休" },
-    { date: new Date(year, month, 27), label: "公休" },
+    { date: new Date(year, month, 11), label: "公休" },
+    { date: new Date(year, month, 19), label: "公休" },
+    { date: new Date(year, month, 25), label: "公休" },
   ].sort((a, b) => a.date - b.date);
 
   monthLabel.textContent = `${year} \u5e74 ${month + 1} \u6708\u4f11\u5047\u516c\u544a`;
