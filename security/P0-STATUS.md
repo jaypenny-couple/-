@@ -11,7 +11,7 @@
 | `restocking-list` | RTDB `stockItems`，`firebaseio.com` URL | 無 | Console 顯示根節點 `.read: true`、`.write: true`；Spark |
 | `hr-system-ad937` | Firestore `salon/main` | 無 | Console 顯示 `match /{document=**}` 下 `allow read, write: if true`；Spark |
 
-GitHub Pages API 顯示官網部署來源為本儲存庫 `main` 根目錄（legacy build）。本機原始碼由公開儲存庫克隆，開發分支為 `codex/p0-firebase-auth-staging`。2026-10-20 透過這台電腦已登入的 Firebase Console 查到四專案正式生效規則與 Spark 方案；四份規則另存私人受限目錄。**這是已確認的公開讀寫漏洞，應視為可能已暴露顧客及 HR 資料；尚無證據判定是否有人實際取得資料。** 四個前端 `authDomain` 不代表 Email/Password 提供者已啟用或帳號已存在。Firebase CLI 起初不可用且沒有登入設定；gcloud 與 ADC 憑證也不存在。後續僅在本機安裝 Firebase Tools 測試依賴。Console 可讀取專案資料與規則，但尚未驗證 IAM 發布權限。
+GitHub Pages API 顯示官網部署來源為本儲存庫 `main` 根目錄（legacy build）。本機原始碼由公開儲存庫克隆，開發分支為 `codex/p0-firebase-auth-staging`。2026-10-20 透過這台電腦已登入的 Firebase Console 查到四專案正式生效規則與 Spark 方案；四份規則另存私人受限目錄，記錄大小及 SHA-256。**這是已確認的公開讀寫漏洞，應視為可能已暴露顧客及 HR 資料；尚無證據判定是否有人實際取得資料。** Console「使用者和權限」顯示目前帳號在四專案皆為**擁有者**；四個 Authentication 頁都顯示「開始使用」，尚未啟用。Firebase CLI 起初不可用，後續只在本機測試依賴安裝；`firebase login:list` 顯示無已授權 CLI 帳號。gcloud 與 ADC 憑證也不存在。
 
 ## 風險評估
 
@@ -23,7 +23,7 @@ GitHub Pages API 顯示官網部署來源為本儲存庫 `main` 根目錄（lega
 | 持久型 HTML 注入 | 預訂與缺貨頁原版將資料庫欄位直接寫入 `innerHTML` | 高；資料若含 HTML 可執行頁面腳本 | 本分支對預訂文字轉義、缺貨改用 `textContent` |
 | HR 整份文件覆寫 | `休假進修管理.html` 使用單一 `salon/main` 文件及 `setDoc` 寫入整份狀態 | 中；並行編輯／還原可能覆蓋他人更新 | 本次保留格式與流程；切換前需實際備份、並行操作驗收，後續規劃交易式資料拆分 |
 
-**規則可允許匿名讀／寫／刪除已由正式 Console 驗證，但沒有讀取或試寫真實資料來測試。** 是否曾實際外洩、Firestore 其他 collection、額外 RTDB 實例、完整正式資料路徑、Auth provider 與 IAM 角色仍待查。不得將「存在暴露風險」寫成「已確認有人外洩資料」。
+**規則可允許匿名讀／寫／刪除已由正式 Console 驗證，但沒有讀取或試寫真實資料來測試。** 是否曾實際外洩、Firestore 其他 collection、額外 RTDB 實例及完整正式資料路徑仍待查。不得將「存在暴露風險」寫成「已確認有人外洩資料」。
 
 ## 本分支修改
 
@@ -35,8 +35,8 @@ GitHub Pages API 顯示官網部署來源為本儲存庫 `main` 根目錄（lega
 
 ## 正式備份：尚未完成
 
-1. Firebase Console 已確認四專案實例與生效規則、Spark 方案；仍需核對額外實例、Authentication provider 與 IAM。四份現行規則已存私人受限目錄。RTDB 仍需完成完整唯讀資料匯出；帳號／規則部署後續需要 Auth 管理及 Firebase Rules 發布權限。不要以匿名 REST 讀取來探測。
-2. 在私有、受保護且位於公開 repo 之外的目錄，對三個 RTDB **各實例的 `/` 根節點**做官方 Console Export JSON 或執行 P0 ZIP 的 `scripts/backup-rtdb-readonly.ps1`。逐份保存目前生效規則。驗證 JSON 可解析、非錯誤回應，記錄專案／實例／UTC 時間／大小／SHA-256。ZIP 腳本只涵蓋硬編碼的三個實例，**不會備份規則，也不保證發現額外實例**；必須另行核對。
+1. Firebase Console 已確認四專案生效規則、Spark 方案、擁有者角色與 Auth 尚未啟用；仍需核對額外實例。四份現行規則已存私人受限目錄。RTDB 仍需完成完整唯讀資料匯出。不要以匿名 REST 讀取來探測。
+2. 在私有、受保護且位於公開 repo 之外的目錄，對三個 RTDB **各實例的 `/` 根節點**做官方 Console Export JSON 或執行 P0 ZIP 的 `scripts/backup-rtdb-readonly.ps1`。Console 匯出操作已啟動但本機瀏覽器沒有交回可驗證的下載檔，因此**目前不能算備份成功**。Firebase CLI 尚待帳號登入。逐份驗證 JSON 可解析、非錯誤回應，記錄專案／實例／UTC 時間／大小／SHA-256。ZIP 腳本只涵蓋硬編碼的三個實例，**不會備份規則，也不保證發現額外實例**；必須另行核對。
 3. Firestore 目前是 **Spark**。官方 managed export 需要 Blaze 計費、合適 GCS bucket 和帳號／服務代理 IAM；匯出會計入文件讀取及 GCS 儲存費用。**不得自行升級或啟動匯出。** 取得使用者明確付費同意後才可處理。確認操作完成、bucket 產物與可還原的目標／程序。`salon/main` 的頁面 JSON 匯出不足以代表整個 Firestore 專案。
 4. 所有資料、既有規則、claim 回復檔及操作紀錄只能存私人位置。**任一正式備份失敗，停止正式規則修改。**
 
