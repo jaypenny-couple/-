@@ -1,0 +1,12 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "stockItems": {
+      ".read": "auth != null && auth.token.aliceApp === 'stock' && (auth.token.aliceRole === 'staff' || auth.token.aliceRole === 'manager')",
+      "$itemId": {
+        ".write": "auth != null && auth.token.aliceApp === 'stock' && (auth.token.aliceRole === 'staff' || auth.token.aliceRole === 'manager')"
+      }
+    }
+  }
+}

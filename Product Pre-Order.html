@@ -152,8 +152,9 @@
             .connection-status { position: relative; top: auto; right: auto; margin: 10px auto; display: inline-block; }
         }
     </style>
+    <link rel="stylesheet" href="security/auth-gate.css">
 </head>
-<body>
+<body class="auth-pending">
     <div class="container">
         <div class="connection-status" id="connectionStatus">連接中...</div>
         
@@ -240,8 +241,10 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { 
-            getDatabase, ref, push, onValue, remove, update, serverTimestamp
+            getDatabase, connectDatabaseEmulator, ref, push, onValue, remove, update, serverTimestamp
         } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import * as authSdk from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { createAuthGate } from './security/auth-gate.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyBSCAo9bCzDK0p39STACEg6opiKttrNy4I",
@@ -256,7 +259,24 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+        if (['localhost', '127.0.0.1'].includes(location.hostname)) {
+            connectDatabaseEmulator(database, '127.0.0.1', 9000);
+            authSdk.connectAuthEmulator(authSdk.getAuth(app), 'http://127.0.0.1:9099', { disableWarnings: true });
+        }
         const reservationsRef = ref(database, 'reservations');
+        let unsubscribeReservations = null;
+        const gate = createAuthGate(app, authSdk, {
+            access: 'preorder', roles: ['staff', 'manager'],
+            onReady() { loadReservations(); },
+            onStop() {
+                unsubscribeReservations?.();
+                unsubscribeReservations = null;
+                reservations = [];
+                document.getElementById('reservationList').replaceChildren();
+                updateStats();
+                document.getElementById('tableContainer').style.display = 'none';
+            }
+        });
 
         let reservations = [];
         let sortColumn = '';
@@ -310,6 +330,7 @@
         }
 
         function loadReservations() {
+            unsubscribeReservations?.();
             const loadingTimeout = setTimeout(() => {
                 const indicator = document.getElementById('loadingIndicator');
                 if (indicator.style.display !== 'none') {
@@ -324,7 +345,7 @@
                 }
             }, 8000);
 
-            onValue(reservationsRef, (snapshot) => {
+            unsubscribeReservations = onValue(reservationsRef, (snapshot) => {
                 clearTimeout(loadingTimeout);
                 const data = snapshot.val();
                 reservations = [];
@@ -340,7 +361,8 @@
             }, (error) => {
                 clearTimeout(loadingTimeout);
                 const indicator = document.getElementById('loadingIndicator');
-                indicator.textContent = '載入失敗，請重新整理頁面';
+                indicator.textContent = error.code === 'PERMISSION_DENIED'
+                    ? '權限不足，無法讀取預訂資料' : '載入失敗，請檢查網路後重新整理';
                 indicator.style.color = '#ff6b6b';
                 setTimeout(() => {
                     indicator.style.display = 'none';
@@ -383,6 +405,7 @@
 
         document.getElementById('reservationForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (!gate.isAuthorized()) { alert('請先登入授權帳號'); return; }
             if (!isConnected) { alert('目前離線，無法新增預訂'); return; }
 
             const btn = document.getElementById('submitBtn');
@@ -442,6 +465,10 @@
             document.getElementById('totalQuantity').textContent = reservations.reduce((sum, r) => sum + (r.quantity || 1), 0);
         }
 
+        const escapeHtml = value => String(value ?? '').replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
         function renderReservations() {
             const list = document.getElementById('reservationList');
             list.innerHTML = '';
@@ -450,25 +477,25 @@
             reservations.forEach(r => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${r.reservationDate}</td>
-                    <td>${r.customerName}</td>
-                    <td>${r.contactPlatform}</td>
-                    <td>${r.product}</td>
-                    <td><span class="quantity-display">${r.quantity || 1}</span></td>
-                    <td>${r.phone}</td>
+                    <td>${escapeHtml(r.reservationDate)}</td>
+                    <td>${escapeHtml(r.customerName)}</td>
+                    <td>${escapeHtml(r.contactPlatform)}</td>
+                    <td>${escapeHtml(r.product)}</td>
+                    <td><span class="quantity-display">${escapeHtml(r.quantity || 1)}</span></td>
+                    <td>${escapeHtml(r.phone)}</td>
                     <td>
                         <input type="date" class="edit-date"
-                            value="${r.pickupDate || r.reservationDate}"
-                            min="${r.reservationDate}" max="${maxDateString}"
-                            data-firebase-key="${r.firebaseKey}"
-                            data-original-value="${r.pickupDate || r.reservationDate}">
+                            value="${escapeHtml(r.pickupDate || r.reservationDate)}"
+                            min="${escapeHtml(r.reservationDate)}" max="${maxDateString}"
+                            data-firebase-key="${escapeHtml(r.firebaseKey)}"
+                            data-original-value="${escapeHtml(r.pickupDate || r.reservationDate)}">
                     </td>
                     <td>
                         <div class="delete-actions">
-                            <button class="delete-btn" data-firebase-key="${r.firebaseKey}">刪除</button>
-                            <div class="confirm-actions" style="display:none;" data-firebase-key="${r.firebaseKey}">
-                                <button class="confirm-delete-btn" data-firebase-key="${r.firebaseKey}">確認刪除?</button>
-                                <button class="cancel-delete-btn" data-firebase-key="${r.firebaseKey}">取消</button>
+                            <button class="delete-btn" data-firebase-key="${escapeHtml(r.firebaseKey)}">刪除</button>
+                            <div class="confirm-actions" style="display:none;" data-firebase-key="${escapeHtml(r.firebaseKey)}">
+                                <button class="confirm-delete-btn" data-firebase-key="${escapeHtml(r.firebaseKey)}">確認刪除?</button>
+                                <button class="cancel-delete-btn" data-firebase-key="${escapeHtml(r.firebaseKey)}">取消</button>
                             </div>
                         </div>
                     </td>`;
@@ -515,7 +542,6 @@
 
         // ✅ 修復：補上遺漏的初始化呼叫
         initializeDateInputs();
-        loadReservations();
     </script>
 </body>
 </html>

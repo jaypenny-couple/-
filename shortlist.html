@@ -106,8 +106,9 @@
             margin-top: 5px;
         }
     </style>
+    <link rel="stylesheet" href="security/auth-gate.css">
 </head>
-<body>
+<body class="auth-pending">
     <div class="form-container">
         <h1>缺貨登記</h1>
         <div id="status" class="status loading">正在連接 Firebase...</div>
@@ -146,7 +147,9 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, push, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, connectDatabaseEmulator, ref, push, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import * as authSdk from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { createAuthGate } from './security/auth-gate.js';
 
         // Firebase 配置
         const firebaseConfig = {
@@ -165,12 +168,29 @@
             // 初始化 Firebase
             const app = initializeApp(firebaseConfig);
             const database = getDatabase(app);
+            if (['localhost', '127.0.0.1'].includes(location.hostname)) {
+                connectDatabaseEmulator(database, '127.0.0.1', 9000);
+                authSdk.connectAuthEmulator(authSdk.getAuth(app), 'http://127.0.0.1:9099', { disableWarnings: true });
+            }
             const stockRef = ref(database, 'stockItems');
 
             let isConnected = false;
+            let unsubscribeStock = null;
+            const gate = createAuthGate(app, authSdk, {
+                access: 'stock', roles: ['staff', 'manager'],
+                onReady() { subscribeStock(); },
+                onStop() {
+                    unsubscribeStock?.();
+                    unsubscribeStock = null;
+                    isConnected = false;
+                    document.getElementById('result').replaceChildren();
+                }
+            });
 
             // 監聽資料變化
-            onValue(stockRef, (snapshot) => {
+            function subscribeStock() {
+              unsubscribeStock?.();
+              unsubscribeStock = onValue(stockRef, (snapshot) => {
                 if (!isConnected) {
                     document.getElementById('status').innerHTML = '<div class="status connected">✓ 已連接到 Firebase</div>';
                     isConnected = true;
@@ -179,13 +199,19 @@
                 const data = snapshot.val();
                 displayResults(data);
             }, (error) => {
-                document.getElementById('status').innerHTML = '<div class="status error">❌ Firebase 連接失敗: ' + error.message + '</div>';
+                isConnected = false;
+                document.getElementById('status').textContent = error.code === 'PERMISSION_DENIED'
+                    ? '權限不足，無法讀取缺貨資料' : '連線失敗，請檢查網路';
                 console.error('Firebase error:', error);
             });
+            }
+            window.addEventListener('offline', () => { isConnected = false; });
+            window.addEventListener('online', () => { if (gate.isAuthorized()) subscribeStock(); });
 
             // 表單提交
             document.getElementById('stockForm').addEventListener('submit', function(e) {
                 e.preventDefault();
+                if (!gate.isAuthorized() || !isConnected) { alert('請先登入並確認網路連線'); return; }
                 
                 const vendor = document.getElementById('vendor').value;
                 const item = document.getElementById('item').value;
@@ -243,18 +269,25 @@
                 items.forEach(item => {
                     const resultItem = document.createElement('div');
                     resultItem.className = 'result-item';
-                    resultItem.innerHTML = `
-                        <p><strong>廠商:</strong> ${item.vendor}</p>
-                        <p><strong>品項:</strong> ${item.item}</p>
-                        <div class="timestamp">登記時間: ${item.date}</div>
-                        <button class="delete-btn" onclick="deleteResult('${item.id}')">×</button>
-                    `;
+                    const vendor = document.createElement('p');
+                    vendor.textContent = `廠商: ${item.vendor ?? ''}`;
+                    const name = document.createElement('p');
+                    name.textContent = `品項: ${item.item ?? ''}`;
+                    const timestamp = document.createElement('div');
+                    timestamp.className = 'timestamp';
+                    timestamp.textContent = `登記時間: ${item.date ?? ''}`;
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'delete-btn';
+                    deleteButton.textContent = '×';
+                    deleteButton.addEventListener('click', () => window.deleteResult(item.id));
+                    resultItem.append(vendor, name, timestamp, deleteButton);
                     resultDiv.appendChild(resultItem);
                 });
             }
 
             // 刪除項目
             window.deleteResult = function(id) {
+                if (!gate.isAuthorized() || !isConnected) { alert('請先登入並確認網路連線'); return; }
                 if (confirm('確定要刪除此項目嗎？')) {
                     const itemRef = ref(database, `stockItems/${id}`);
                     remove(itemRef)

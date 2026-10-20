@@ -1,0 +1,12 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "reservations": {
+      ".read": "auth != null && auth.token.aliceApp === 'preorder' && (auth.token.aliceRole === 'staff' || auth.token.aliceRole === 'manager')",
+      "$reservationId": {
+        ".write": "auth != null && auth.token.aliceApp === 'preorder' && (auth.token.aliceRole === 'staff' || auth.token.aliceRole === 'manager')"
+      }
+    }
+  }
+}

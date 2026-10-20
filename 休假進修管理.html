@@ -737,8 +737,9 @@
       letter-spacing: 0.04em;
     }
   </style>
+  <link rel="stylesheet" href="security/auth-gate.css">
 </head>
-<body>
+<body class="auth-pending">
   <header class="header">
     <div class="header-brand">
       <span class="salon">ALICE</span>
@@ -777,8 +778,10 @@ const TABS = [
 /* ─── Firebase 設定 ─── */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore, doc, getDoc, setDoc, onSnapshot, collection, getDocs
+  getFirestore, connectFirestoreEmulator, doc, getDoc, setDoc, onSnapshot, collection, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import * as authSdk from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { createAuthGate } from "./security/auth-gate.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC2Wy1oBQKV_FOBOzVauVKatcqkZnvpOro",
@@ -791,6 +794,10 @@ const firebaseConfig = {
 
 const fbApp = initializeApp(firebaseConfig);
 const db    = getFirestore(fbApp);
+if (['localhost', '127.0.0.1'].includes(location.hostname)) {
+  connectFirestoreEmulator(db, '127.0.0.1', 8080);
+  authSdk.connectAuthEmulator(authSdk.getAuth(fbApp), 'http://127.0.0.1:9099', { disableWarnings: true });
+}
 const DATA_DOC = doc(db, "salon", "main"); // 單一文件存所有資料
 
 /* ─── State ─── */
@@ -806,9 +813,22 @@ function defaults() {
 let state = defaults();
 let activeTab = "leave";
 let _saveTimer = null;
+let unsubscribeData = null;
+const gate = createAuthGate(fbApp, authSdk, {
+  access: 'hr', roles: ['manager'],
+  onReady() { startSync(); },
+  onStop() {
+    unsubscribeData?.();
+    unsubscribeData = null;
+    clearTimeout(_saveTimer);
+    state = defaults();
+    document.getElementById('page').replaceChildren();
+  }
+});
 
 /* 防抖寫入：500ms 內連續操作只寫一次 */
 async function save() {
+  if (!gate.isAuthorized()) return;
   clearTimeout(_saveTimer);
   _saveTimer = setTimeout(async () => {
     try {
@@ -822,7 +842,8 @@ async function save() {
 /* 載入並即時監聽 Firestore */
 function startSync() {
   showLoading(true);
-  onSnapshot(DATA_DOC, (snap) => {
+  unsubscribeData?.();
+  unsubscribeData = onSnapshot(DATA_DOC, (snap) => {
     if (snap.exists()) {
       const s = snap.data();
       state = {
@@ -1753,7 +1774,6 @@ function renderBackup() {
 }
 
 /* ─── Boot ─── */
-startSync();
 </script>
 </body>
 </html>
