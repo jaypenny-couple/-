@@ -37,7 +37,7 @@ GitHub Pages API 顯示官網部署來源為本儲存庫 `main` 根目錄（lega
 
 1. Firebase Console 已確認四專案生效規則、Spark 方案、擁有者角色與 Auth 尚未啟用；仍需核對額外實例。四份現行規則已存私人受限目錄。RTDB 仍需完成完整唯讀資料匯出。不要以匿名 REST 讀取來探測。
 2. 在私有、受保護且位於公開 repo 之外的目錄，對三個 RTDB **各實例的 `/` 根節點**做官方 Console Export JSON 或執行 P0 ZIP 的 `scripts/backup-rtdb-readonly.ps1`。Console 匯出操作已啟動但本機瀏覽器沒有交回可驗證的下載檔，因此**目前不能算備份成功**。Firebase CLI 尚待帳號登入。逐份驗證 JSON 可解析、非錯誤回應，記錄專案／實例／UTC 時間／大小／SHA-256。ZIP 腳本只涵蓋硬編碼的三個實例，**不會備份規則，也不保證發現額外實例**；必須另行核對。
-3. Firestore 目前是 **Spark**。官方 managed export 需要 Blaze 計費、合適 GCS bucket 和帳號／服務代理 IAM；匯出會計入文件讀取及 GCS 儲存費用。**不得自行升級或啟動匯出。** 取得使用者明確付費同意後才可處理。確認操作完成、bucket 產物與可還原的目標／程序。`salon/main` 的頁面 JSON 匯出不足以代表整個 Firestore 專案。
+3. Firestore 目前是 **Spark**；HR 專案的 Firebase Storage 頁也顯示必須升級 Blaze 才可使用，未確認已有適合匯出的私人 GCS bucket。官方 managed export 需要 Blaze 計費、合適 GCS bucket 和帳號／服務代理 IAM；匯出會計入文件讀取及 GCS 儲存費用。**不得自行升級或啟動匯出。** 取得使用者明確付費同意後才可處理。確認操作完成、bucket 產物與可還原的目標／程序。`salon/main` 的頁面 JSON 匯出不足以代表整個 Firestore 專案。
 4. 所有資料、既有規則、claim 回復檔及操作紀錄只能存私人位置。**任一正式備份失敗，停止正式規則修改。**
 
 ## 驗收與正式切換門檻
