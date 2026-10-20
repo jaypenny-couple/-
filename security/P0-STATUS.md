@@ -6,24 +6,24 @@
 
 | 專案 | 原始碼使用的服務與路徑 | 原始碼目前登入 | 正式生效規則／資料庫實例 |
 | --- | --- | --- | --- |
-| `new-customer-management-system` | RTDB `records`，`asia-southeast1` URL | 無 | 未取得管理權限，待核對 |
-| `pre-order-registration` | RTDB `reservations`，`asia-southeast1` URL | 無 | 未取得管理權限，待核對 |
-| `restocking-list` | RTDB `stockItems`，`firebaseio.com` URL | 無 | 未取得管理權限，待核對 |
-| `hr-system-ad937` | Firestore `salon/main` | 無 | 未取得管理權限，待核對 |
+| `new-customer-management-system` | RTDB `records`，`asia-southeast1` URL | 無 | Console 顯示根節點 `.read: true`、`.write: true`；Spark |
+| `pre-order-registration` | RTDB `reservations`，`asia-southeast1` URL | 無 | Console 顯示根節點 `.read: true`、`.write: true`；Spark |
+| `restocking-list` | RTDB `stockItems`，`firebaseio.com` URL | 無 | Console 顯示根節點 `.read: true`、`.write: true`；Spark |
+| `hr-system-ad937` | Firestore `salon/main` | 無 | Console 顯示 `match /{document=**}` 下 `allow read, write: if true`；Spark |
 
-GitHub Pages API 顯示官網部署來源為本儲存庫 `main` 根目錄（legacy build）。本機原始碼由公開儲存庫克隆，開發分支為 `codex/p0-firebase-auth-staging`。四個前端 `authDomain` 顯示 Auth SDK 可整合的 Firebase 專案設定，**不代表** Email/Password 提供者已啟用或帳號已存在。Firebase CLI 起初不可用且沒有登入設定；gcloud 與 ADC 憑證也不存在。後續僅在本機安裝 Firebase Tools 測試依賴，沒有取得正式專案權限。
+GitHub Pages API 顯示官網部署來源為本儲存庫 `main` 根目錄（legacy build）。本機原始碼由公開儲存庫克隆，開發分支為 `codex/p0-firebase-auth-staging`。2026-10-20 透過這台電腦已登入的 Firebase Console 查到四專案正式生效規則與 Spark 方案；四份規則另存私人受限目錄。**這是已確認的公開讀寫漏洞，應視為可能已暴露顧客及 HR 資料；尚無證據判定是否有人實際取得資料。** 四個前端 `authDomain` 不代表 Email/Password 提供者已啟用或帳號已存在。Firebase CLI 起初不可用且沒有登入設定；gcloud 與 ADC 憑證也不存在。後續僅在本機安裝 Firebase Tools 測試依賴。Console 可讀取專案資料與規則，但尚未驗證 IAM 發布權限。
 
 ## 風險評估
 
 | 風險 | 證據 | 程度 | 修復 |
 | --- | --- | --- | --- |
-| 新客跨設計師讀取 | `新客管理.html` 原版讀取整個 `records`，僅在前端篩選 | 高；若正式規則允許讀取即暴露全部記錄 | 本分支改為 `designer` 條件查詢，候選 RTDB 規則以後端核發的設計師 claim 限制查詢及單筆讀寫 |
-| 無真正員工授權 | 四頁原版無 Auth 登入與角色判斷，直接讀寫資料庫 | 高；實際匿名風險取決於未知的正式規則 | 本分支加入 Auth 登入閘門與角色候選規則 |
-| 可能整批刪除 | 前端沒有整批刪除按鈕，但若正式 `.write` 過寬，可直接呼叫資料庫 API | 高，待正式規則驗證 | 候選規則只允許單筆寫入，不授予集合根節點寫入 |
+| 新客跨設計師讀取 | `新客管理.html` 原版讀取整個 `records`，僅在前端篩選；正式規則允許任何人讀取 | **極高，全部記錄存在公開讀取風險** | 本分支改為 `designer` 條件查詢，候選 RTDB 規則以後端核發的設計師 claim 限制查詢及單筆讀寫 |
+| 無真正員工授權 | 四頁原版無 Auth 登入與角色判斷，且正式規則允許所有人讀寫 | **極高，已確認匿名存取風險** | 本分支加入 Auth 登入閘門與角色候選規則 |
+| 可整批刪除 | 三個正式 RTDB 根節點 `.write: true`；HR Firestore 所有文件 `write: if true` | **極高，已確認可被未授權修改／刪除的規則設定** | 候選規則只允許授權角色操作指定資料，RTDB 不授予集合根節點寫入 |
 | 持久型 HTML 注入 | 預訂與缺貨頁原版將資料庫欄位直接寫入 `innerHTML` | 高；資料若含 HTML 可執行頁面腳本 | 本分支對預訂文字轉義、缺貨改用 `textContent` |
 | HR 整份文件覆寫 | `休假進修管理.html` 使用單一 `salon/main` 文件及 `setDoc` 寫入整份狀態 | 中；並行編輯／還原可能覆蓋他人更新 | 本次保留格式與流程；切換前需實際備份、並行操作驗收，後續規劃交易式資料拆分 |
 
-**匿名讀／寫、目前是否能刪全部資料、過期測試規則、Firestore 其他 collection、完整正式資料路徑、Auth provider 狀態都尚未經管理介面驗證。不得將風險推測寫成已確認外洩。**
+**規則可允許匿名讀／寫／刪除已由正式 Console 驗證，但沒有讀取或試寫真實資料來測試。** 是否曾實際外洩、Firestore 其他 collection、額外 RTDB 實例、完整正式資料路徑、Auth provider 與 IAM 角色仍待查。不得將「存在暴露風險」寫成「已確認有人外洩資料」。
 
 ## 本分支修改
 
@@ -35,9 +35,9 @@ GitHub Pages API 顯示官網部署來源為本儲存庫 `main` 根目錄（lega
 
 ## 正式備份：尚未完成
 
-1. 先以 Firebase／Google Cloud Console 核對四專案擁有權、實例、規則、Authentication provider、計費方案與 IAM。RTDB 至少需能唯讀取得資料及目前規則；帳號／規則部署後續需要 Auth 管理及 Firebase Rules 發布權限。不要以匿名 REST 讀取來探測。
+1. Firebase Console 已確認四專案實例與生效規則、Spark 方案；仍需核對額外實例、Authentication provider 與 IAM。四份現行規則已存私人受限目錄。RTDB 仍需完成完整唯讀資料匯出；帳號／規則部署後續需要 Auth 管理及 Firebase Rules 發布權限。不要以匿名 REST 讀取來探測。
 2. 在私有、受保護且位於公開 repo 之外的目錄，對三個 RTDB **各實例的 `/` 根節點**做官方 Console Export JSON 或執行 P0 ZIP 的 `scripts/backup-rtdb-readonly.ps1`。逐份保存目前生效規則。驗證 JSON 可解析、非錯誤回應，記錄專案／實例／UTC 時間／大小／SHA-256。ZIP 腳本只涵蓋硬編碼的三個實例，**不會備份規則，也不保證發現額外實例**；必須另行核對。
-3. Firestore 官方 managed export 需要 Blaze 計費、合適 GCS bucket 和帳號／服務代理 IAM；匯出會計入文件讀取及 GCS 儲存費用。先核對方案、bucket、權限與費用，再取得使用者付費同意，才可啟動 ZIP 腳本。確認操作完成、bucket 產物與可還原的目標／程序。`salon/main` 的頁面 JSON 匯出不足以代表整個 Firestore 專案。
+3. Firestore 目前是 **Spark**。官方 managed export 需要 Blaze 計費、合適 GCS bucket 和帳號／服務代理 IAM；匯出會計入文件讀取及 GCS 儲存費用。**不得自行升級或啟動匯出。** 取得使用者明確付費同意後才可處理。確認操作完成、bucket 產物與可還原的目標／程序。`salon/main` 的頁面 JSON 匯出不足以代表整個 Firestore 專案。
 4. 所有資料、既有規則、claim 回復檔及操作紀錄只能存私人位置。**任一正式備份失敗，停止正式規則修改。**
 
 ## 驗收與正式切換門檻
