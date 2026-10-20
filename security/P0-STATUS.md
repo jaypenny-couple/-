@@ -37,7 +37,7 @@ GitHub Pages API 顯示官網部署來源為本儲存庫 `main` 根目錄（lega
 
 1. Firebase Console 已確認四專案生效規則、Spark 方案、擁有者角色與 Auth 尚未啟用。四份現行規則已存私人受限目錄，並於 2026-10-20 再次核對大小及 SHA-256。**沒有以匿名 REST 讀取或測試正式資料。**
 2. 2026-10-20 18:41（臺北時間）使用擁有者已登入的 Firebase CLI，對三個 RTDB 實例的 `/` 執行 `database:get` 唯讀匯出。P0 ZIP 腳本在私人目錄的副本僅調整本機 CLI 路徑並修正 PowerShell `$p:` 解析錯誤。獨立再次確認三份 JSON 可解析、大小與 SHA-256 相符；大小分別為新客 44,868 bytes、預訂 495 bytes、缺貨 655 bytes。CLI `database:instances:list` 確認每個專案各只有一個實例，且與備份實例相符。私人 `manifest.csv`、`verification.json` 記錄專案、實例、UTC 時間、大小及雜湊；備份目錄及檔案僅允許本機使用者與 SYSTEM 存取。**備份 JSON 與私人紀錄不在公開 repo。**
-3. Firestore 目前是 **Spark**；HR 專案的 Firebase Storage 頁也顯示必須升級 Blaze 才可使用，未確認已有適合匯出的私人 GCS bucket。官方 managed export 需要 Blaze 計費、合適 GCS bucket 和帳號／服務代理 IAM；匯出會計入文件讀取及 GCS 儲存費用。**不得自行升級或啟動匯出。** 取得使用者明確付費同意後才可處理。確認操作完成、bucket 產物與可還原的目標／程序。`salon/main` 的頁面 JSON 匯出不足以代表整個 Firestore 專案。
+3. CLI 已確認 HR 專案只有一個 Cloud Firestore 資料庫 `（default）`，類型 `FIRESTORE_NATIVE`、Standard edition，位置 `asia-east1`。專案目前是 **Spark**；Firebase Storage 頁也顯示必須升級 Blaze 才可使用，未確認已有適合匯出的私人 GCS bucket。官方 managed export 需要 Blaze 計費、合適 GCS bucket 和帳號／服務代理 IAM；匯出會計入每份文件一次讀取及 GCS 儲存費用。**不得自行升級或啟動匯出。** 取得使用者明確付費同意後才可處理。確認操作完成、bucket 產物與可還原的目標／程序。`salon/main` 的頁面 JSON 匯出不足以代表整個 Firestore 專案。
 4. 所有資料、既有規則、claim 回復檔及操作紀錄只能存私人位置。**任一正式備份失敗，停止正式規則修改。**
 
 ## 驗收與正式切換門檻
