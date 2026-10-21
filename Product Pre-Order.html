@@ -289,7 +289,9 @@
             if (!gate.isAuthorized() || !authSdk.getAuth(app).currentUser) return false;
             try {
                 const token = await authSdk.getIdTokenResult(authSdk.getAuth(app).currentUser, true);
+                const hadDeleteAccess = canDeleteReservations;
                 canDeleteReservations = token.claims.aliceCanDelete === true;
+                if (hadDeleteAccess && !canDeleteReservations) renderReservations();
                 return canDeleteReservations;
             } catch {
                 alert('無法重新驗證刪除權限，請檢查網路後重新登入');
