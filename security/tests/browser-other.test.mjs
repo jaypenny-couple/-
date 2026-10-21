@@ -73,6 +73,25 @@ test('新客、預訂、HR 頁面於本機 Emulator 的員工工作流程', asyn
     await customer.page.locator('#aliceAuthForm').waitFor({ state: 'visible' });
     await customer.context.close();
 
+    const customerManagerEmail = await addAccount({ aliceApp: 'customer', aliceRole: 'manager' });
+    const customerManager = await openAndLogin('新客管理.html', customerManagerEmail);
+    await customerManager.page.locator('#currentDesigner').selectOption('IRIS');
+    await customerManager.page.locator('#name').fill('Synthetic Manager Customer');
+    await customerManager.page.locator('#addBtn').click();
+    await customerManager.page.locator('#tableBody').getByText('Synthetic Manager Customer').waitFor({ timeout: 15000 });
+    const jayAgain = await openAndLogin('新客管理.html', customerEmail);
+    await jayAgain.page.waitForFunction(() => document.querySelector('#currentDesigner')?.value === 'JAY');
+    await jayAgain.page.locator('#tableBody .empty-state').waitFor({ timeout: 15000 });
+    assert.equal(await jayAgain.page.locator('#tableBody').getByText('Synthetic Manager Customer').count(), 0);
+    await jayAgain.context.close();
+    await customerManager.page.reload();
+    await customerManager.page.locator('#aliceAuthBar').waitFor({ state: 'visible', timeout: 15000 });
+    await customerManager.page.locator('#currentDesigner').selectOption('IRIS');
+    await customerManager.page.locator('#tableBody').getByText('Synthetic Manager Customer').waitFor({ timeout: 15000 });
+    await customerManager.page.locator('#tableBody .del-btn').click();
+    await customerManager.page.locator('#tableBody').getByText('Synthetic Manager Customer').waitFor({ state: 'detached', timeout: 15000 });
+    await customerManager.context.close();
+
     const preorderRules = await readFile(join(securityRoot, 'rules/preorder.database.rules.json'), 'utf8');
     environments.push(await initializeTestEnvironment({ projectId: 'pre-order-registration', database: { ...ports, rules: preorderRules } }));
     const preorderEmail = await addAccount({ aliceApp: 'preorder', aliceRole: 'staff' });

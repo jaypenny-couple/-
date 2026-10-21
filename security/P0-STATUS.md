@@ -1,62 +1,54 @@
-# ALICE P0 修復狀態（2026-10-20）
+# ALICE P0 修復狀態（2026-10-21）
 
-**此分支只供審查與測試。不得直接併入 `main`、發布任何候選規則或用正式資料執行測試。**
+**Draft PR #43 僅供審查。禁止合併、部署官網、修改正式 Security Rules 或正式資料。HR 完整備份與員工切換驗收未完成，正式切換維持阻擋。** 本輪未升級 Blaze、未建立付費雲端資源。
 
-## 已核對的範圍
+## 已實際完成並驗證
 
-| 專案 | 原始碼使用的服務與路徑 | 原始碼目前登入 | 正式生效規則／資料庫實例 |
+| 專案 | 正式服務與已知資料路徑 | 正式生效規則（2026-10-20 Console 核對） | 正式備份 |
 | --- | --- | --- | --- |
-| `new-customer-management-system` | RTDB `records`，`asia-southeast1` URL | 無 | Console 顯示根節點 `.read: true`、`.write: true`；Spark |
-| `pre-order-registration` | RTDB `reservations`，`asia-southeast1` URL | 無 | Console 顯示根節點 `.read: true`、`.write: true`；Spark |
-| `restocking-list` | RTDB `stockItems`，`firebaseio.com` URL | 無 | Console 顯示根節點 `.read: true`、`.write: true`；Spark |
-| `hr-system-ad937` | Firestore `salon/main` | 無 | Console 顯示 `match /{document=**}` 下 `allow read, write: if true`；Spark |
+| `new-customer-management-system` | RTDB，`records`，`asia-southeast1` 實例 | 根節點 `.read: true`、`.write: true` | 2026-10-20 完整根節點唯讀 JSON、規則、SHA-256 已存本機受限目錄 |
+| `pre-order-registration` | RTDB，`reservations`，`asia-southeast1` 實例 | 根節點 `.read: true`、`.write: true` | 同上 |
+| `restocking-list` | RTDB，`stockItems`，`firebaseio.com` 實例 | 根節點 `.read: true`、`.write: true` | 同上 |
+| `hr-system-ad937` | Firestore Native `(default)`，`asia-east1`；網站使用 `salon/main`，完整集合樹尚未列舉 | `match /{document=**}` 下 `allow read, write: if true` | **未完成**；不能把 `salon/main` 單檔匯出視為完整備份 |
 
-GitHub Pages API 顯示官網部署來源為本儲存庫 `main` 根目錄（legacy build）。本機原始碼由公開儲存庫克隆，開發分支為 `codex/p0-firebase-auth-staging`。2026-10-20 透過這台電腦已登入的 Firebase Console 查到四專案正式生效規則與 Spark 方案；四份規則另存私人受限目錄，記錄大小及 SHA-256。**這是已確認的公開讀寫漏洞，應視為可能已暴露顧客及 HR 資料；尚無證據判定是否有人實際取得資料。** Console「使用者和權限」顯示目前帳號在四專案皆為**擁有者**；四個 Authentication 頁都顯示「開始使用」，尚未啟用。Firebase CLI 已由擁有者在本機登入並完成三套 RTDB 唯讀備份；gcloud 與 ADC 憑證仍不存在。
+- GitHub Pages 的正式部署來源為本公開儲存庫 `main` 根目錄；本 PR 位於 `codex/p0-firebase-auth-staging`，仍為 Draft。四專案 2026-10-20 均為 Spark；當時 Console 顯示本機 Google 帳號均為擁有者、Authentication 均尚未啟用。正式資料不在此 PR。
+- 三套 RTDB 各由 Firebase CLI 確認只有一個實例，對 `/` 做官方唯讀 JSON 匯出；三份 JSON 格式、檔案大小與 SHA-256 已獨立驗證，備份時間與專案／實例寫入私人 manifest。四份當時生效規則也已私人保存。私人目錄 ACL 限本機使用者與 SYSTEM；沒有提交 JSON、個資、憑證或 Token。
+- 正式規則的匿名讀寫與整批修改／刪除風險已由 Console 規則確認。沒有用匿名身分讀取或寫入正式顧客資料；**有資料暴露風險，但無證據證明已發生外洩。** 原版新客頁先讀取全部 `records` 再在前端依設計師篩選，無資料層級隔離。
+- 本機已有可執行的可攜式 `gcloud`，但 **ADC 仍未登入**；Firebase CLI 登入不等於 ADC。無 ADC 便無法驗證目前呼叫 Firestore API 的實際 IAM 授權，也未開始正式集合列舉或匯出。沒有建立服務帳戶金鑰。
 
-## 風險評估
+## 免費 HR Firestore 備份評估
 
-| 風險 | 證據 | 程度 | 修復 |
-| --- | --- | --- | --- |
-| 新客跨設計師讀取 | `新客管理.html` 原版讀取整個 `records`，僅在前端篩選；正式規則允許任何人讀取 | **極高，全部記錄存在公開讀取風險** | 本分支改為 `designer` 條件查詢，候選 RTDB 規則以後端核發的設計師 claim 限制查詢及單筆讀寫 |
-| 無真正員工授權 | 四頁原版無 Auth 登入與角色判斷，且正式規則允許所有人讀寫 | **極高，已確認匿名存取風險** | 本分支加入 Auth 登入閘門與角色候選規則 |
-| 可整批刪除 | 三個正式 RTDB 根節點 `.write: true`；HR Firestore 所有文件 `write: if true` | **極高，已確認可被未授權修改／刪除的規則設定** | 候選規則只允許授權角色操作指定資料，RTDB 不授予集合根節點寫入 |
-| 持久型 HTML 注入 | 預訂與缺貨頁原版將資料庫欄位直接寫入 `innerHTML` | 高；資料若含 HTML 可執行頁面腳本 | 本分支對預訂文字轉義、缺貨改用 `textContent` |
-| HR 整份文件覆寫 | `休假進修管理.html` 使用單一 `salon/main` 文件及 `setDoc` 寫入整份狀態 | 中；並行編輯／還原可能覆蓋他人更新 | 本次保留格式與流程；切換前需實際備份、並行操作驗收，後續規劃交易式資料拆分 |
+官方 [Firestore 免費額度](https://firebase.google.com/docs/firestore/quotas)為每天 50,000 次文件讀取；[Firestore 定價](https://cloud.google.com/firestore/pricing)將 `listCollectionIds` 請求計為讀取，列舉文件也耗用讀取。2026-10-21 Firebase Console Usage 觀察到本期顯示 **6 次讀取**，但 Console 指標可能延遲，不能據此推算全部集合大小或保證其他客戶端不會同時耗額度。官方託管匯出需要付費條件；使用者已拒絕 Blaze 與任何付費，故完全不啟用。
 
-**規則可允許匿名讀／寫／刪除已由正式 Console 驗證，但沒有以匿名身分讀取或試寫真實資料來測試。** 三個 RTDB 專案均已透過 CLI 核對各只有一個實例，並備份其完整根節點。是否曾實際外洩、Firestore 其他 collection 及完整資料路徑仍待查。不得將「存在暴露風險」寫成「已確認有人外洩資料」。
+本分支新增 `security/firestore-self-backup.mjs`，以官方 Google Firestore API 用戶端與使用者 ADC 做**應用程式自行管理的唯讀文件複本**：
 
-## 本分支修改
+1. `inventory` 從資料庫根部以 `listCollectionIds`、分頁 `listDocuments(showMissing)` 遞迴列舉每個頂層 collection、document、子 collection 與缺失的父文件；記錄完整路徑、建立／更新時間，保留在私人目錄。此步有預設 5,000、最高 10,000 的保守讀取預算。
+2. `export` 重新遞迴掃描並保存 Firestore REST `Value` 原始型別結構、文件路徑、集合路徑、建立／更新時間、讀取時點、專案與資料庫；附 SHA-256、位元組數、UTC 時間與讀取預算 manifest。僅在最近 Console 讀數加上盤點上限、匯出上限與 20,000 次營運保留量不超過 50,000 時允許執行；超額即停。輸出只允許在現有本機受保護的 ALICE 私人備份目錄，程式不含正式寫入 API。
+3. `restore-emulator` 只接受 `127.0.0.1` Firestore Emulator，先驗 SHA-256 與大小，再還原至 `demo-alice-backup-restore`，並重新列舉比較文件路徑、集合路徑、是否存在及所有欄位型別與值。建立／更新時間只記錄於備份，Firestore 不能以此方式恢復原伺服器時間；Security Rules、索引、Auth 帳號與自訂 claims 也不是此文件複本的一部分，需各自保存／重建。
 
-- 四頁加入 Email/Password 登入、登出、角色檢查、權限不足與連線失敗提示。管理角色僅認可 Firebase ID token 的 custom claims；前端顯示檢查不是安全邊界。
-- 新客仍用既有 `records/<id>` 格式，設計師僅能按原有 `designer` 值查詢。管理者可切換設計師，設計師只能進入自己的設計師頁。
-- `security/rules/` 存放**尚未部署**的規則。角色矩陣：新客 `manager` 或指定 `designer`；預訂與缺貨 `staff` 或 `manager`；HR 僅 `manager`。每個專案另要求相符 `aliceApp` claim。
-- `assign-staff-claim.mjs` 是可信任管理環境用的 Admin SDK 腳本，預設唯讀 dry run；`--apply` 要求專案、UID、角色及儲存既有 claims 的私人備份路徑。本次未執行正式 claim 變更。
-- Firebase Emulator 與本機瀏覽器用合成資料測試，所有 Auth、RTDB、Firestore 呼叫在 `localhost` 轉向 Emulator，不連正式資料庫。
+**目前僅在合成資料驗證：** 6 份實存文件、1 個缺失父文件、5 條集合路徑及巢狀子集合已匯出，在乾淨 Emulator 上還原並重新讀回比對成功；測了大整數、時間、位元組、地理點、參照、陣列與 map 型別。這不是 HR 正式資料備份，也不證明正式 IAM、所有正式路徑或實際讀取額度。
 
-## 正式備份：三套 RTDB 完成，Firestore 尚未完成
+**一致性限制：** 文件列表採同一次掃描的 `readTime`；集合 ID 列表 API 無相同 `readTime`。盤點與匯出分兩次掃描，程式會比對路徑及文件版本，不一致即標記失敗，但持續新增／刪除集合、同時寫入與後續營運寫入仍可能造成無法證明的完整快照。正式匯出即使成功，也需有可驗證的低寫入時段或增量核對方案，並對**正式備份本身**完成獨立 Emulator 還原演練，才能解除 P0 備份阻擋。官方 REST 的 [列舉文件](https://docs.cloud.google.com/firestore/docs/reference/rest/v1/projects.databases.documents/listDocuments)與 [ADC](https://firebase.google.com/docs/admin/setup)文件是工具依據。
 
-1. Firebase Console 已確認四專案生效規則、Spark 方案、擁有者角色與 Auth 尚未啟用。四份現行規則已存私人受限目錄，並於 2026-10-20 再次核對大小及 SHA-256。**沒有以匿名 REST 讀取或測試正式資料。**
-2. 2026-10-20 18:41（臺北時間）使用擁有者已登入的 Firebase CLI，對三個 RTDB 實例的 `/` 執行 `database:get` 唯讀匯出。P0 ZIP 腳本在私人目錄的副本僅調整本機 CLI 路徑並修正 PowerShell `$p:` 解析錯誤。獨立再次確認三份 JSON 可解析、大小與 SHA-256 相符；大小分別為新客 44,868 bytes、預訂 495 bytes、缺貨 655 bytes。CLI `database:instances:list` 確認每個專案各只有一個實例，且與備份實例相符。私人 `manifest.csv`、`verification.json` 記錄專案、實例、UTC 時間、大小及雜湊；備份目錄及檔案僅允許本機使用者與 SYSTEM 存取。**備份 JSON 與私人紀錄不在公開 repo。**
-3. CLI 已確認 HR 專案只有一個 Cloud Firestore 資料庫 `（default）`，類型 `FIRESTORE_NATIVE`、Standard edition，位置 `asia-east1`。專案目前是 **Spark**；Firebase Storage 頁也顯示必須升級 Blaze 才可使用，未確認已有適合匯出的私人 GCS bucket。官方 managed export 需要 Blaze 計費、合適 GCS bucket 和帳號／服務代理 IAM；匯出會計入每份文件一次讀取及 GCS 儲存費用。**使用者於 2026-10-20 明確表示暫不同意任何付費或升級，因此停止 Blaze、GCS bucket 與 Firestore managed export 作業。** `salon/main` 的頁面 JSON 匯出不足以代表整個 Firestore 專案；不可將其當作完整備份。
-4. 所有資料、既有規則、claim 回復檔及操作紀錄只能存私人位置。**Firestore 完整備份未完成，正式規則修改與正式部署維持禁止狀態。** 四套正式公開規則仍有高度暴露風險；此現況不是可長期接受的解決方案。
+## 僅在本機測試通過
 
-## 驗收與正式切換門檻
+- 四頁候選版採 Firebase Email/Password 登入、登出及後端核發 custom claims。角色矩陣：新客 `customer/manager` 可管理全部、`customer/designer` 只能以 `aliceDesigner` 對 `designer` 欄位查詢和操作自己的紀錄；預訂 `preorder/staff|manager`；缺貨 `stock/staff|manager`；HR `hr/manager`。每個專案都要求相符 `aliceApp`。UI 閘門只負責顯示，真正授權由候選 Security Rules 執行。
+- 本機對 RTDB 私人備份只做設計師值的**彙總**核對，未輸出個資：既有資料的值均落在候選清單 `JAY`、`IRIS`、`SHERRY`、`CINDY`。後續若出現新設計師名稱，需同步調整帳號 claim 與頁面選單。原有 `records/<id>`、`reservations/<id>`、`stockItems/<id>` 及 HR `salon/main` 資料格式未遷移。
+- 四個 Firebase 專案各有**獨立** Authentication 帳號庫；員工須在對應專案由可信任管理者建立／管理 Email/Password 帳號並驗證 email，再用 `assign-staff-claim.mjs` 由管理者對既有 UID 核發角色。腳本預設 dry run；正式建立帳號、啟用 provider 或套用 claim 都未執行。不能把前端選單、網址參數或 `auth != null` 當成管理授權。
+- 候選 `security/rules/hr.firestore.rules` 已把 `salon/main` 的 `read`、`create`、`update` 留給 HR manager，**整份文件 `delete` 一律拒絕**。頁面內原有請假項目的刪除是更新 `salon/main` 陣列，不是刪除文件。
+- 2026-10-21 `npm test` **8/8 通過**：Auth 閘門、四套 Emulator 權限規則及四頁瀏覽器合成資料流程。包含新增、讀取、必要編輯／刪除、登入登出、重整、斷線恢復、匿名與錯誤角色拒絕、設計師跨人資料拒絕、管理員工作流程，以及 HR manager 更新成功／整份文件刪除遭拒。缺貨頁原本沒有編輯功能；HR 編輯由文件更新與頁面流程覆蓋。沒有碰正式顧客資料。
 
-- 已保存四套正式資料及生效規則，可驗證並演練到獨立測試環境還原；記錄備份時點後的增量處理方案。
-- 確認 Email/Password provider、授權網域、員工帳號及角色對應；管理員在可信任環境核發 claims。`aliceDesigner` 必須與現有資料的設計師值完全一致。每個 Firebase 專案各自登入。
-- 於獨立測試環境以代表性的**合成**舊資料執行四頁實際操作：新增、查詢、編輯、刪除、登入／登出、重新整理、拒絕權限不足、斷線與恢復；確認 HR 並行編輯與備份／還原流程。
-- 排定有人值守的低流量切換。先確認所有實際員工可登入並使用新頁面，再在明確使用者確認後切換配套規則；監控 `permission-denied`、現場流程與資料筆數。GitHub Pages 快取與舊開啟頁面可能造成短暫版本不一致，需預先通知並逐頁重整。
-- 發生故障時停止進一步修改，保留錯誤紀錄，讓員工先用安全替代流程。回復前端到相容版本與規則到私有保存的對應版本；若原規則公開，回復只可作極短應變，須另設限制及立即再切回。資料還原應先比較備份後新增／修改的紀錄，**不可直接覆寫正式根節點或 `salon/main`**。
+## 仍需人工驗收
 
-## 已做測試與缺口
+- 使用者本人完成 ADC 登入後，以目前帳號對 HR Firestore 做**管理身分的唯讀**權限驗證，再依 Console 當日用量與盤點結果評估是否有足夠 Spark 額度。正式備份只在額度可確認時執行；若不能確認，就不開始匯出。
+- 取得四專案實際員工名單、職責、設計師對應，分別建立和驗證帳號、核發 claim，讓在職員工以實際裝置檢查全部必要工作。四專案目前尚無已驗收的員工登入，因此本機測試不能代表正式可用性。
+- HR 頁目前 500ms 防抖後以 `setDoc` 寫回**整份** `salon/main`；登出／權限變化會清除尚未送出的 timer，並行管理員的整份覆寫亦可能互相覆蓋。需要真實工作流程與並行編輯驗收、保存待寫入變更的設計或交易式改造，方能宣稱切換無資料遺失風險。
+- 舊版已開啟的頁面無登入機制。新版頁面與新規則分階段上線時，快取／舊分頁可能遭拒絕；若新版先上線但 Auth provider 或 claim 未就緒，員工也會被擋。需有人值守、通知員工重整、明確切換窗口及回復方案，並先確認新舊資料同步與待送出資料；未取得使用者正式切換確認前不得部署。
 
-- `security` 目錄執行 `npm test`：Firebase Emulator 4 組規則測試、登入閘門 2 組 DOM 測試、四頁本機瀏覽器 2 組工作流程測試，共 **8/8 通過**。包含合成資料新增／查詢／刪除、新客與預訂編輯、匿名與錯誤角色拒絕、跨設計師拒絕、整批刪除拒絕、登入／登出／重整及斷線／恢復 UI。缺貨頁原本沒有編輯功能；HR 的一般請假列表原本只有新增／刪除，Firestore 規則測試已覆蓋文件編輯。四頁 module JavaScript 語法檢查與 JSON 格式檢查通過。
-- 尚未以實際員工帳號和獨立測試專案執行人工驗收；Firestore 正式備份、帳號佈建、還原演練、正式規則切換與部署均未完成。此分支**不可併入正式來源**。
+## 正式部署阻擋與回復
 
-## 官方依據
+1. **HR 正式完整備份、雜湊驗證與正式備份的 Emulator 還原尚未完成。** ADC 尚未登入，正式 IAM 與完整集合樹未知；現有 `salon/main` 不能替代整庫備份。三份 RTDB 備份是 2026-10-20 時點，部署前也須再確認新寫入資料的保護方式。
+2. **Auth provider、實際員工帳號／claims、四套真實操作驗收與 HR 並行寫入安全方案未完成。** 尤其不能把舊頁面在新規則下直接留給員工使用。
+3. **未排定或核准正式切換。** PR 保持 Draft，候選規則不可部署。現行正式公開規則仍有高風險，不能作長期解法；同時不得為了快速關閉規則而阻斷營運。
 
-- [RTDB 按條件查詢的規則](https://firebase.google.com/docs/database/security/rules-conditions)
-- [Admin SDK 自訂 claims](https://firebase.google.com/docs/auth/admin/custom-claims)
-- [Firebase Emulator 規則測試](https://firebase.google.com/docs/rules/unit-tests)
-- [RTDB Console JSON 匯出](https://firebase.google.com/docs/database/manage-data-console)
-- [Firestore 匯出、IAM 與計費](https://firebase.google.com/docs/firestore/manage-data/export-import)
+預定回復：先停止進一步變更並保留錯誤與備份時間線；只在核對備份後新增／修改資料後，以受控方式恢復相容頁面與規則。若舊規則公開，恢復它只可作極短、有人值守的應急措施，並立即改採安全的員工替代流程。**不可直接用舊 JSON 覆寫正式 RTDB 根節點或 `salon/main`，以免抹去備份後的工作。**

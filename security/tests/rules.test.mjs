@@ -60,6 +60,7 @@ for (const [projectId, rulesFile, path, app] of [
       const guest = rtdb(env.unauthenticatedContext());
       const wrong = rtdb(env.authenticatedContext('wrong', { aliceApp: 'customer', aliceRole: 'staff' }));
       const staff = rtdb(env.authenticatedContext('staff', { aliceApp: app, aliceRole: 'staff' }));
+      const manager = rtdb(env.authenticatedContext('manager', { aliceApp: app, aliceRole: 'manager' }));
       await assertFails(get(ref(guest, path)));
       await assertFails(set(ref(guest, `${path}/one`), { value: 1 }));
       await assertFails(get(ref(wrong, path)));
@@ -69,11 +70,16 @@ for (const [projectId, rulesFile, path, app] of [
       await assertSucceeds(update(ref(staff, `${path}/one`), { value: 2 }));
       await assertSucceeds(remove(ref(staff, `${path}/one`)));
       await assertFails(remove(ref(staff, path)));
+      await assertSucceeds(set(ref(manager, `${path}/manager`), { value: 1 }));
+      await assertSucceeds(get(ref(manager, path)));
+      await assertSucceeds(update(ref(manager, `${path}/manager`), { value: 2 }));
+      await assertSucceeds(remove(ref(manager, `${path}/manager`)));
+      await assertFails(remove(ref(manager, path)));
     } finally { await env.cleanup(); }
   });
 }
 
-test('HR：僅 HR 管理者可讀寫 salon/main，匿名與其他角色拒絕', async () => {
+test('HR：管理者可讀取、建立與更新 salon/main，任何角色均不得刪除整份文件', async () => {
   const env = await initializeTestEnvironment({
     projectId: 'demo-alice-hr', firestore: { ...firestore, rules: rules('hr.firestore.rules') }
   });
@@ -89,7 +95,8 @@ test('HR：僅 HR 管理者可讀寫 salon/main，匿名與其他角色拒絕', 
     await assertSucceeds(setDoc(manager, { staff: [], leaves: [] }));
     await assertSucceeds(getDoc(manager));
     await assertSucceeds(setDoc(manager, { staff: [], leaves: [{ id: 'synthetic' }] }));
-    await assertSucceeds(deleteDoc(manager));
+    await assertFails(deleteDoc(manager));
+    await assertSucceeds(getDoc(manager));
     await assertFails(getDoc(doc(env.authenticatedContext('manager2', { aliceApp: 'hr', aliceRole: 'manager' }).firestore(), 'other', 'secret')));
   } finally { await env.cleanup(); }
 });
