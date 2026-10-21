@@ -29,7 +29,7 @@ function setup(initialUser = null, claims = { aliceApp: 'stock', aliceRole: 'sta
   let ready = 0;
   let stopped = 0;
   const gate = createAuthGate({}, sdk, {
-    access: 'stock', roles: ['staff', 'manager'],
+    access: 'stock', roles: ['staff'],
     onReady() { ready++; }, onStop() { stopped++; }
   });
   return {
@@ -71,6 +71,11 @@ test('錯誤角色與網路失敗時不顯示資料頁', async () => {
   await submit(wrong.dom);
   assert.equal(wrong.gate.isAuthorized(), false);
   assert.match(wrong.dom.window.document.querySelector('#aliceAuthMessage').textContent, /沒有本系統/);
+  const unnecessaryManager = setup(null, { aliceApp: 'stock', aliceRole: 'manager' });
+  await tick();
+  await submit(unnecessaryManager.dom);
+  assert.equal(unnecessaryManager.gate.isAuthorized(), false);
+  assert.match(unnecessaryManager.dom.window.document.querySelector('#aliceAuthMessage').textContent, /沒有本系統/);
   const network = setup();
   network.setLoginError({ code: 'auth/network-request-failed' });
   await tick();

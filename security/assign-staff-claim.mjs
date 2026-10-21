@@ -28,7 +28,7 @@ if (!apps[projectId] || !uid || !/^[a-zA-Z0-9:_-]{1,128}$/.test(uid)) {
 }
 const app = apps[projectId];
 const allowedRoles = app === 'customer' ? ['manager', 'designer']
-  : app === 'hr' ? ['manager'] : ['staff', 'manager'];
+  : app === 'hr' ? ['manager'] : ['staff'];
 if (!allowedRoles.includes(role)) throw new Error('Role is not allowed for this project.');
 if (role === 'designer' && !['JAY', 'IRIS', 'SHERRY', 'CINDY'].includes(designer)) {
   throw new Error('Designer must match an existing record designer value.');

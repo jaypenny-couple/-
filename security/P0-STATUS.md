@@ -34,11 +34,11 @@
 
 ## 僅在本機測試通過
 
-- 四頁候選版採 Firebase Email/Password 登入、登出及後端核發 custom claims。角色矩陣：新客 `customer/manager` 可管理全部、`customer/designer` 只能以 `aliceDesigner` 對 `designer` 欄位查詢和操作自己的紀錄；預訂 `preorder/staff|manager`；缺貨 `stock/staff|manager`；HR `hr/manager`。每個專案都要求相符 `aliceApp`。UI 閘門只負責顯示，真正授權由候選 Security Rules 執行。
+- 四頁候選版採 Firebase Email/Password 登入、登出及後端核發 custom claims。角色矩陣：新客 `customer/manager` 可管理全部、`customer/designer` 只能以 `aliceDesigner` 對 `designer` 欄位查詢和操作自己的紀錄；預購只接受 `preorder/staff`；缺貨只接受 `stock/staff`；HR `hr/manager` 須逐人批准。每個專案都要求相符 `aliceApp`。UI 閘門只負責顯示，真正授權由候選 Security Rules 執行。
 - 本機對 RTDB 私人備份只做設計師值的**彙總**核對，未輸出個資：既有資料的值均落在候選清單 `JAY`、`IRIS`、`SHERRY`、`CINDY`。後續若出現新設計師名稱，需同步調整帳號 claim 與頁面選單。原有 `records/<id>`、`reservations/<id>`、`stockItems/<id>` 及 HR `salon/main` 資料格式未遷移。
 - 四個 Firebase 專案各有**獨立** Authentication 帳號庫；員工須在對應專案由可信任管理者建立／管理 Email/Password 帳號並驗證 email，再用 `assign-staff-claim.mjs` 由管理者對既有 UID 核發角色。腳本預設 dry run；正式建立帳號、啟用 provider 或套用 claim 都未執行。不能把前端選單、網址參數或 `auth != null` 當成管理授權。
 - 候選 `security/rules/hr.firestore.rules` 已把 `salon/main` 的 `read`、`create`、`update` 留給 HR manager，**整份文件 `delete` 一律拒絕**。頁面內原有請假項目的刪除是更新 `salon/main` 陣列，不是刪除文件。
-- 2026-10-21 `npm test` **16/16 通過**：Auth 閘門、四套 Emulator 權限規則、四頁瀏覽器合成資料流程、HR 並行合併與衝突、整份匯入版本指紋、兩類快照差異分類，以及「舊版匿名頁在候選安全規則下被拒絕、新版管理員可讀舊格式」的交接模擬。第四階段新增的外部帳號切換期間保留未送出表單也已驗證。沒有碰正式顧客資料。
+- 2026-10-21 `npm test` **17/17 通過**：Auth 閘門、四套 Emulator 權限規則、四頁瀏覽器合成資料流程、HR 並行合併與衝突、整份匯入版本指紋、兩類快照差異分類，以及舊版匿名頁遭拒／新版管理員讀取舊格式模擬。外部帳號切換保留未送出表單也已驗證；預購／缺貨 manager claim 在登入閘門、RTDB 規則及核發工具皆遭拒，staff 原有 CRUD 通過。沒有碰正式顧客資料。
 
 ## 第三階段：HR 並行寫入修復（僅候選版）
 
@@ -59,13 +59,20 @@
 | --- | --- | --- | --- |
 | 新客管理員 | `new-customer-management-system` | `customer/manager` | 全部設計師的單筆工作流程；不可整批刪除 |
 | 設計師 | 同上 | `customer/designer`＋核准的 `aliceDesigner` | 只查詢及操作本人代碼；跨設計師拒絕 |
-| 商品預購操作人員 | `pre-order-registration` | `preorder/staff`；manager 須另核准 | 原有預購新增、查詢、編輯、刪除 |
-| 缺貨登記操作人員 | `restocking-list` | `stock/staff`；manager 須另核准 | 原有缺貨單筆流程 |
+| 商品預購操作人員（含需操作的店長） | `pre-order-registration` | `preorder/staff` | 原有預購新增、查詢、編輯、刪除；候選版沒有 manager 專屬操作 |
+| 缺貨登記人員（含需操作的店長） | `restocking-list` | `stock/staff` | 原有缺貨新增、查詢、刪除；候選版沒有 manager 專屬操作 |
 | HR 管理人員 | `hr-system-ad937` | `hr/manager` | 員工、配額、請假、進修；整份文件刪除拒絕 |
 
-每個專案的 Auth 帳號及 UID 獨立；跨系統員工需在各自專案建帳號。已在本機受限目錄建立私人權限確認表（七列角色範本）及逐人實機驗收表（十二項檢查範本）；只有空白員工欄位與測試項目，未填入真實姓名或信箱，未提交 GitHub。新客設計師、預購 staff、缺貨 staff 為建議最低角色；各系統 manager 預設不核發；HR manager 僅在逐人批准後核發。業主須私下確認每位正式員工的核准 email、所需系統／角色、設計師代碼、主管核准及離職停用方式；**尚未建立正式帳號、啟用正式 provider 或核發正式 claims**。
+每個專案的 Auth 帳號及 UID 獨立；跨系統員工需在各自專案建帳號。已在本機受限目錄建立私人權限確認表（七列角色範本）及逐人實機驗收表（十二項檢查範本）；表單含尚未填寫的可用時段、裝置與驗收人欄位，未填入真實姓名或信箱，未提交 GitHub。員工名單及可用時段尚未提供，故沒有排定個別實機時段。新客設計師、預購 staff、缺貨 staff 為建議最低角色；預購與缺貨頁無 manager 專屬操作，候選版只接受 staff；新客 manager 僅依跨設計師管理職責批准；HR manager 僅在逐人批准後核發。業主須私下確認每位正式員工的核准 email、所需系統／角色、職責、設計師代碼（如適用）、主管核准及離職停用方式；**尚未建立正式帳號、啟用正式 provider 或核發正式 claims**。
 
 正式 Auth dry-run 計畫已列於 Runbook：Provider 啟用、逐人帳號建立及逐組 claims 核發分開批准；帳號存在且信箱驗證後才用 ADC 對該 UID 執行 `assign-staff-claim.mjs` 唯讀 dry run。該模式只讀取既有帳號，不建立帳號或修改 claims；`--apply` 是需另行批准的正式權限變更。本階段未連正式 Auth 執行 dry run。
+
+## 四套系統高權限操作檢查
+
+- 新客 manager 可以讀取全部設計師紀錄並單筆刪除；只核發給明確負責跨設計師管理的人員。設計師仍受資料庫規則限制在本人紀錄。
+- 預購與缺貨候選頁沒有 manager 專屬操作，舊候選規則曾讓 manager 與 staff 權限完全相同。已從兩頁登入白名單、候選資料庫規則及 claims 核發白名單移除 manager；所有實際需要操作的人員使用個人 `staff` 帳號，Emulator 已驗證 manager claims 遭拒絕。正式規則未修改。
+- 預購 staff 可讀完整共用預購清單（包含顧客聯絡資料）、新增、更新取貨日期及刪除任一預購；資料庫規則也允許直接更新同一預購的其他欄位。缺貨 staff 可讀完整共用清單、新增及刪除任一項目。這與目前共用操作頁相符，但業主仍需確認每位操作人員皆應看到全清單並可刪除任一項目；若要縮限需先在獨立 Emulator 依舊資料欄位驗證。
+- HR `manager` 對整份 `salon/main` 有讀取與更新能力，包含員工、配額、請假、進修、匯入及清空；整份文件刪除遭拒。必須逐人核准其 HR 工作範圍，並確認是否需要整份匯入／清空權限。不能用隱藏前端按鈕作權限控制。
 
 ## 仍需人工驗收
 
@@ -86,6 +93,7 @@
 2. 逐專案批准是否啟用 Email/Password provider；逐人批准建立帳號；逐組批准完整 Custom Claims。這三類正式 Auth 變更分別確認，未核准前均不執行。
 3. 選定或拒絕 22:00–22:30 候選停寫時段，指定負責人與員工通知方式，確認可接受 G5 規則切換到 G6 網站更新期間的服務等待。
 4. 正式切換時另行批准 Runbook G1–G8 的備份／差異證據、舊分頁關閉、新版實機登入、候選 Security Rules 與 GitHub Pages 部署；四套 B1→B2 必須零差異，否則停止。
+5. 確認預購 staff 是否需讀取完整清單中的顧客聯絡資料並刪除任一預購、缺貨 staff 是否需刪除任一共用項目，以及每位 HR manager 是否需要使用整份匯入／清空功能。未確認前不擴大候選角色或正式權限。
 
 目前未排程窗口、未停寫、未建立正式帳號、未啟用 provider、未核發 claims，未改規則、未合併或部署。
 

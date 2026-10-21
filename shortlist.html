@@ -177,7 +177,7 @@
             let isConnected = false;
             let unsubscribeStock = null;
             const gate = createAuthGate(app, authSdk, {
-                access: 'stock', roles: ['staff', 'manager'],
+                access: 'stock', roles: ['staff'],
                 onReady() { subscribeStock(); },
                 onStop() {
                     unsubscribeStock?.();

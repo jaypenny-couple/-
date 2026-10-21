@@ -3,9 +3,9 @@
     ".read": false,
     ".write": false,
     "reservations": {
-      ".read": "auth != null && auth.token.aliceApp === 'preorder' && (auth.token.aliceRole === 'staff' || auth.token.aliceRole === 'manager')",
+      ".read": "auth != null && auth.token.aliceApp === 'preorder' && auth.token.aliceRole === 'staff'",
       "$reservationId": {
-        ".write": "auth != null && auth.token.aliceApp === 'preorder' && (auth.token.aliceRole === 'staff' || auth.token.aliceRole === 'manager')"
+        ".write": "auth != null && auth.token.aliceApp === 'preorder' && auth.token.aliceRole === 'staff'"
       }
     }
   }

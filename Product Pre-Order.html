@@ -266,7 +266,7 @@
         const reservationsRef = ref(database, 'reservations');
         let unsubscribeReservations = null;
         const gate = createAuthGate(app, authSdk, {
-            access: 'preorder', roles: ['staff', 'manager'],
+            access: 'preorder', roles: ['staff'],
             onReady() { loadReservations(); },
             onStop() {
                 unsubscribeReservations?.();

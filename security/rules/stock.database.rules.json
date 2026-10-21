@@ -3,9 +3,9 @@
     ".read": false,
     ".write": false,
     "stockItems": {
-      ".read": "auth != null && auth.token.aliceApp === 'stock' && (auth.token.aliceRole === 'staff' || auth.token.aliceRole === 'manager')",
+      ".read": "auth != null && auth.token.aliceApp === 'stock' && auth.token.aliceRole === 'staff'",
       "$itemId": {
-        ".write": "auth != null && auth.token.aliceApp === 'stock' && (auth.token.aliceRole === 'staff' || auth.token.aliceRole === 'manager')"
+        ".write": "auth != null && auth.token.aliceApp === 'stock' && auth.token.aliceRole === 'staff'"
       }
     }
   }

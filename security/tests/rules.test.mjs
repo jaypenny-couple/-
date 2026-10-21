@@ -54,7 +54,7 @@ for (const [projectId, rulesFile, path, app] of [
   ['demo-alice-preorder', 'preorder.database.rules.json', 'reservations', 'preorder'],
   ['demo-alice-stock', 'stock.database.rules.json', 'stockItems', 'stock']
 ]) {
-  test(`${app}：員工 CRUD 正常；匿名和錯誤角色拒絕`, async () => {
+  test(`${app}：staff CRUD 正常；匿名、跨系統及不必要的 manager claim 拒絕`, async () => {
     const env = await rtdbEnv(projectId, rulesFile);
     try {
       const guest = rtdb(env.unauthenticatedContext());
@@ -65,16 +65,13 @@ for (const [projectId, rulesFile, path, app] of [
       await assertFails(set(ref(guest, `${path}/one`), { value: 1 }));
       await assertFails(get(ref(wrong, path)));
       await assertFails(set(ref(wrong, `${path}/one`), { value: 1 }));
+      await assertFails(get(ref(manager, path)));
+      await assertFails(set(ref(manager, `${path}/unauthorized`), { value: 1 }));
       await assertSucceeds(set(ref(staff, `${path}/one`), { value: 1 }));
       await assertSucceeds(get(ref(staff, path)));
       await assertSucceeds(update(ref(staff, `${path}/one`), { value: 2 }));
       await assertSucceeds(remove(ref(staff, `${path}/one`)));
       await assertFails(remove(ref(staff, path)));
-      await assertSucceeds(set(ref(manager, `${path}/manager`), { value: 1 }));
-      await assertSucceeds(get(ref(manager, path)));
-      await assertSucceeds(update(ref(manager, `${path}/manager`), { value: 2 }));
-      await assertSucceeds(remove(ref(manager, `${path}/manager`)));
-      await assertFails(remove(ref(manager, path)));
     } finally { await env.cleanup(); }
   });
 }

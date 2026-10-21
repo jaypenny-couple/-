@@ -10,8 +10,8 @@
 | --- | --- | --- | --- | --- |
 | 新客管理員 | `new-customer-management-system` | `aliceApp=customer`, `aliceRole=manager` | 全部 `records/<id>` 新增、查詢、編輯、單筆刪除及設計師切換 | `records` 根節點整批刪除 |
 | 設計師 | 同上 | `aliceApp=customer`, `aliceRole=designer`, `aliceDesigner=<核准代碼>` | 僅以 `designer` 條件查詢及操作自己代碼的紀錄 | 全量查詢、他人紀錄及變更紀錄所屬設計師 |
-| 預購操作人員／管理員 | `pre-order-registration` | `aliceApp=preorder`, `aliceRole=staff` 或 `manager` | `reservations/<id>` 原有單筆工作流程 | 未授權者及集合根節點整批刪除 |
-| 缺貨操作人員／管理員 | `restocking-list` | `aliceApp=stock`, `aliceRole=staff` 或 `manager` | `stockItems/<id>` 原有單筆工作流程 | 未授權者及集合根節點整批刪除 |
+| 預購操作人員（含需要操作頁面的店長） | `pre-order-registration` | `aliceApp=preorder`, `aliceRole=staff` | `reservations/<id>` 原有單筆工作流程；此頁沒有 manager 專屬操作 | manager claim、未授權者及集合根節點整批刪除 |
+| 缺貨登記人員（含需要操作頁面的店長） | `restocking-list` | `aliceApp=stock`, `aliceRole=staff` | `stockItems/<id>` 原有單筆工作流程；此頁沒有 manager 專屬操作 | manager claim、未授權者及集合根節點整批刪除 |
 | HR 管理員 | `hr-system-ad937` | `aliceApp=hr`, `aliceRole=manager` | `salon/main` 讀取、建立、交易式更新；頁內員工／配額／請假／進修操作 | 整份 `salon/main` 文件刪除、其他 Firestore 文件 |
 
 目前候選設計師代碼為 `JAY`、`IRIS`、`SHERRY`、`CINDY`；正式對應人員、在職狀態與可見範圍須由業主確認。每位員工需提供：內部員工編號或私下辨識方式、公司核准電子郵件、要操作的系統、各系統職責、設計師代碼（如適用）、主管核准人及停用／離職流程。不得把這份個人資料提交公開 PR。
@@ -47,6 +47,15 @@
 4. dry run 輸出核對並由第二位核准者確認後，才逐帳號批准套用 claim。`--apply` 會呼叫 `setCustomUserClaims` 並在私人路徑備份舊 claims；此為正式權限變更，需另外批准，不在本階段執行。claims 變更後使用者須重新登入／更新 token，逐人驗收後方可放行。
 
 需業主批准的變更：正式 Authentication provider 設定；每個新帳號的建立與信箱；每一組 Custom Claims（含是否為 manager）；必要時停用或移除既有 claims；低寫入窗口與員工通知；Security Rules 與網站的正式切換；若需服務等待時間，接受明確的維護窗口。以上均未執行。
+
+## 四套系統高權限操作檢查
+
+- **新客：**設計師只能查詢及操作 `aliceDesigner` 相符的 `records`，不能改紀錄所屬設計師；店長／管理員可看全部設計師紀錄並可單筆刪除。manager 僅在實際跨設計師管理職責獲業主批准後使用。整批根節點刪除遭拒。
+- **預購：**候選版已取消 `manager` claim；預購頁沒有 manager 專屬操作，店長如需操作同樣使用個人 `staff` 帳號。每位 staff 仍可讀取完整預購清單（含顧客聯絡資料）、新增項目、修改取貨日期及刪除任一預購單；UI 只提供取貨日期更新，但目前 RTDB 規則的單筆 `.write` 也接受其他欄位更新。業主需確認每位預購操作人員皆因職務需要可看完整聯絡資料並可刪除／管理任何預購單。若要縮窄，需先核對舊資料欄位並在獨立 Emulator 驗證，不在正式資料套用。
+- **缺貨登記：**候選版已取消 `manager` claim；店長如需操作同樣使用個人 `staff` 帳號。每位 staff 可讀取完整共用缺貨清單、新增與刪除任一項目；頁面目前沒有編輯功能，RTDB 規則也沒有為單筆更新另設窄欄位檢查。業主需確認共用清單與刪除範圍符合職務需要。
+- **HR：**只有逐人批准的 `hr/manager` 可讀寫整份 `salon/main`（文件本身不可刪除），因現行資料集中在單一文件，該角色可管理全部員工、配額、請假及進修，也能使用整份匯入／清空功能。這是高影響權限；逐人批准前需確認該人確實負責所有 HR 資料與匯入／清空。若需分開核發還原權限，要先設計伺服器端權限方案，不能以隱藏前端按鈕代替。
+
+本項檢查確認候選版預購與缺貨規則曾把 `staff` 與 `manager` 設為完全相同權限；已在候選頁面、Custom Claims 核發白名單與 Emulator 規則中移除這兩套系統的 manager 角色。原有 staff CRUD 工作流程未改；用 manager claim 會遭登入閘門及資料庫規則拒絕。此候選修正未部署。
 
 ## 最後備份與增量核對
 
