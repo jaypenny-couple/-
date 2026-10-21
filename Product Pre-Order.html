@@ -241,7 +241,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { 
-            getDatabase, connectDatabaseEmulator, ref, push, onValue, remove, update, serverTimestamp
+            getDatabase, connectDatabaseEmulator, ref, push, onValue, get, remove, update, serverTimestamp
         } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
         import * as authSdk from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { createAuthGate } from './security/auth-gate.js';
@@ -265,15 +265,23 @@
         }
         const reservationsRef = ref(database, 'reservations');
         let unsubscribeReservations = null;
+        let unsubscribeDeleteAuthorization = null;
         let canDeleteReservations = false;
         const gate = createAuthGate(app, authSdk, {
             access: 'preorder', roles: ['staff'],
-            onReady(claims) { canDeleteReservations = claims.aliceCanDelete === true; loadReservations(); },
+            onReady() {
+                const user = authSdk.getAuth(app).currentUser;
+                if (user) subscribeDeleteAuthorization(user);
+                loadReservations();
+            },
             onStop() {
                 canDeleteReservations = false;
                 unsubscribeReservations?.();
                 unsubscribeReservations = null;
+                unsubscribeDeleteAuthorization?.();
+                unsubscribeDeleteAuthorization = null;
                 reservations = [];
+                renderReservations();
                 document.getElementById('reservationList').replaceChildren();
                 updateStats();
                 document.getElementById('tableContainer').style.display = 'none';
@@ -285,16 +293,37 @@
         let sortDirection = 'asc';
         let isConnected = false;
 
+        function validDeleteAuthorization(value, user) {
+            return value === true && !!user?.uid && gate.isAuthorized();
+        }
+
+        function subscribeDeleteAuthorization(user) {
+            unsubscribeDeleteAuthorization?.();
+            canDeleteReservations = false;
+            renderReservations();
+            unsubscribeDeleteAuthorization = onValue(ref(database, `deletionAuthorizations/${user.uid}`), (snapshot) => {
+                canDeleteReservations = gate.isAuthorized() && authSdk.getAuth(app).currentUser?.uid === user.uid &&
+                    validDeleteAuthorization(snapshot.val(), user);
+                renderReservations();
+            }, () => {
+                canDeleteReservations = false;
+                renderReservations();
+            });
+        }
+
         async function refreshDeleteAuthorization() {
-            if (!gate.isAuthorized() || !authSdk.getAuth(app).currentUser) return false;
+            const user = authSdk.getAuth(app).currentUser;
+            if (!gate.isAuthorized() || !user || !isConnected) return false;
             try {
-                const token = await authSdk.getIdTokenResult(authSdk.getAuth(app).currentUser, true);
-                const hadDeleteAccess = canDeleteReservations;
-                canDeleteReservations = token.claims.aliceCanDelete === true;
-                if (hadDeleteAccess && !canDeleteReservations) renderReservations();
+                const snapshot = await get(ref(database, `deletionAuthorizations/${user.uid}`));
+                const previous = canDeleteReservations;
+                canDeleteReservations = validDeleteAuthorization(snapshot.val(), user);
+                if (previous !== canDeleteReservations) renderReservations();
                 return canDeleteReservations;
             } catch {
-                alert('無法重新驗證刪除權限，請檢查網路後重新登入');
+                canDeleteReservations = false;
+                renderReservations();
+                alert('無法確認即時刪除授權，請檢查網路後重試');
                 return false;
             }
         }
@@ -319,6 +348,8 @@
                 btn.disabled = false;
             } else {
                 isConnected = false;
+                canDeleteReservations = false;
+                renderReservations();
                 el.textContent = '離線';
                 el.className = 'connection-status offline';
                 btn.disabled = true;
@@ -365,7 +396,7 @@
                 clearTimeout(loadingTimeout);
                 const data = snapshot.val();
                 reservations = [];
-                if (data) {
+                    if (data) {
                     Object.keys(data).forEach(key => {
                         reservations.push({ firebaseKey: key, ...data[key] });
                     });

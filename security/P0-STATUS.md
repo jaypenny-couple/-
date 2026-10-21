@@ -42,11 +42,11 @@
 
 ## 第六階段：預購與缺貨刪除權限分離（候選版）
 
-- 候選 RTDB 規則以 `aliceApp`、`aliceRole=staff` 驗證系統與一般角色；僅在同一專案內另有 `aliceCanDelete === true` 時允許刪除單筆。根節點 `.write` 仍拒絕，staff 的 `manager` claim 仍遭拒絕。
+- 第六階段歷史候選 RTDB 規則曾以 `aliceCanDelete` 判斷刪除；第八階段已從目前候選版移除該放行條件，改依該專案 RTDB 授權列即時判定。預購／缺貨仍只接受 `aliceRole=staff`，根節點 `.write` 拒絕。
 - 私人備份欄位統計確認預購舊格式為 9 個欄位（`id`、`reservationDate`、`customerName`、`contactPlatform`、`product`、`quantity`、`phone`、`pickupDate`、`createdAt`），缺貨為 4 個欄位（`vendor`、`item`、`timestamp`、`date`）。新紀錄須通過必填欄位與型別驗證；預購舊紀錄的既有欄位不可竄改或移除，只有 `pickupDate` 可更新。缺欄或錯型的舊預購紀錄可能無法做該更新，故切換前需重新用最新 B1 重跑檢查。缺貨頁原本只讀／新增／刪除，候選規則拒絕既有項目更新。個人資料值未列入報告。
-- 預購及缺貨頁面只在登入後驗證的 Custom Claims 含 `aliceCanDelete === true` 時顯示單筆刪除控制；函式本身再次檢查授權與連線，刪除仍需確認。權限不足、離線與失敗會提示。Security Rules 才是真正存取控制。
-- `security/staff-claim-policy.js` 驗證專案、完整角色與逐人逐專案核准紀錄，清除跨專案／撤權時殘留的 `aliceCanDelete`。正式 Claims 核發在本階段工具中硬性停用；任何未來正式套用都須另行批准，先將既有完整 claims 備份至 ACL 受限私人目錄並核對還原程序。私人員工表已加 `CandidateAliceCanDelete`、`DeleteApprovalRef` 欄；預購／缺貨均預填預設 false，員工識別欄保持空白。
-- Custom Claims 位於 Firebase ID token；頁面在刪除前強制更新 token，離線或刷新失敗時拒絕操作。直接 API 若仍持有未過期舊 token，撤銷後可能暫時仍帶舊 claim；正式撤權需同時要求登出／重新登入並驗證 token 已更新。未在正式環境測試此撤權時差。
+- 第六階段頁面曾依 Custom Claims 顯示刪除控制；第八階段已改為監聽登入 UID 在目前專案的授權列，並在刪除前重新讀取。撤權事件即時移除按鈕；Security Rules 仍是唯一真正的刪除控制。
+- `security/staff-claim-policy.js` 驗證專案、完整角色與逐人逐專案核准紀錄，清除跨專案／撤權時殘留的 `aliceCanDelete`。正式 Claims 核發在本階段工具中硬性停用；任何未來正式套用都須另行批准，先將既有完整 claims 備份至 ACL 受限私人目錄並核對還原程序。私人員工表已改用 `CandidateDeleteAuthorization`、`DeleteAuthorizationApprovalRef` 欄；預購／缺貨均預填預設 false，員工識別欄保持空白。
+- 歷史 Custom Claims 刪除方案有舊 ID token 撤權延遲；第八階段候選 Rules 已完全不讀 `aliceCanDelete`，刪除每次都檢查 RTDB 授權列。Emulator 中同一舊 token 在授權列撤銷後下一次刪除即遭拒；尚未在正式環境測試。
 - 測試實際拒絕：一般 staff 單筆刪除、必要欄位清空、整筆內容遺失覆寫、多路徑刪除、匿名／錯誤 App、manager claim、權限撤銷後刪除及根節點整批刪除。核准合成 staff 的單筆刪除成功。未連正式 Firebase，不曾建立正式帳號、核發正式 Claims 或修改正式規則。
 
 ## 第七階段：正式備份相容性與撤權方案評估（僅唯讀／Emulator）
@@ -55,9 +55,21 @@
 - 將正式備份副本載入本機 Realtime Database Emulator（不是正式資料庫），使用一般合成 staff token 對每筆既有預購紀錄改寫合成 `pickupDate`，2/2 通過；沒有缺欄、錯型或多餘欄位造成拒絕。這證明的是該備份時點資料與當前候選規則相容，不代表切換當天新增資料仍相同。缺貨資料的 staff 任意編輯測試 5/5 遭拒；此與缺貨頁目前只提供讀取／新增一致。原備份副本只存在本機 Emulator，正式資料未更動。
 - 比較方案：Custom Claims 方案簡單、規則與目前 staff 認證一致；頁面每次刪除前強制刷新 token 可降低一般操作的撤權延遲，但舊的有效 ID token 仍可能直接呼叫規則授權的刪除，直到該 token 更新／過期。資料庫授權清單方案以 `auth.uid` 在各專案自己的 RTDB 查詢授權列，Rules 每次刪除均讀最新列；移除列後，持舊 token 的直接刪除也遭拒。每套資料庫只存 UID、專案 ID、App、staff 角色及刪除旗標；Rules 禁止一般用戶讀取他人授權列或寫入清單，管理者透過受信任 Admin SDK/ADC 寫入。
 - 授權清單可在 Spark 使用，不需 Blaze 或新雲端服務；RTDB 官方 Spark 方案目前包含 1 GB 儲存、每月 10 GB 下載、100 個同時連線，資料列本身很小，但頁面讀／監聽授權列會增加少量下載流量，仍須在正式使用量中監控。資料庫由 Auth token 對應到授權列是 Firebase Rules 官方支援的做法，規則可用 `root` 查驗其他路徑。[RTDB Rules 條件](https://firebase.google.com/docs/database/security/rules-conditions)；[Spark/Realtime Database 配額與計費](https://firebase.google.com/docs/database/usage/billing)。
-- Emulator 以候選授權列規則分別測試預購及缺貨：每專案 9 個授權情境均通過，包括本人可讀、不可讀他人、用戶不可寫授權列、缺列／撤權後即時拒絕、有效列可單筆刪除、舊 `aliceCanDelete` claim 不可越權，以及 manager 與集合根節點刪除遭拒。測試只作用於 Emulator，尚未替換 PR 中現行候選 Rules。
-- **建議決策：**若要求撤權對直接 API 也即時生效，授權清單比 Custom Claims 單獨控管更合適；代價是增加一份每專案授權資料與可信任管理者的新增／撤銷程序。本輪僅驗證設計，現行候選 Rules／Claims 尚未切換到此方案。正式選用前須批准授權列格式、誰可核發／撤銷、操作稽核與員工驗收流程；可保留 Claims 作角色識別，但刪除決策需以授權列為唯一條件，避免舊 Claims 形成旁路。
-- 測試計數：此輪備份相容性腳本驗證預購取貨日期 2/2 可更新、缺貨既有項目 5/5 更新被拒；授權清單 Emulator 實驗 18/18 通過。合計本輪新增的 Emulator 情境 25/25 通過；前一輪既有完整測試套件 19/19 通過。本輪僅更新文件與實驗紀錄，沒有更改候選程式或規則，因此未重跑原套件。
+- 第八階段 Emulator 套件重新涵蓋預購與缺貨的授權列情境；歷史第七階段的獨立測試數據不代表本輪最終規則符合批次刪除限制。
+- 第七階段授權清單實驗 18/18 已在第八階段轉成可重複執行的 Rules／政策／瀏覽器測試；目前候選版採授權清單。RTDB 官方支援 Rules 以 `root` 查詢其他路徑，資料庫清單與 Auth token UID 分別作用於各專案。[RTDB Rules 條件](https://firebase.google.com/docs/database/security/rules-conditions)。
+- 第七階段相容性和撤權實驗均為歷史記錄；第八階段新增全套重測數量與結果，見下方「第八階段」。
+
+## 第八階段：RTDB 即時刪除授權清單（候選版）
+
+- 業主已核准將刪除決策改為各專案獨立的 `/deletionAuthorizations/<uid>`。預購 Rules 固定要求 `aliceApp=preorder`，缺貨 Rules 固定要求 `aliceApp=stock`；兩份規則分別綁定各自專案。每次刪除同時驗證登入 UID、App、`staff` 角色及 `deletionAuthorizations/<auth.uid> === true`。授權列以登入 UID 為鍵且只能由可信任管理流程維護；專案隔離由分離的資料庫規則保證。Custom Claims 的 `aliceCanDelete` 不參與放行。
+- RTDB 授權列採最小布林格式：`/deletionAuthorizations/<uid> = true`。只有嚴格布林 `true` 可授權；缺列、`false`、字串、物件及其他格式均拒絕。UID 取自登入 token，資料庫規則與 `aliceApp`／`aliceRole` claims 檢查此 UID；用戶只可讀取自己的列，任何用戶均不能寫授權清單。授權清單分別存在兩個獨立專案中，不能跨專案共用。
+- `Product Pre-Order.html` 與 `shortlist.html` 依自己的授權列即時顯示刪除操作，離線或讀取失敗時關閉刪除按鈕；操作前另讀一次授權列。撤權通知會更新介面；即使介面事件尚未到達，RTDB Rules 仍在提交時檢查最新授權列並拒絕。
+- 新增 `manage-delete-authorization.mjs`，可 Emulator 查詢狀態、核發與撤銷 dry-run。每個 grant/revoke dry-run 驗證私人逐人逐專案核准、staff role、UID 與動作；資料庫只用布林值，核准人與參考等細節保存在本機 ACL 限制的稽核記錄，含前後狀態及 SHA-256。工具強制 localhost Emulator，正式 `--apply` 硬性封鎖，沒有建立或使用 Service Account 私鑰。身份 Claims 工具退役 `--can-delete`，更新 Claims 時清除舊 `aliceCanDelete`。
+- 快照差異工具現在將 `deletionAuthorizations` 識別為預購／缺貨的受管理根節點，分開報告授權列新增／修改／刪除，不會當作未知資料忽略或自動清除。正式切換前須逐一核對 UID、批准人、啟用狀態及撤銷情況；授權列只可在另行正式核准後寫入正式資料庫。
+- **撤權時差：**在 Emulator 驗證移除或停用授權列後，持有舊 `aliceCanDelete=true` token 的下一個刪除請求即被拒絕；不依賴 ID token 刷新期限。正式延遲仍可能來自網路中斷、前端監聽尚未收到撤權而暫時仍顯示按鈕，但 Rules 會拒絕下一次提交；待回線後 UI 重新取得授權狀態。
+- **正式切換阻擋：已授權主管仍可用 SDK/REST 的原子多路徑 `update()` 一次刪除多筆。** Emulator 可重現：同一 UID 對 `/deletionAuthorizations/<uid>` 有 `true` 時，刪除兩筆 `reservations` 的一個原子更新通過。一般 staff（沒有授權列）仍遭拒；集合根節點刪除仍遭拒。前端只提供單筆按鈕，不能阻止主管直接呼叫資料庫 API。Firebase 官方 SDK 支援原子多路徑更新；Emulator 測試證明目前 Rules 對已授權 UID 會逐筆放行。[Realtime Database 多路徑更新](https://firebase.google.com/docs/database/web/read-and-write)。
+- 本輪全套 `npm test`：**24/24 測試 runner 通過、0 失敗**；其中 1 項是標示為已知阻擋的回歸探測，刻意證明上述多筆刪除目前會成功。因此測試執行通過不代表本階段所有安全要求已滿足。授權列、撤權、舊 claim、UI 即時變更及管理 dry-run 測試通過；嚴格限制主管每次只能刪一筆目前不通過。
+- 無法只靠 RTDB Rules 區分「一次只刪一筆」的 UI 呼叫與相同授權 UID 的多路徑 REST/SDK 更新；若維持絕對禁止批次刪除，需由可信任後端接收並逐筆執行刪除、同時拒絕客戶端直接刪除。這會改變現有架構，且可部署的後端可能需要付費方案；目前不升級、不新增服務，正式切換維持阻擋。
 
 ## 第三階段：HR 並行寫入修復（僅候選版）
 
@@ -84,14 +96,14 @@
 | 缺貨指定主管 | 同上，獨立帳號 | `stock/staff`＋逐人逐專案批准的刪除授權 | 另可刪除單筆；不可刪除集合根節點 |
 | HR 管理人員 | `hr-system-ad937` | `hr/manager` | 員工、配額、請假、進修；整份文件刪除拒絕 |
 
-每個專案的 Auth 帳號及 UID 獨立；跨系統員工需在各自專案建帳號。私人表含七列角色範本及十二項實機驗收範本，未填入真實姓名或信箱，未提交 GitHub。預購／缺貨新增 `CandidateAliceCanDelete` 與 `DeleteApprovalRef` 欄；刪除權預設 false，只有業主逐人、逐專案核准才可改 true。員工名單及可用時段尚未提供，故未排定個別實機時段。業主仍須私下確認每位正式員工核准 email、所需系統／角色、職責、設計師代碼（如適用）、主管核准及離職停用方式；**尚未建立正式帳號、啟用正式 provider 或核發正式 claims**。
+每個專案的 Auth 帳號及 UID 獨立；跨系統員工需在各自專案建帳號。私人表含七列角色範本及十二項實機驗收範本，未填入真實姓名或信箱，未提交 GitHub。已將私人表欄位改為 `CandidateDeleteAuthorization` 與 `DeleteAuthorizationApprovalRef`，預設不授權；員工名單及可用時段尚未提供，故未排定個別實機時段。業主仍須私下確認每位正式員工核准 email、所需系統／角色、職責、設計師代碼（如適用）、主管核准及離職停用方式；**尚未建立正式帳號、啟用正式 provider 或核發正式 claims**。
 
-正式 Auth dry-run 計畫已列於 Runbook：Provider 啟用、逐人帳號建立及逐組權限核發分開批准。預購／缺貨目前的候選 Claims 工具要求私人逐人核准檔，精確符合專案、UID、`aliceApp`、`aliceRole` 及 `aliceCanDelete`；若採資料庫授權列，則需由受信任 Admin SDK/ADC 操作工具按專案／UID 寫入或移除授權列。跨專案不沿用。Claims 工具目前拒絕所有 `--apply`；本階段未連正式 Auth 執行 dry run。
+正式 Auth 與授權列 dry-run 計畫已列於 Runbook：Provider 啟用、逐人帳號建立及逐組身份 Claims 分開批准；預購／缺貨的刪除權改由候選工具按 projectId、UID、staff role 與私人逐人核准做本機 dry-run。授權 UID 不跨專案沿用，工具只連 localhost Emulator，正式寫入停用。本階段未連正式 Auth 執行 dry run。
 
 ## 四套系統高權限操作檢查
 
 - 新客 manager 可以讀取全部設計師紀錄並單筆刪除；只核發給明確負責跨設計師管理的人員。設計師仍受資料庫規則限制在本人紀錄。
-- 預購與缺貨候選版均維持 `staff`，不接受 `manager` claim。一般預購 staff 可讀共用清單、新增及只修改取貨日期；不能刪除。一般缺貨 staff 可讀共用清單與新增，不能任意修改或刪除。逐人獲業主批准的 staff 可在該專案額外取得 `aliceCanDelete=true` 並刪除單筆，不能刪根節點。共用讀取範圍與預購顧客聯絡資料可見範圍仍須逐人職務驗收。
+- 預購與缺貨候選版均維持 `staff`，不接受 `manager` claim。一般預購 staff 可讀共用清單、新增及只修改取貨日期；不能刪除。一般缺貨 staff 可讀共用清單與新增，不能任意修改或刪除。逐人獲業主批准且該專案授權列啟用的 staff 才可刪單筆，不能刪根節點。共用讀取範圍與預購顧客聯絡資料可見範圍仍須逐人職務驗收。
 - HR `manager` 對整份 `salon/main` 有讀取與更新能力，包含員工、配額、請假、進修、匯入及清空；整份文件刪除遭拒。必須逐人核准其 HR 工作範圍，並確認是否需要整份匯入／清空權限。不能用隱藏前端按鈕作權限控制。
 
 ## 仍需人工驗收
@@ -104,15 +116,15 @@
 ## 正式部署阻擋與回復
 
 1. **HR 文件樹自管備份、雜湊與還原已通過，但營運持續寫入期間仍非託管原子快照。** B1/B2 低寫入與增量核對尚未執行；三份 RTDB 備份仍為 2026-10-20 時點。
-2. **Auth provider、實際員工帳號／claims、四套真實操作與 HR 並行驗收未完成。** 舊開啟頁面無 Auth，新規則下會被拒絕；需完成舊分頁與新版交接程序。
+2. **Auth provider、實際員工帳號／身份 claims、正式授權列、四套真實操作與 HR 並行驗收未完成。** 舊開啟頁面無 Auth，新規則下會被拒絕；需完成舊分頁與新版交接程序。
 3. **未排定或核准正式切換。** PR 保持 Draft，候選規則不可部署。現行正式公開規則仍有高風險，不能作長期解法；同時不得為了快速關閉規則而阻斷營運。
 
 ## 需要業主確認的最少事項
 
 1. 私下核准正式員工識別、個人信箱、每人所需 Firebase 專案與最低角色；確認設計師代碼，對每個 manager 說明必要職責，並指定帳號停用負責人。公開 PR 不應包含姓名、信箱或員工識別。
 2. 逐專案批准是否啟用 Email/Password provider；逐人批准建立帳號；取得新帳號後逐專案核對 UID，再逐組批准完整角色與權限。這些正式 Auth 變更分開確認，未核准前均不執行。
-3. 決定預購／缺貨刪除權的正式架構：保留目前 Custom Claims（需接受舊有效 token 撤權時差），或改為本輪 Emulator 驗證的 RTDB 授權列（需指定每專案核發／撤銷負責人與稽核方式）。若選授權列，先更新候選 Rules、工具與測試再送審；未選定前正式帳號不授刪除權。
-4. 私下逐人確認哪些預購／缺貨 staff 需單筆刪除權限、所屬專案與核准紀錄；跨系統必須分別核准。另確認各系統共用清單讀取範圍及 HR manager 是否需整份匯入／清空功能。
+3. 私下逐人確認哪些預購／缺貨 staff 需單筆刪除權限、所屬專案、UID 與核准紀錄，並指定每專案核發／撤銷負責人及稽核人；跨專案必須分別核准。另確認各系統共用清單讀取範圍及 HR manager 是否需整份匯入／清空功能。
+4. 逐專案批准是否啟用 Email/Password provider；逐人批准建立帳號；取得帳號後核對 UID，再逐組批准完整身份 Claims。候選授權清單正式寫入須另行確認並先完成受控正式寫入工具、稽核及回復程序；本階段工具禁止正式寫入。
 5. 選定或拒絕 22:00–22:30 候選停寫時段，指定負責人與員工通知方式，確認可接受 G5 規則切換到 G6 網站更新期間的服務等待。
 6. 正式切換時另行批准 Runbook G1–G8 的備份／差異證據、舊分頁關閉、新版實機登入、候選 Security Rules 與 GitHub Pages 部署；四套 B1→B2 必須零差異，否則停止。
 

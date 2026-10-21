@@ -11,6 +11,14 @@ test('最後備份比較：RTDB 新增、修改、刪除與未知根節點分開
   assert.equal(diff.rootChanges.counts.added, 1);
 });
 
+test('預購／缺貨差異核對會辨識授權清單且不列為未知資料', () => {
+  const before = { reservations: { a: { x: 1 } }, deletionAuthorizations: { uidA: { enabled: true } } };
+  const after = { reservations: { a: { x: 1 } }, deletionAuthorizations: { uidA: { enabled: false }, uidB: { enabled: true } } };
+  const diff = compareRtdb(before, after, 'reservations', ['deletionAuthorizations']);
+  assert.deepEqual(diff.unexpectedRoots, []);
+  assert.deepEqual(diff.deletionAuthorizations.counts, { added: 1, modified: 1, deleted: 0, unchanged: 0 });
+});
+
 test('最後備份比較：Firestore 文件與 HR 陣列逐項辨識變更', () => {
   const root = 'projects/hr-system-ad937/databases/(default)/documents';
   const str = value => ({ stringValue: value });

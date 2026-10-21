@@ -38,18 +38,21 @@ export function compareEntries(before, after) {
   } };
 }
 
-export function compareRtdb(before, after, rootName) {
+export function compareRtdb(before, after, rootName, managedRoots = []) {
   const oldRoot = entries(before, 'RTDB before root');
   const newRoot = entries(after, 'RTDB after root');
   const expected = rootName;
+  const knownRoots = new Set([expected, ...managedRoots]);
   const otherRoots = [...new Set([...Object.keys(oldRoot), ...Object.keys(newRoot)])]
-    .filter(key => key !== expected).sort();
-  return {
+    .filter(key => !knownRoots.has(key)).sort();
+  const result = {
     projectRoot: expected,
     rootChanges: compareEntries(oldRoot, newRoot),
     records: compareEntries(oldRoot[expected], newRoot[expected]),
     unexpectedRoots: otherRoots
   };
+  for (const root of managedRoots) result[root] = compareEntries(oldRoot[root], newRoot[root]);
+  return result;
 }
 
 function valueText(value) {

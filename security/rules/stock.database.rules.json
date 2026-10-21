@@ -2,10 +2,16 @@
   "rules": {
     ".read": false,
     ".write": false,
+    "deletionAuthorizations": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": false
+      }
+    },
     "stockItems": {
       ".read": "auth != null && auth.token.aliceApp === 'stock' && auth.token.aliceRole === 'staff'",
       "$itemId": {
-        ".write": "auth != null && auth.token.aliceApp === 'stock' && auth.token.aliceRole === 'staff' && ((!data.exists() && newData.exists()) || (data.exists() && !newData.exists() && auth.token.aliceCanDelete === true))",
+        ".write": "auth != null && auth.uid != null && auth.token.aliceApp === 'stock' && auth.token.aliceRole === 'staff' && ((!data.exists() && newData.exists()) || (data.exists() && !newData.exists() && root.child('deletionAuthorizations').child(auth.uid).val() === true))",
         ".validate": "newData.hasChildren(['vendor', 'item', 'timestamp', 'date'])",
         "vendor": { ".validate": "newData.isString()" },
         "item": { ".validate": "newData.isString()" },

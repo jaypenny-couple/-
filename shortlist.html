@@ -147,7 +147,7 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, connectDatabaseEmulator, ref, push, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, connectDatabaseEmulator, ref, push, onValue, get, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
         import * as authSdk from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { createAuthGate } from './security/auth-gate.js';
 
@@ -176,42 +176,82 @@
 
             let isConnected = false;
             let unsubscribeStock = null;
+            let unsubscribeDeleteAuthorization = null;
             let canDeleteStock = false;
+            let currentStockData = null;
             const gate = createAuthGate(app, authSdk, {
                 access: 'stock', roles: ['staff'],
-                onReady(claims) { canDeleteStock = claims.aliceCanDelete === true; subscribeStock(); },
+                onReady() {
+                    const user = authSdk.getAuth(app).currentUser;
+                    if (user) subscribeDeleteAuthorization(user);
+                    subscribeStock();
+                },
                 onStop() {
                     canDeleteStock = false;
                     unsubscribeStock?.();
                     unsubscribeStock = null;
+                    unsubscribeDeleteAuthorization?.();
+                    unsubscribeDeleteAuthorization = null;
                     isConnected = false;
+                    currentStockData = null;
                     document.getElementById('result').replaceChildren();
                 }
             });
 
+            function validDeleteAuthorization(value, user) {
+                return value === true && !!user?.uid && gate.isAuthorized();
+            }
+
+            function subscribeDeleteAuthorization(user) {
+                unsubscribeDeleteAuthorization?.();
+                canDeleteStock = false;
+                displayResults(currentStockData);
+                unsubscribeDeleteAuthorization = onValue(ref(database, `deletionAuthorizations/${user.uid}`), (snapshot) => {
+                    canDeleteStock = gate.isAuthorized() && authSdk.getAuth(app).currentUser?.uid === user.uid &&
+                        validDeleteAuthorization(snapshot.val(), user);
+                    displayResults(currentStockData);
+                }, () => {
+                    canDeleteStock = false;
+                    displayResults(currentStockData);
+                });
+            }
+
             async function refreshDeleteAuthorization() {
-                if (!gate.isAuthorized() || !authSdk.getAuth(app).currentUser) return false;
+                const user = authSdk.getAuth(app).currentUser;
+                if (!gate.isAuthorized() || !user || !isConnected) return false;
                 try {
-                    const token = await authSdk.getIdTokenResult(authSdk.getAuth(app).currentUser, true);
-                    canDeleteStock = token.claims.aliceCanDelete === true;
-                    if (!canDeleteStock) subscribeStock();
+                    const snapshot = await get(ref(database, `deletionAuthorizations/${user.uid}`));
+                    canDeleteStock = validDeleteAuthorization(snapshot.val(), user);
+                    displayResults(currentStockData);
                     return canDeleteStock;
                 } catch {
-                    alert('無法重新驗證刪除權限，請檢查網路後重新登入');
+                    canDeleteStock = false;
+                    displayResults(currentStockData);
+                    alert('無法確認即時刪除授權，請檢查網路後重試');
                     return false;
                 }
             }
+
+            onValue(ref(database, '.info/connected'), snapshot => {
+                isConnected = snapshot.val() === true;
+                if (isConnected) {
+                    document.getElementById('status').innerHTML = '<div class="status connected">✓ 已連接到 Firebase</div>';
+                } else {
+                    canDeleteStock = false;
+                    displayResults(currentStockData);
+                }
+            });
 
             // 監聽資料變化
             function subscribeStock() {
               unsubscribeStock?.();
               unsubscribeStock = onValue(stockRef, (snapshot) => {
+                const data = snapshot.val();
+                currentStockData = data;
                 if (!isConnected) {
                     document.getElementById('status').innerHTML = '<div class="status connected">✓ 已連接到 Firebase</div>';
                     isConnected = true;
                 }
-                
-                const data = snapshot.val();
                 displayResults(data);
             }, (error) => {
                 isConnected = false;
@@ -220,7 +260,7 @@
                 console.error('Firebase error:', error);
             });
             }
-            window.addEventListener('offline', () => { isConnected = false; });
+            window.addEventListener('offline', () => { isConnected = false; canDeleteStock = false; displayResults(currentStockData); });
             window.addEventListener('online', () => { if (gate.isAuthorized()) subscribeStock(); });
 
             // 表單提交
@@ -292,7 +332,7 @@
                     timestamp.className = 'timestamp';
                     timestamp.textContent = `登記時間: ${item.date ?? ''}`;
                     resultItem.append(vendor, name, timestamp);
-                    if (canDeleteStock) {
+                    if (canDeleteStock && isConnected) {
                         const deleteButton = document.createElement('button');
                         deleteButton.className = 'delete-btn';
                         deleteButton.textContent = '×';
