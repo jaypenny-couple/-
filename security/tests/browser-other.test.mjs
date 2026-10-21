@@ -8,6 +8,7 @@ import { chromium } from 'playwright-core';
 import { initializeApp, deleteApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const securityRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const siteRoot = resolve(securityRoot, '..');
@@ -114,18 +115,146 @@ test('新客、預訂、HR 頁面於本機 Emulator 的員工工作流程', asyn
     await preorder.context.close();
 
     const hrRules = await readFile(join(securityRoot, 'rules/hr.firestore.rules'), 'utf8');
-    environments.push(await initializeTestEnvironment({ projectId: 'hr-system-ad937', firestore: { host: '127.0.0.1', port: 8080, rules: hrRules } }));
+    const hrEnv = await initializeTestEnvironment({ projectId: 'hr-system-ad937',
+      firestore: { host: '127.0.0.1', port: 8080, rules: hrRules } });
+    environments.push(hrEnv);
+    await hrEnv.withSecurityRulesDisabled(async context => {
+      await setDoc(doc(context.firestore(), 'salon', 'main'), {
+        staff: [{ id: 'synthetic-staff', name: 'JAY', active: true, createdAt: 1 }],
+        entitlements: [{ staffId: 'synthetic-staff', year: new Date().getFullYear(), quotaHours: 56, carryHours: 0 }],
+        leaves: [], trainings: [], legacyExtra: { keep: 'yes' }
+      });
+    });
     const hrEmail = await addAccount({ aliceApp: 'hr', aliceRole: 'manager' });
     const hr = await openAndLogin('休假進修管理.html', hrEmail);
     await hr.page.locator('#lAdd').waitFor({ state: 'visible', timeout: 15000 });
     await hr.page.locator('#lNote').fill('Synthetic leave');
     await hr.page.locator('#lAdd').click();
     await hr.page.locator('#lTableWrap').getByText('Synthetic leave').waitFor({ timeout: 15000 });
-    await hr.page.waitForTimeout(750); // existing UI debounces Firestore writes by 500 ms
+    await hr.page.locator('#hrWriteMessage').filter({ hasText: '已儲存至雲端並重新讀取確認。' }).waitFor({ timeout: 15000 });
     await hr.page.reload();
     await hr.page.locator('#lTableWrap').getByText('Synthetic leave').waitFor({ timeout: 15000 });
     await hr.page.locator('#lTableWrap .del').click();
     await hr.page.locator('#lTableWrap').getByText('Synthetic leave').waitFor({ state: 'detached', timeout: 15000 });
+    await hr.page.locator('#hrWriteMessage').filter({ hasText: '已儲存至雲端並重新讀取確認。' }).waitFor({ timeout: 15000 });
+
+    const secondHrEmail = await addAccount({ aliceApp: 'hr', aliceRole: 'manager' });
+    const secondHr = await openAndLogin('休假進修管理.html', secondHrEmail);
+    await secondHr.page.locator('#lAdd').waitFor({ state: 'visible', timeout: 15000 });
+    await hr.page.locator('#lNote').fill('Device A leave');
+    await secondHr.page.locator('#lNote').fill('Device B leave');
+    await Promise.all([hr.page.locator('#lAdd').click(), secondHr.page.locator('#lAdd').click()]);
+    await Promise.all([
+      hr.page.locator('#hrWriteMessage').filter({ hasText: '已儲存至雲端並重新讀取確認。' }).waitFor({ timeout: 15000 }),
+      secondHr.page.locator('#hrWriteMessage').filter({ hasText: '已儲存至雲端並重新讀取確認。' }).waitFor({ timeout: 15000 })
+    ]);
+    await hr.page.locator('#lTableWrap').getByText('Device A leave').waitFor();
+    await hr.page.locator('#lTableWrap').getByText('Device B leave').waitFor();
+    await secondHr.context.close();
+
+    await hr.page.locator('.nav-btn[data-tab="staff"]').click();
+    await hr.page.locator('#sName').fill('Synthetic Staff');
+    await hr.page.locator('#sAdd').click();
+    await hr.page.locator('#hrWriteMessage').filter({ hasText: '已儲存至雲端並重新讀取確認。' }).waitFor({ timeout: 15000 });
+    await hr.page.locator('#sTbody input[value="Synthetic Staff"]').waitFor();
+    await hr.page.locator('.nav-btn[data-tab="entitlement"]').click();
+    await hr.page.locator('#eTblWrap .e-del').click();
+    await hr.page.locator('#hrWriteMessage').filter({ hasText: '已儲存至雲端並重新讀取確認。' }).waitFor({ timeout: 15000 });
+    await hr.page.locator('#eStaff').selectOption({ label: 'Synthetic Staff' });
+    await hr.page.locator('#eQuota').fill('72');
+    await hr.page.locator('#eUpsert').click();
+    await hr.page.locator('#hrWriteMessage').filter({ hasText: '已儲存至雲端並重新讀取確認。' }).waitFor({ timeout: 15000 });
+    await hr.page.locator('#eTblWrap').getByText('Synthetic Staff').waitFor();
+    await hr.page.locator('.nav-btn[data-tab="training"]').click();
+    await hr.page.locator('#tStaff').selectOption({ label: 'Synthetic Staff' });
+    await hr.page.locator('#tCourse').fill('Synthetic course');
+    await hr.page.locator('#tAdd').click();
+    await hr.page.locator('#hrWriteMessage').filter({ hasText: '已儲存至雲端並重新讀取確認。' }).waitFor({ timeout: 15000 });
+    await hr.page.locator('#tTblWrap').getByText('Synthetic course').waitFor();
+
+    const conflictHr = await openAndLogin('休假進修管理.html', secondHrEmail);
+    await conflictHr.page.locator('.nav-btn[data-tab="staff"]').click();
+    await hr.page.locator('.nav-btn[data-tab="staff"]').click();
+    const staleName = conflictHr.page.locator('#sTbody input[value="Synthetic Staff"]');
+    await staleName.fill('Device B name');
+    const firstName = hr.page.locator('#sTbody input[value="Synthetic Staff"]');
+    await firstName.fill('Device A name');
+    await firstName.press('Enter');
+    await hr.page.locator('#hrWriteMessage').filter({ hasText: '已儲存至雲端並重新讀取確認。' }).waitFor({ timeout: 15000 });
+    assert.equal(await staleName.inputValue(), 'Device B name');
+    await staleName.press('Enter');
+    await conflictHr.page.locator('#hrWriteMessage').filter({ hasText: '其他裝置已修改相同資料' }).waitFor({ timeout: 15000 });
+    await conflictHr.page.locator('#aliceAuthBar button').click();
+    assert.equal(await conflictHr.page.locator('#aliceAuthBar').isVisible(), true);
+    await conflictHr.page.locator('#hrDiscardDraft').click();
+    await conflictHr.page.locator('#sTbody input[value="Device A name"]').waitFor({ timeout: 15000 });
+    await conflictHr.context.close();
+
+    const denyHrRules = `rules_version = '2';
+      service cloud.firestore { match /databases/{database}/documents {
+        match /salon/main { allow read: if request.auth != null; allow create, update, delete: if false; }
+      } }`;
+    environments.push(await initializeTestEnvironment({ projectId: 'hr-system-ad937',
+      firestore: { host: '127.0.0.1', port: 8080, rules: denyHrRules } }));
+    await hr.page.locator('.nav-btn[data-tab="leave"]').click();
+    await hr.page.locator('#lNote').fill('Synthetic denied write');
+    await hr.page.locator('#lAdd').click();
+    await hr.page.locator('#hrWriteMessage').filter({ hasText: '權限不足' }).waitFor({ timeout: 15000 });
+    assert.equal(await hr.page.evaluate(() => {
+      const event = new Event('beforeunload', { cancelable: true });
+      window.dispatchEvent(event);
+      return event.defaultPrevented;
+    }), true);
+    await hr.context.setOffline(true);
+    await hr.page.waitForFunction(() => document.body.classList.contains('alice-offline'));
+    await hr.context.setOffline(false);
+    await hr.page.waitForFunction(() => !document.body.classList.contains('alice-offline'));
+    assert.equal(await hr.page.locator('#page').evaluate(element => element.inert), true);
+    await hr.page.locator('#aliceAuthBar button').click();
+    assert.equal(await hr.page.locator('#aliceAuthBar').isVisible(), true);
+    await hr.page.evaluate(async () => {
+      const sdk = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+      await sdk.signOut(sdk.getAuth());
+    });
+    await hr.page.locator('#aliceAuthForm').waitFor({ state: 'visible' });
+    await hr.page.locator('#aliceAuthForm input[name="email"]').fill(secondHrEmail);
+    await hr.page.locator('#aliceAuthForm input[name="password"]').fill(password);
+    await hr.page.locator('#aliceAuthForm button').click();
+    await hr.page.locator('#aliceAuthMessage').filter({ hasText: '請使用原帳號重新登入並處理' })
+      .waitFor({ timeout: 15000 });
+    assert.equal(await hr.page.locator('#aliceAuthBar').isVisible(), false);
+    await hr.page.locator('#aliceAuthForm input[name="email"]').fill(hrEmail);
+    await hr.page.locator('#aliceAuthForm input[name="password"]').fill(password);
+    await hr.page.locator('#aliceAuthForm button').click();
+    await hr.page.locator('#aliceAuthBar').waitFor({ state: 'visible', timeout: 15000 });
+    environments.push(await initializeTestEnvironment({ projectId: 'hr-system-ad937',
+      firestore: { host: '127.0.0.1', port: 8080, rules: hrRules } }));
+    await hr.page.locator('#hrRetryWrite').click();
+    await hr.page.locator('#hrWriteMessage').filter({ hasText: '已儲存至雲端並重新讀取確認。' }).waitFor({ timeout: 15000 });
+    assert.equal(await hr.page.evaluate(() => {
+      const event = new Event('beforeunload', { cancelable: true });
+      window.dispatchEvent(event);
+      return event.defaultPrevented;
+    }), false);
+    await hr.page.locator('.nav-btn[data-tab="backup"]').click();
+    await hr.page.locator('#bkFile').setInputFiles({
+      name: 'synthetic-hr.json', mimeType: 'application/json',
+      buffer: Buffer.from(JSON.stringify({
+        staff: [{ id: 'imported-staff', name: 'Imported staff', active: true }],
+        entitlements: [], leaves: [], trainings: []
+      }))
+    });
+    await hr.page.locator('#bkMsg').filter({ hasText: '匯入已送出' }).waitFor({ timeout: 15000 });
+    await hr.page.locator('#hrWriteMessage').filter({ hasText: '已儲存至雲端並重新讀取確認。' }).waitFor({ timeout: 15000 });
+    await hr.page.locator('#bkResetBtn').click();
+    await hr.page.locator('#hrWriteMessage').filter({ hasText: '已儲存至雲端並重新讀取確認。' }).waitFor({ timeout: 15000 });
+    await hrEnv.withSecurityRulesDisabled(async context => {
+      const snapshot = await getDoc(doc(context.firestore(), 'salon', 'main'));
+      assert.deepEqual(snapshot.data().legacyExtra, { keep: 'yes' });
+      assert.equal(snapshot.data().entitlements.some(row => !row.id), false);
+      assert.equal(snapshot.data().leaves.length, 0);
+      assert.equal(snapshot.data().trainings.length, 0);
+    });
     await hr.page.locator('#aliceAuthBar button').click();
     await hr.page.locator('#aliceAuthForm').waitFor({ state: 'visible' });
     await hr.context.close();

@@ -778,10 +778,11 @@ const TABS = [
 /* ─── Firebase 設定 ─── */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore, connectFirestoreEmulator, doc, getDoc, setDoc, onSnapshot, collection, getDocs
+  getFirestore, connectFirestoreEmulator, doc, getDocFromServer, onSnapshot, runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import * as authSdk from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { createAuthGate } from "./security/auth-gate.js";
+import { HrConflictError, hrChanges, hrEntryKey, hrFingerprint, mergeHrChanges } from "./security/hr-concurrency.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC2Wy1oBQKV_FOBOzVauVKatcqkZnvpOro",
@@ -811,61 +812,245 @@ function defaults() {
 }
 
 let state = defaults();
+let savedState = structuredClone(state);
+let savedExists = false;
 let activeTab = "leave";
-let _saveTimer = null;
 let unsubscribeData = null;
+let pendingWrite = false;
+let activeOperation = null;
+let failedOperation = null;
+let activeUid = null;
+let unsavedOwnerUid = null;
+let formDirty = false;
+let deferredSnapshot = null;
+let lastSavedFingerprint = null;
+const writeStatus = document.createElement('div');
+writeStatus.id = 'hrWriteStatus';
+writeStatus.setAttribute('role', 'status');
+writeStatus.setAttribute('aria-live', 'polite');
+writeStatus.setAttribute('data-alice-offline-action', '');
+writeStatus.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:10001;max-width:390px;padding:12px 16px;background:#fffaf0;border:1px solid #a78341;box-shadow:0 3px 15px #0002;font-size:14px;';
+writeStatus.innerHTML = '<span id="hrWriteMessage"></span><div id="hrWriteActions" style="margin-top:8px;display:none"><button type="button" id="hrRetryWrite">重試寫入</button> <button type="button" id="hrDownloadDraft">下載未儲存草稿</button> <button type="button" id="hrDiscardDraft">放棄並重載</button></div>';
+writeStatus.hidden = true;
+document.body.append(writeStatus);
+const page = document.getElementById('page');
+function setPageBlocked(blocked) {
+  page.toggleAttribute('data-alice-operation-blocked', blocked);
+  page.inert = blocked || !navigator.onLine;
+}
+page.addEventListener('input', event => {
+  if (event.target.matches('input, textarea, select')) formDirty = true;
+});
+page.addEventListener('change', event => {
+  if (event.target.matches('input, textarea, select')) formDirty = true;
+});
+function writeMessage(text, actions = false) {
+  writeStatus.hidden = false;
+  writeStatus.querySelector('#hrWriteMessage').textContent = text;
+  writeStatus.querySelector('#hrWriteActions').style.display = actions ? 'block' : 'none';
+  writeStatus.querySelector('#hrRetryWrite').disabled = Boolean(failedOperation?.unretryable);
+}
+function downloadDraft() {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }));
+  const link = Object.assign(document.createElement('a'), { href: url, download: `alice-hr-unsaved-${Date.now()}.json` });
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+writeStatus.querySelector('#hrDownloadDraft').onclick = downloadDraft;
+writeStatus.querySelector('#hrRetryWrite').onclick = () => {
+  if (!pendingWrite && failedOperation && !failedOperation.unretryable && gate.isAuthorized()) void attemptWrite(failedOperation);
+};
+writeStatus.querySelector('#hrDiscardDraft').onclick = async () => {
+  if (pendingWrite || !failedOperation || !confirm('確定放棄這台裝置尚未確認的變更，重新載入雲端資料？')) return;
+  try {
+    const snap = await getDocFromServer(DATA_DOC);
+    failedOperation = null;
+    lastSavedFingerprint = null;
+    adoptSnapshot(snap);
+    if (!unsubscribeData) startSync();
+  } catch {
+    writeMessage('無法讀取雲端資料；未儲存草稿仍保留在此頁。', true);
+  }
+};
+window.addEventListener('beforeunload', event => {
+  if (!pendingWrite && !failedOperation && !formDirty) return;
+  event.preventDefault();
+  event.returnValue = '';
+});
+
+function normalized(raw) {
+  return {
+    staff: Array.isArray(raw?.staff) ? raw.staff : defaults().staff,
+    entitlements: Array.isArray(raw?.entitlements) ? raw.entitlements : [],
+    leaves: Array.isArray(raw?.leaves) ? raw.leaves : [],
+    trainings: Array.isArray(raw?.trainings) ? raw.trainings : []
+  };
+}
+function adoptSnapshot(snap) {
+  const nextState = snap.exists() ? normalized(snap.data()) : defaults();
+  const preserveSaveConfirmation = lastSavedFingerprint === JSON.stringify(nextState);
+  if (!preserveSaveConfirmation) lastSavedFingerprint = null;
+  state = nextState;
+  savedState = structuredClone(state);
+  savedExists = snap.exists();
+  formDirty = false;
+  deferredSnapshot = null;
+  setPageBlocked(false);
+  writeMessage(preserveSaveConfirmation ? '已儲存至雲端並重新讀取確認。'
+    : snap.exists() ? '已同步雲端資料。' : '尚無雲端資料；首次操作會建立文件。');
+  showLoading(false);
+  render();
+}
+
 const gate = createAuthGate(fbApp, authSdk, {
   access: 'hr', roles: ['manager'],
-  onReady() { startSync(); },
+  onReady() {
+    const signedInUid = authSdk.getAuth(fbApp).currentUser?.uid ?? null;
+    if ((pendingWrite || failedOperation) && unsavedOwnerUid && signedInUid !== unsavedOwnerUid) {
+      document.querySelector('#aliceAuthMessage').textContent = '前一帳號有尚未確認的 HR 變更，請先以原帳號處理。';
+      void authSdk.signOut(authSdk.getAuth(fbApp));
+      return;
+    }
+    activeUid = signedInUid;
+    if (pendingWrite || failedOperation) {
+      setPageBlocked(true);
+      render();
+      writeMessage('前次操作尚未確認；請重試或下載草稿。', Boolean(failedOperation));
+      return;
+    }
+    startSync();
+  },
   onStop() {
     unsubscribeData?.();
     unsubscribeData = null;
-    clearTimeout(_saveTimer);
-    state = defaults();
-    document.getElementById('page').replaceChildren();
+    if (pendingWrite || failedOperation) {
+      if (activeUid && !unsavedOwnerUid) unsavedOwnerUid = activeUid;
+      if (activeOperation) failedOperation = activeOperation;
+      document.querySelector('#aliceAuthMessage').textContent = 'HR 變更尚未確認，請使用原帳號重新登入並處理。';
+    } else {
+      state = defaults();
+      savedState = structuredClone(state);
+      savedExists = false;
+      unsavedOwnerUid = null;
+      formDirty = false;
+      deferredSnapshot = null;
+      lastSavedFingerprint = null;
+    }
+    activeUid = null;
+    page.replaceChildren();
+  },
+  beforeSignOut() {
+    if (!pendingWrite && !failedOperation && formDirty) {
+      return confirm('表單有尚未送出的內容；確定放棄輸入並登出？');
+    }
+    if (!pendingWrite && !failedOperation) return true;
+    writeMessage('尚有未確認的 HR 變更；請先確認儲存或下載草稿。', Boolean(failedOperation));
+    return false;
   }
 });
 
-/* 防抖寫入：500ms 內連續操作只寫一次 */
-async function save() {
-  if (!gate.isAuthorized()) return;
-  clearTimeout(_saveTimer);
-  _saveTimer = setTimeout(async () => {
-    try {
-      await setDoc(DATA_DOC, state);
-    } catch(e) {
-      console.error("Firebase 寫入失敗", e);
+async function attemptWrite(operation) {
+  if (!gate.isAuthorized() || pendingWrite) return;
+  pendingWrite = true;
+  activeOperation = operation;
+  failedOperation = null;
+  setPageBlocked(true);
+  writeMessage('正在儲存，尚未收到雲端確認。');
+  try {
+    await runTransaction(db, async transaction => {
+      const snap = await transaction.get(DATA_DOC);
+      if (operation.baseExists && !snap.exists()) throw new HrConflictError();
+      const latest = snap.exists() ? normalized(snap.data()) : defaults();
+      let updates;
+      if (operation.replace) {
+        const currentFingerprint = hrFingerprint(latest);
+        if (currentFingerprint === operation.desiredFingerprint) updates = {};
+        else if (snap.exists() === operation.baseExists &&
+                 currentFingerprint === operation.baseFingerprint) updates = structuredClone(operation.desired);
+        else throw new HrConflictError();
+      } else {
+        updates = mergeHrChanges(latest, operation.changes);
+      }
+      if (!Object.keys(updates).length) return;
+      if (snap.exists()) transaction.update(DATA_DOC, updates);
+      else transaction.set(DATA_DOC, { ...latest, ...updates });
+    });
+    const confirmed = await getDocFromServer(DATA_DOC);
+    if (!confirmed.exists()) throw new HrConflictError();
+    if (!gate.isAuthorized() || activeUid !== operation.ownerUid) {
+      failedOperation = operation;
+      return;
     }
-  }, 500);
+    adoptSnapshot(confirmed);
+    lastSavedFingerprint = JSON.stringify(state);
+    failedOperation = null;
+    unsavedOwnerUid = null;
+    if (!unsubscribeData) startSync();
+    writeMessage('已儲存至雲端並重新讀取確認。');
+  } catch (error) {
+    failedOperation = operation;
+    const reason = error instanceof HrConflictError ? '其他裝置已修改相同資料；本次未覆寫。'
+      : error.code === 'permission-denied' ? '權限不足，未確認儲存。'
+      : '網路或寫入失敗，尚未確認儲存。';
+    writeMessage(`${reason} 可重試、下載草稿，或確認後放棄。`, true);
+    setPageBlocked(true);
+  } finally {
+    pendingWrite = false;
+    activeOperation = null;
+  }
+}
+
+/* Each action is sent immediately. There is no 500ms unsent timer to lose on sign-out or close. */
+function save() {
+  if (!gate.isAuthorized() || pendingWrite || failedOperation) return;
+  let changes;
+  try { changes = hrChanges(savedState, state); }
+  catch {
+    failedOperation = { ownerUid: activeUid, desired: structuredClone(state), unretryable: true };
+    setPageBlocked(true);
+    writeMessage('資料格式無法安全比對；尚未儲存。請下載草稿並人工核對。', true);
+    return;
+  }
+  if (!Object.keys(changes).length) {
+    formDirty = false;
+    if (deferredSnapshot) adoptSnapshot(deferredSnapshot);
+    return;
+  }
+  formDirty = false;
+  void attemptWrite({ ownerUid: activeUid, baseExists: savedExists, changes, desired: structuredClone(state) });
+}
+function saveReplacement(proposal) {
+  if (!gate.isAuthorized() || pendingWrite || failedOperation) return false;
+  state = normalized(proposal);
+  formDirty = false;
+  void attemptWrite({ ownerUid: activeUid, baseExists: savedExists,
+    baseFingerprint: hrFingerprint(savedState), desiredFingerprint: hrFingerprint(state),
+    replace: true, desired: structuredClone(state) });
+  return true;
 }
 
 /* 載入並即時監聽 Firestore */
 function startSync() {
   showLoading(true);
   unsubscribeData?.();
-  unsubscribeData = onSnapshot(DATA_DOC, (snap) => {
-    if (snap.exists()) {
-      const s = snap.data();
-      state = {
-        staff:        Array.isArray(s.staff)        ? s.staff        : defaults().staff,
-        entitlements: Array.isArray(s.entitlements) ? s.entitlements : [],
-        leaves:       Array.isArray(s.leaves)       ? s.leaves       : [],
-        trainings:    Array.isArray(s.trainings)    ? s.trainings    : [],
-      };
-    } else {
-      // 第一次使用：寫入預設資料
-      setDoc(DATA_DOC, state);
+  unsubscribeData = onSnapshot(DATA_DOC, { includeMetadataChanges: true }, (snap) => {
+    if (pendingWrite || failedOperation || snap.metadata.hasPendingWrites) return;
+    if (snap.metadata.fromCache) {
+      setPageBlocked(true);
+      writeMessage('目前是快取資料，等待雲端確認後才能編輯。');
+      return;
     }
-    showLoading(false);
-    render();
+    if (formDirty) {
+      deferredSnapshot = snap;
+      writeMessage('其他裝置有新資料；目前表單保留原輸入，送出時會合併或提示衝突。');
+      return;
+    }
+    adoptSnapshot(snap);
   }, (err) => {
-    console.error("Firebase 監聽失敗", err);
+    console.error("Firebase 監聽失敗", err.code);
     showLoading(false);
-    document.getElementById("page").innerHTML =
-      `<div style="padding:40px;text-align:center;color:var(--danger)">
-        ⚠ 無法連接雲端資料庫，請確認網路或 Firebase 設定。<br>
-        <small style="color:var(--muted)">${err.message}</small>
-      </div>`;
+    setPageBlocked(true);
+    writeMessage('無法連接雲端資料庫；請確認網路或登入權限。');
   });
 }
 
@@ -950,7 +1135,12 @@ function render() {
     `<button class="nav-btn${activeTab===t.key?' active':''}" data-tab="${t.key}">${esc(t.label)}</button>`
   ).join("");
   document.querySelectorAll(".nav-btn").forEach(b =>
-    b.addEventListener("click", () => { activeTab = b.dataset.tab; render(); })
+    b.addEventListener("click", () => {
+      if (formDirty && !confirm('表單有尚未送出的內容；確定放棄輸入並切換頁面？')) return;
+      formDirty = false;
+      if (deferredSnapshot) adoptSnapshot(deferredSnapshot);
+      activeTab = b.dataset.tab; render();
+    })
   );
 
   // mobile bottom nav
@@ -961,7 +1151,12 @@ function render() {
     </button>`
   ).join("");
   document.querySelectorAll(".mob-btn").forEach(b =>
-    b.addEventListener("click", () => { activeTab = b.dataset.tab; render(); window.scrollTo({top:0,behavior:'smooth'}); })
+    b.addEventListener("click", () => {
+      if (formDirty && !confirm('表單有尚未送出的內容；確定放棄輸入並切換頁面？')) return;
+      formDirty = false;
+      if (deferredSnapshot) adoptSnapshot(deferredSnapshot);
+      activeTab = b.dataset.tab; render(); window.scrollTo({top:0,behavior:'smooth'});
+    })
   );
   const fns = {
     leave: renderLeave, calendar: renderCalendar,
@@ -1439,7 +1634,7 @@ function renderEntitlement() {
             <td class="td-right td-mono">${e.carryHours}</td>
             <td class="td-right td-mono">${used}</td>
             <td class="td-right td-mono"><strong class="${remain<0?'text-danger':'text-gold'}">${remain}</strong></td>
-            <td><button class="btn btn-danger e-del" data-id="${e.id}">刪除</button></td>
+            <td><button class="btn btn-danger e-del" data-key="${esc(hrEntryKey('entitlements', e))}">刪除</button></td>
           </tr>`;
         }).join("")}</tbody>
       </table>`;
@@ -1447,7 +1642,8 @@ function renderEntitlement() {
     wrap.querySelectorAll(".e-del").forEach(btn => {
       btn.onclick = () => {
         if (!confirm("確定刪除此配額？")) return;
-        state.entitlements = state.entitlements.filter(x=>x.id!==btn.dataset.id);
+        state.entitlements = state.entitlements.filter(x=>hrEntryKey('entitlements', x)!==btn.dataset.key);
+        save();
         renderEntitlement();
       };
     });
@@ -1463,7 +1659,7 @@ function renderEntitlement() {
     const c = +document.getElementById("eCarry").value;
     if (isNaN(q)||q<0||isNaN(c)||c<0) return alert("請輸入有效數值");
     const idx = state.entitlements.findIndex(e=>e.staffId===sid&&+e.year===year);
-    const row = {id:idx>=0?state.entitlements[idx].id:uid(),staffId:sid,year,quotaHours:q,carryHours:c,updatedAt:Date.now()};
+    const row = {id:idx>=0?(state.entitlements[idx].id || uid()):uid(),staffId:sid,year,quotaHours:q,carryHours:c,updatedAt:Date.now()};
     if (idx>=0) state.entitlements[idx]=row; else state.entitlements.unshift(row);
     buildTable();
     save();
@@ -1749,17 +1945,16 @@ function renderBackup() {
       const msg = document.getElementById("bkMsg");
       try {
         const s = JSON.parse(String(reader.result));
-        state = {
+        const imported = {
           staff: Array.isArray(s.staff)?s.staff:defaults().staff,
           entitlements: Array.isArray(s.entitlements)?s.entitlements:[],
           leaves: Array.isArray(s.leaves)?s.leaves:[],
           trainings: Array.isArray(s.trainings)?s.trainings:[],
         };
-        await setDoc(DATA_DOC, state);
-        msg.innerHTML = `<div class="message ok">✓ 匯入完成，資料已同步至雲端</div>`;
-        setTimeout(render, 500);
+        if (!saveReplacement(imported)) throw new Error('busy');
+        msg.textContent = '匯入已送出；請等候右下角雲端儲存確認。';
       } catch {
-        msg.innerHTML = `<div class="message err">✕ 匯入失敗：不是有效的 JSON 檔案</div>`;
+        msg.textContent = '匯入未完成；請確認 JSON 格式及右下角儲存狀態。';
       }
     };
     reader.readAsText(file);
@@ -1767,9 +1962,7 @@ function renderBackup() {
 
   document.getElementById("bkResetBtn").onclick = async () => {
     if (!confirm("確定清空所有資料？此動作無法復原（除非已有備份）。")) return;
-    state = defaults();
-    await setDoc(DATA_DOC, state);
-    render();
+    if (saveReplacement(defaults())) render();
   };
 }
 

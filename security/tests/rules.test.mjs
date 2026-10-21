@@ -100,3 +100,31 @@ test('HR：管理者可讀取、建立與更新 salon/main，任何角色均不�
     await assertFails(getDoc(doc(env.authenticatedContext('manager2', { aliceApp: 'hr', aliceRole: 'manager' }).firestore(), 'other', 'secret')));
   } finally { await env.cleanup(); }
 });
+
+test('舊版匿名 HR 頁在候選規則下會被拒絕；新版管理員可讀舊格式資料', async () => {
+  const projectId = 'demo-alice-legacy-transition';
+  const open = await initializeTestEnvironment({
+    projectId, firestore: { ...firestore, rules: `rules_version = '2';
+      service cloud.firestore { match /databases/{database}/documents {
+        match /{document=**} { allow read, write: if true; }
+      } }` }
+  });
+  try {
+    const old = doc(open.unauthenticatedContext().firestore(), 'salon', 'main');
+    await assertSucceeds(setDoc(old, { staff: [{ id: 'synthetic', name: 'Old format' }],
+      entitlements: [], leaves: [], trainings: [] }));
+    await assertSucceeds(getDoc(old));
+  } finally { await open.cleanup(); }
+  const secure = await initializeTestEnvironment({
+    projectId, firestore: { ...firestore, rules: rules('hr.firestore.rules') }
+  });
+  try {
+    const old = doc(secure.unauthenticatedContext().firestore(), 'salon', 'main');
+    const manager = doc(secure.authenticatedContext('manager',
+      { aliceApp: 'hr', aliceRole: 'manager' }).firestore(), 'salon', 'main');
+    await assertFails(getDoc(old));
+    await assertFails(setDoc(old, { leaves: [] }));
+    const snapshot = await assertSucceeds(getDoc(manager));
+    if (snapshot.data().staff[0].name !== 'Old format') throw new Error('Legacy data changed during rule transition.');
+  } finally { await secure.cleanup(); }
+});

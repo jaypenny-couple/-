@@ -1,5 +1,5 @@
 // UI gate only. Database Security Rules remain the authorization boundary.
-export function createAuthGate(app, sdk, { access, roles, onReady, onStop }) {
+export function createAuthGate(app, sdk, { access, roles, onReady, onStop, beforeSignOut }) {
   const auth = sdk.getAuth(app);
   const gate = document.createElement('section');
   gate.id = 'aliceAuthGate';
@@ -23,7 +23,10 @@ export function createAuthGate(app, sdk, { access, roles, onReady, onStop }) {
     const offline = !view.navigator.onLine;
     document.body.classList.toggle('alice-offline', offline);
     for (const child of document.body.children) {
-      if (![gate, bar, networkStatus].includes(child) && child.tagName !== 'SCRIPT') child.inert = offline;
+      if (![gate, bar, networkStatus].includes(child) && child.tagName !== 'SCRIPT' &&
+          !child.hasAttribute('data-alice-offline-action')) {
+        child.inert = offline || child.hasAttribute('data-alice-operation-blocked');
+      }
     }
   };
   view.addEventListener('online', updateNetwork);
@@ -58,7 +61,10 @@ export function createAuthGate(app, sdk, { access, roles, onReady, onStop }) {
       button.disabled = false;
     }
   });
-  bar.querySelector('button').addEventListener('click', () => sdk.signOut(auth));
+  bar.querySelector('button').addEventListener('click', async () => {
+    if (await beforeSignOut?.() === false) return;
+    await sdk.signOut(auth);
+  });
 
   sdk.onAuthStateChanged(auth, async (user) => {
     const current = ++generation;
