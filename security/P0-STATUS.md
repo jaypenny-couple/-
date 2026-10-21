@@ -38,7 +38,16 @@
 - 本機對 RTDB 私人備份只做設計師值的**彙總**核對，未輸出個資：既有資料的值均落在候選清單 `JAY`、`IRIS`、`SHERRY`、`CINDY`。後續若出現新設計師名稱，需同步調整帳號 claim 與頁面選單。原有 `records/<id>`、`reservations/<id>`、`stockItems/<id>` 及 HR `salon/main` 資料格式未遷移。
 - 四個 Firebase 專案各有**獨立** Authentication 帳號庫；員工須在對應專案由可信任管理者建立／管理 Email/Password 帳號並驗證 email，再用 `assign-staff-claim.mjs` 由管理者對既有 UID 核發角色。腳本預設 dry run；正式建立帳號、啟用 provider 或套用 claim 都未執行。不能把前端選單、網址參數或 `auth != null` 當成管理授權。
 - 候選 `security/rules/hr.firestore.rules` 已把 `salon/main` 的 `read`、`create`、`update` 留給 HR manager，**整份文件 `delete` 一律拒絕**。頁面內原有請假項目的刪除是更新 `salon/main` 陣列，不是刪除文件。
-- 2026-10-21 `npm test` **17/17 通過**：Auth 閘門、四套 Emulator 權限規則、四頁瀏覽器合成資料流程、HR 並行合併與衝突、整份匯入版本指紋、兩類快照差異分類，以及舊版匿名頁遭拒／新版管理員讀取舊格式模擬。外部帳號切換保留未送出表單也已驗證；預購／缺貨 manager claim 在登入閘門、RTDB 規則及核發工具皆遭拒，staff 原有 CRUD 通過。沒有碰正式顧客資料。
+- 2026-10-21 第六階段完成後 `npm test` **19/19 通過**（本機 Emulator）：Auth 閘門、四套規則、四頁瀏覽器合成流程、HR 並行與快照工具、預購／缺貨刪除權限分離及 Custom Claims 策略測試。預購 staff 可新增與改取貨日期，但刪除、改其他欄位、清空必要欄位與多路徑刪除均遭拒；缺貨 staff 可讀取與新增但不能任意更新或刪除。核准合成 staff 單筆刪除通過、整批刪除拒絕。正式員工與正式環境尚未驗收。
+
+## 第六階段：預購與缺貨刪除權限分離（候選版）
+
+- 候選 RTDB 規則以 `aliceApp`、`aliceRole=staff` 驗證系統與一般角色；僅在同一專案內另有 `aliceCanDelete === true` 時允許刪除單筆。根節點 `.write` 仍拒絕，staff 的 `manager` claim 仍遭拒絕。
+- 私人備份欄位統計確認預購舊格式為 9 個欄位（`id`、`reservationDate`、`customerName`、`contactPlatform`、`product`、`quantity`、`phone`、`pickupDate`、`createdAt`），缺貨為 4 個欄位（`vendor`、`item`、`timestamp`、`date`）。候選驗證規則拒絕缺欄、未知新欄位與錯誤型別；預購既有欄位不可竄改或移除，僅 `pickupDate` 可更新，缺貨既有紀錄不可任意更新。個人資料值未列入報告。
+- 預購及缺貨頁面只在登入後驗證的 Custom Claims 含 `aliceCanDelete === true` 時顯示單筆刪除控制；函式本身再次檢查授權與連線，刪除仍需確認。權限不足、離線與失敗會提示。Security Rules 才是真正存取控制。
+- `security/staff-claim-policy.js` 驗證專案、完整角色與逐人逐專案核准紀錄，清除跨專案／撤權時殘留的 `aliceCanDelete`。正式 Claims 核發在本階段工具中硬性停用；任何未來正式套用都須另行批准，先將既有完整 claims 備份至 ACL 受限私人目錄並核對還原程序。私人員工表已加 `CandidateAliceCanDelete`、`DeleteApprovalRef` 欄；預購／缺貨均預填預設 false，員工識別欄保持空白。
+- Custom Claims 位於 Firebase ID token；頁面在刪除前強制更新 token，離線或刷新失敗時拒絕操作。直接 API 若仍持有未過期舊 token，撤銷後可能暫時仍帶舊 claim；正式撤權需同時要求登出／重新登入並驗證 token 已更新。未在正式環境測試此撤權時差。
+- 測試實際拒絕：一般 staff 單筆刪除、必要欄位清空、整筆內容遺失覆寫、多路徑刪除、匿名／錯誤 App、manager claim、權限撤銷後刪除及根節點整批刪除。核准合成 staff 的單筆刪除成功。未連正式 Firebase，不曾建立正式帳號、核發正式 Claims 或修改正式規則。
 
 ## 第三階段：HR 並行寫入修復（僅候選版）
 
@@ -59,19 +68,20 @@
 | --- | --- | --- | --- |
 | 新客管理員 | `new-customer-management-system` | `customer/manager` | 全部設計師的單筆工作流程；不可整批刪除 |
 | 設計師 | 同上 | `customer/designer`＋核准的 `aliceDesigner` | 只查詢及操作本人代碼；跨設計師拒絕 |
-| 商品預購操作人員（含需操作的店長） | `pre-order-registration` | `preorder/staff` | 原有預購新增、查詢、編輯、刪除；候選版沒有 manager 專屬操作 |
-| 缺貨登記人員（含需操作的店長） | `restocking-list` | `stock/staff` | 原有缺貨新增、查詢、刪除；候選版沒有 manager 專屬操作 |
+| 商品預購操作人員 | `pre-order-registration` | `preorder/staff`；刪除預設不授權 | 新增、查詢、只修改取貨日期 |
+| 預購指定主管 | 同上，獨立帳號 | `preorder/staff`＋逐人逐專案批准的 `aliceCanDelete=true` | 另可刪除單筆；不可刪除集合根節點 |
+| 缺貨登記操作人員 | `restocking-list` | `stock/staff`；刪除預設不授權 | 新增、查詢；不可任意更新或刪除 |
+| 缺貨指定主管 | 同上，獨立帳號 | `stock/staff`＋逐人逐專案批准的 `aliceCanDelete=true` | 另可刪除單筆；不可刪除集合根節點 |
 | HR 管理人員 | `hr-system-ad937` | `hr/manager` | 員工、配額、請假、進修；整份文件刪除拒絕 |
 
-每個專案的 Auth 帳號及 UID 獨立；跨系統員工需在各自專案建帳號。已在本機受限目錄建立私人權限確認表（七列角色範本）及逐人實機驗收表（十二項檢查範本）；表單含尚未填寫的可用時段、裝置與驗收人欄位，未填入真實姓名或信箱，未提交 GitHub。員工名單及可用時段尚未提供，故沒有排定個別實機時段。新客設計師、預購 staff、缺貨 staff 為建議最低角色；預購與缺貨頁無 manager 專屬操作，候選版只接受 staff；新客 manager 僅依跨設計師管理職責批准；HR manager 僅在逐人批准後核發。業主須私下確認每位正式員工的核准 email、所需系統／角色、職責、設計師代碼（如適用）、主管核准及離職停用方式；**尚未建立正式帳號、啟用正式 provider 或核發正式 claims**。
+每個專案的 Auth 帳號及 UID 獨立；跨系統員工需在各自專案建帳號。私人表含七列角色範本及十二項實機驗收範本，未填入真實姓名或信箱，未提交 GitHub。預購／缺貨新增 `CandidateAliceCanDelete` 與 `DeleteApprovalRef` 欄；刪除權預設 false，只有業主逐人、逐專案核准才可改 true。員工名單及可用時段尚未提供，故未排定個別實機時段。業主仍須私下確認每位正式員工核准 email、所需系統／角色、職責、設計師代碼（如適用）、主管核准及離職停用方式；**尚未建立正式帳號、啟用正式 provider 或核發正式 claims**。
 
-正式 Auth dry-run 計畫已列於 Runbook：Provider 啟用、逐人帳號建立及逐組 claims 核發分開批准；帳號存在且信箱驗證後才用 ADC 對該 UID 執行 `assign-staff-claim.mjs` 唯讀 dry run。該模式只讀取既有帳號，不建立帳號或修改 claims；`--apply` 是需另行批准的正式權限變更。本階段未連正式 Auth 執行 dry run。
+正式 Auth dry-run 計畫已列於 Runbook：Provider 啟用、逐人帳號建立及逐組 claims 核發分開批准；預購／缺貨必須有私人逐人核准檔，精確符合專案、UID、`aliceApp`、`aliceRole` 及 `aliceCanDelete`。跨專案不沿用權限。腳本目前拒絕所有 `--apply`；本階段未連正式 Auth 執行 dry run。
 
 ## 四套系統高權限操作檢查
 
 - 新客 manager 可以讀取全部設計師紀錄並單筆刪除；只核發給明確負責跨設計師管理的人員。設計師仍受資料庫規則限制在本人紀錄。
-- 預購與缺貨候選頁沒有 manager 專屬操作，舊候選規則曾讓 manager 與 staff 權限完全相同。已從兩頁登入白名單、候選資料庫規則及 claims 核發白名單移除 manager；所有實際需要操作的人員使用個人 `staff` 帳號，Emulator 已驗證 manager claims 遭拒絕。正式規則未修改。
-- 預購 staff 可讀完整共用預購清單（包含顧客聯絡資料）、新增、更新取貨日期及刪除任一預購；資料庫規則也允許直接更新同一預購的其他欄位。缺貨 staff 可讀完整共用清單、新增及刪除任一項目。這與目前共用操作頁相符，但業主仍需確認每位操作人員皆應看到全清單並可刪除任一項目；若要縮限需先在獨立 Emulator 依舊資料欄位驗證。
+- 預購與缺貨候選版均維持 `staff`，不接受 `manager` claim。一般預購 staff 可讀共用清單、新增及只修改取貨日期；不能刪除。一般缺貨 staff 可讀共用清單與新增，不能任意修改或刪除。逐人獲業主批准的 staff 可在該專案額外取得 `aliceCanDelete=true` 並刪除單筆，不能刪根節點。共用讀取範圍與預購顧客聯絡資料可見範圍仍須逐人職務驗收。
 - HR `manager` 對整份 `salon/main` 有讀取與更新能力，包含員工、配額、請假、進修、匯入及清空；整份文件刪除遭拒。必須逐人核准其 HR 工作範圍，並確認是否需要整份匯入／清空權限。不能用隱藏前端按鈕作權限控制。
 
 ## 仍需人工驗收
@@ -93,7 +103,7 @@
 2. 逐專案批准是否啟用 Email/Password provider；逐人批准建立帳號；逐組批准完整 Custom Claims。這三類正式 Auth 變更分別確認，未核准前均不執行。
 3. 選定或拒絕 22:00–22:30 候選停寫時段，指定負責人與員工通知方式，確認可接受 G5 規則切換到 G6 網站更新期間的服務等待。
 4. 正式切換時另行批准 Runbook G1–G8 的備份／差異證據、舊分頁關閉、新版實機登入、候選 Security Rules 與 GitHub Pages 部署；四套 B1→B2 必須零差異，否則停止。
-5. 確認預購 staff 是否需讀取完整清單中的顧客聯絡資料並刪除任一預購、缺貨 staff 是否需刪除任一共用項目，以及每位 HR manager 是否需要使用整份匯入／清空功能。未確認前不擴大候選角色或正式權限。
+5. 私下逐人確認哪些預購／缺貨 staff 需單筆刪除權限，填寫專案、UID、完整 claims 與核准記錄；跨系統必須分別核准。另確認各系統共用清單讀取範圍及 HR manager 是否需整份匯入／清空功能。未確認前刪除權限維持 false。
 
 目前未排程窗口、未停寫、未建立正式帳號、未啟用 provider、未核發 claims，未改規則、未合併或部署。
 

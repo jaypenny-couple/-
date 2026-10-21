@@ -107,6 +107,14 @@ test('新客、預訂、HR 頁面於本機 Emulator 的員工工作流程', asyn
     await preorder.page.locator('#reservationList').getByText('Synthetic Customer').waitFor({ timeout: 15000 });
     await preorder.page.reload();
     await preorder.page.locator('#reservationList').getByText('Synthetic Customer').waitFor({ timeout: 15000 });
+    assert.equal(await preorder.page.locator('#reservationList .delete-btn').count(), 0, '一般預購 staff 不應看到刪除按鈕');
+    await preorder.page.locator('#aliceAuthBar button').click();
+    await preorder.page.locator('#aliceAuthForm').waitFor({ state: 'visible' });
+    const preorderSupervisorEmail = await addAccount({ aliceApp: 'preorder', aliceRole: 'staff', aliceCanDelete: true });
+    await preorder.page.locator('#aliceAuthForm input[name="email"]').fill(preorderSupervisorEmail);
+    await preorder.page.locator('#aliceAuthForm input[name="password"]').fill(password);
+    await preorder.page.locator('#aliceAuthForm button').click();
+    await preorder.page.locator('#aliceAuthBar').waitFor({ state: 'visible', timeout: 30000 });
     await preorder.page.locator('#reservationList .delete-btn').click();
     await preorder.page.locator('#reservationList .confirm-delete-btn').click();
     await preorder.page.locator('#reservationList').getByText('Synthetic Customer').waitFor({ state: 'detached', timeout: 15000 });

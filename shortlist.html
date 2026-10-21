@@ -176,16 +176,31 @@
 
             let isConnected = false;
             let unsubscribeStock = null;
+            let canDeleteStock = false;
             const gate = createAuthGate(app, authSdk, {
                 access: 'stock', roles: ['staff'],
-                onReady() { subscribeStock(); },
+                onReady(claims) { canDeleteStock = claims.aliceCanDelete === true; subscribeStock(); },
                 onStop() {
+                    canDeleteStock = false;
                     unsubscribeStock?.();
                     unsubscribeStock = null;
                     isConnected = false;
                     document.getElementById('result').replaceChildren();
                 }
             });
+
+            async function refreshDeleteAuthorization() {
+                if (!gate.isAuthorized() || !authSdk.getAuth(app).currentUser) return false;
+                try {
+                    const token = await authSdk.getIdTokenResult(authSdk.getAuth(app).currentUser, true);
+                    canDeleteStock = token.claims.aliceCanDelete === true;
+                    if (!canDeleteStock) subscribeStock();
+                    return canDeleteStock;
+                } catch {
+                    alert('無法重新驗證刪除權限，請檢查網路後重新登入');
+                    return false;
+                }
+            }
 
             // 監聽資料變化
             function subscribeStock() {
@@ -276,19 +291,26 @@
                     const timestamp = document.createElement('div');
                     timestamp.className = 'timestamp';
                     timestamp.textContent = `登記時間: ${item.date ?? ''}`;
-                    const deleteButton = document.createElement('button');
-                    deleteButton.className = 'delete-btn';
-                    deleteButton.textContent = '×';
-                    deleteButton.addEventListener('click', () => window.deleteResult(item.id));
-                    resultItem.append(vendor, name, timestamp, deleteButton);
+                    resultItem.append(vendor, name, timestamp);
+                    if (canDeleteStock) {
+                        const deleteButton = document.createElement('button');
+                        deleteButton.className = 'delete-btn';
+                        deleteButton.textContent = '×';
+                        deleteButton.setAttribute('aria-label', '刪除缺貨登記');
+                        deleteButton.addEventListener('click', () => window.deleteResult(item.id));
+                        resultItem.appendChild(deleteButton);
+                    }
                     resultDiv.appendChild(resultItem);
                 });
             }
 
             // 刪除項目
             window.deleteResult = function(id) {
-                if (!gate.isAuthorized() || !isConnected) { alert('請先登入並確認網路連線'); return; }
-                if (confirm('確定要刪除此項目嗎？')) {
+                if (!gate.isAuthorized()) { alert('請先登入'); return; }
+                if (!isConnected) { alert('目前離線，無法刪除缺貨紀錄'); return; }
+                refreshDeleteAuthorization().then(canDelete => {
+                    if (!canDelete) { alert('此帳號沒有刪除缺貨紀錄的權限'); return; }
+                    if (!confirm('確定要刪除此項目嗎？')) return;
                     const itemRef = ref(database, `stockItems/${id}`);
                     remove(itemRef)
                         .then(() => {
@@ -296,9 +318,9 @@
                         })
                         .catch((error) => {
                             console.error('Error deleting item:', error);
-                            alert('刪除失敗，請稍後再試');
+                            alert(error.code === 'PERMISSION_DENIED' ? '權限不足，無法刪除缺貨紀錄' : '刪除失敗，請檢查網路後重試');
                         });
-                }
+                });
             };
         } catch (error) {
             document.getElementById('status').innerHTML = '<div class="status error">❌ Firebase 初始化失敗: ' + error.message + '</div>';

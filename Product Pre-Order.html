@@ -265,10 +265,12 @@
         }
         const reservationsRef = ref(database, 'reservations');
         let unsubscribeReservations = null;
+        let canDeleteReservations = false;
         const gate = createAuthGate(app, authSdk, {
             access: 'preorder', roles: ['staff'],
-            onReady() { loadReservations(); },
+            onReady(claims) { canDeleteReservations = claims.aliceCanDelete === true; loadReservations(); },
             onStop() {
+                canDeleteReservations = false;
                 unsubscribeReservations?.();
                 unsubscribeReservations = null;
                 reservations = [];
@@ -282,6 +284,18 @@
         let sortColumn = '';
         let sortDirection = 'asc';
         let isConnected = false;
+
+        async function refreshDeleteAuthorization() {
+            if (!gate.isAuthorized() || !authSdk.getAuth(app).currentUser) return false;
+            try {
+                const token = await authSdk.getIdTokenResult(authSdk.getAuth(app).currentUser, true);
+                canDeleteReservations = token.claims.aliceCanDelete === true;
+                return canDeleteReservations;
+            } catch {
+                alert('無法重新驗證刪除權限，請檢查網路後重新登入');
+                return false;
+            }
+        }
 
         // 連線狀態監聽
         let connectionTimeout = setTimeout(() => {
@@ -384,11 +398,19 @@
         }
 
         async function deleteReservation(firebaseKey) {
+            if (!await refreshDeleteAuthorization()) {
+                alert('此帳號沒有刪除預購紀錄的權限');
+                return false;
+            }
+            if (!isConnected) {
+                alert('目前離線，無法刪除預購紀錄');
+                return false;
+            }
             try {
                 await remove(ref(database, `reservations/${firebaseKey}`));
                 return true;
             } catch (e) {
-                alert('刪除失敗，請檢查網路連線');
+                alert(e.code === 'PERMISSION_DENIED' ? '權限不足，無法刪除預購紀錄' : '刪除失敗，請檢查網路連線後重試');
                 return false;
             }
         }
@@ -491,6 +513,7 @@
                             data-original-value="${escapeHtml(r.pickupDate || r.reservationDate)}">
                     </td>
                     <td>
+                        ${canDeleteReservations ? `
                         <div class="delete-actions">
                             <button class="delete-btn" data-firebase-key="${escapeHtml(r.firebaseKey)}">刪除</button>
                             <div class="confirm-actions" style="display:none;" data-firebase-key="${escapeHtml(r.firebaseKey)}">
@@ -498,6 +521,7 @@
                                 <button class="cancel-delete-btn" data-firebase-key="${escapeHtml(r.firebaseKey)}">取消</button>
                             </div>
                         </div>
+                        ` : '<span class="muted">—</span>'}
                     </td>`;
                 list.appendChild(row);
             });
@@ -512,7 +536,8 @@
             });
 
             list.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', async () => {
+                    if (!await refreshDeleteAuthorization()) { alert('此帳號沒有刪除預購紀錄的權限'); return; }
                     if (!isConnected) { alert('目前離線，無法刪除預訂'); return; }
                     btn.style.display = 'none';
                     btn.parentElement.querySelector(`.confirm-actions[data-firebase-key="${btn.dataset.firebaseKey}"]`).style.display = 'flex';
@@ -521,8 +546,10 @@
 
             list.querySelectorAll('.confirm-delete-btn').forEach(btn => {
                 btn.addEventListener('click', async () => {
+                    if (!await refreshDeleteAuthorization()) { alert('此帳號沒有刪除預購紀錄的權限'); return; }
                     btn.disabled = true; btn.textContent = '刪除中...';
-                    await deleteReservation(btn.dataset.firebaseKey);
+                    const deleted = await deleteReservation(btn.dataset.firebaseKey);
+                    if (!deleted) { btn.disabled = false; btn.textContent = '確認刪除?'; }
                 });
             });
 

@@ -27,6 +27,9 @@ test('缺貨頁：本機 Auth/RTDB 登入、CRUD、重新整理、斷線恢復�
   const password = 'Synthetic-password-123!';
   const user = await getAuth(admin).createUser({ email, password, emailVerified: true });
   await getAuth(admin).setCustomUserClaims(user.uid, { aliceApp: 'stock', aliceRole: 'staff' });
+  const supervisorEmail = `synthetic-supervisor-${Date.now()}@example.invalid`;
+  const supervisor = await getAuth(admin).createUser({ email: supervisorEmail, password, emailVerified: true });
+  await getAuth(admin).setCustomUserClaims(supervisor.uid, { aliceApp: 'stock', aliceRole: 'staff', aliceCanDelete: true });
   const server = createServer(async (req, res) => {
     const path = resolve(siteRoot, '.' + decodeURIComponent(new URL(req.url, 'http://localhost').pathname));
     if (!path.startsWith(siteRoot + sep)) { res.writeHead(403).end(); return; }
@@ -57,6 +60,7 @@ test('缺貨頁：本機 Auth/RTDB 登入、CRUD、重新整理、斷線恢復�
     await page.locator('#submitBtn').click();
     await page.locator('#result .result-item').waitFor({ timeout: 15000 });
     assert.match(await page.locator('#result').textContent(), /Synthetic item/);
+    assert.equal(await page.locator('#result .delete-btn').count(), 0, '一般 staff 不應看到刪除按鈕');
     await page.reload();
     await page.locator('#aliceAuthBar').waitFor({ state: 'visible', timeout: 30000 });
     await context.setOffline(true);
@@ -65,6 +69,12 @@ test('缺貨頁：本機 Auth/RTDB 登入、CRUD、重新整理、斷線恢復�
     await context.setOffline(false);
     await page.waitForFunction(() => !document.body.classList.contains('alice-offline'));
     await page.waitForFunction(() => document.querySelector('#status')?.textContent?.includes('已連接'), null, { timeout: 15000 });
+    await page.locator('#aliceAuthBar button').click();
+    await page.locator('#aliceAuthForm').waitFor({ state: 'visible' });
+    await page.locator('#aliceAuthForm input[name="email"]').fill(supervisorEmail);
+    await page.locator('#aliceAuthForm input[name="password"]').fill(password);
+    await page.locator('#aliceAuthForm button').click();
+    await page.locator('#aliceAuthBar').waitFor({ state: 'visible', timeout: 30000 });
     await page.locator('#result .delete-btn').first().click();
     await page.locator('#result .result-item').waitFor({ state: 'detached', timeout: 15000 });
     await page.locator('#aliceAuthBar button').click();

@@ -5,7 +5,13 @@
     "stockItems": {
       ".read": "auth != null && auth.token.aliceApp === 'stock' && auth.token.aliceRole === 'staff'",
       "$itemId": {
-        ".write": "auth != null && auth.token.aliceApp === 'stock' && auth.token.aliceRole === 'staff'"
+        ".write": "auth != null && auth.token.aliceApp === 'stock' && auth.token.aliceRole === 'staff' && ((!data.exists() && newData.exists()) || (data.exists() && !newData.exists() && auth.token.aliceCanDelete === true))",
+        ".validate": "newData.hasChildren(['vendor', 'item', 'timestamp', 'date'])",
+        "vendor": { ".validate": "newData.isString()" },
+        "item": { ".validate": "newData.isString()" },
+        "timestamp": { ".validate": "newData.isNumber()" },
+        "date": { ".validate": "newData.isString()" },
+        "$other": { ".validate": "false" }
       }
     }
   }

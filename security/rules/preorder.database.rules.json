@@ -5,7 +5,18 @@
     "reservations": {
       ".read": "auth != null && auth.token.aliceApp === 'preorder' && auth.token.aliceRole === 'staff'",
       "$reservationId": {
-        ".write": "auth != null && auth.token.aliceApp === 'preorder' && auth.token.aliceRole === 'staff'"
+        ".write": "auth != null && auth.token.aliceApp === 'preorder' && auth.token.aliceRole === 'staff' && ((!data.exists() && newData.exists()) || (data.exists() && !newData.exists() && auth.token.aliceCanDelete === true) || (data.exists() && newData.exists()))",
+        ".validate": "newData.hasChildren(['id', 'reservationDate', 'customerName', 'contactPlatform', 'product', 'quantity', 'phone', 'pickupDate', 'createdAt'])",
+        "id": { ".validate": "(!data.exists() && newData.isNumber()) || (data.exists() && newData.val() === data.val())" },
+        "reservationDate": { ".validate": "(!data.exists() && newData.isString()) || (data.exists() && newData.val() === data.val())" },
+        "customerName": { ".validate": "(!data.exists() && newData.isString()) || (data.exists() && newData.val() === data.val())" },
+        "contactPlatform": { ".validate": "(!data.exists() && newData.isString()) || (data.exists() && newData.val() === data.val())" },
+        "product": { ".validate": "(!data.exists() && newData.isString()) || (data.exists() && newData.val() === data.val())" },
+        "quantity": { ".validate": "(!data.exists() && newData.isNumber()) || (data.exists() && newData.val() === data.val())" },
+        "phone": { ".validate": "(!data.exists() && newData.isString()) || (data.exists() && newData.val() === data.val())" },
+        "pickupDate": { ".validate": "newData.isString()" },
+        "createdAt": { ".validate": "(!data.exists() && newData.isNumber()) || (data.exists() && newData.val() === data.val())" },
+        "$other": { ".validate": "data.exists() && newData.exists() && newData.val() === data.val()" }
       }
     }
   }

@@ -50,31 +50,72 @@ test('新客：匿名與一般登入者拒絕；設計師只能查詢和修改�
   } finally { await env.cleanup(); }
 });
 
-for (const [projectId, rulesFile, path, app] of [
-  ['demo-alice-preorder', 'preorder.database.rules.json', 'reservations', 'preorder'],
-  ['demo-alice-stock', 'stock.database.rules.json', 'stockItems', 'stock']
-]) {
-  test(`${app}：staff CRUD 正常；匿名、跨系統及不必要的 manager claim 拒絕`, async () => {
-    const env = await rtdbEnv(projectId, rulesFile);
-    try {
-      const guest = rtdb(env.unauthenticatedContext());
-      const wrong = rtdb(env.authenticatedContext('wrong', { aliceApp: 'customer', aliceRole: 'staff' }));
-      const staff = rtdb(env.authenticatedContext('staff', { aliceApp: app, aliceRole: 'staff' }));
-      const manager = rtdb(env.authenticatedContext('manager', { aliceApp: app, aliceRole: 'manager' }));
-      await assertFails(get(ref(guest, path)));
-      await assertFails(set(ref(guest, `${path}/one`), { value: 1 }));
-      await assertFails(get(ref(wrong, path)));
-      await assertFails(set(ref(wrong, `${path}/one`), { value: 1 }));
-      await assertFails(get(ref(manager, path)));
-      await assertFails(set(ref(manager, `${path}/unauthorized`), { value: 1 }));
-      await assertSucceeds(set(ref(staff, `${path}/one`), { value: 1 }));
-      await assertSucceeds(get(ref(staff, path)));
-      await assertSucceeds(update(ref(staff, `${path}/one`), { value: 2 }));
-      await assertSucceeds(remove(ref(staff, `${path}/one`)));
-      await assertFails(remove(ref(staff, path)));
-    } finally { await env.cleanup(); }
-  });
-}
+const reservation = (overrides = {}) => ({
+  id: 1710000000000, reservationDate: '2026-10-20', customerName: 'Synthetic Customer',
+  contactPlatform: 'Synthetic', product: 'Synthetic Product', quantity: 2,
+  phone: '00000000', pickupDate: '2026-10-22', createdAt: 1710000000000, ...overrides
+});
+const stockItem = (overrides = {}) => ({
+  vendor: 'Synthetic Vendor', item: 'Synthetic Item', timestamp: 1710000000000,
+  date: '2026/10/20 10:00', ...overrides
+});
+
+test('預購：staff 可查詢、新增及只修改取貨日期；刪除、清空欄位、覆寫與多路徑刪除遭拒', async () => {
+  const env = await rtdbEnv('demo-alice-preorder', 'preorder.database.rules.json');
+  try {
+    await env.withSecurityRulesDisabled(async (context) => set(ref(rtdb(context), 'reservations/old'), reservation()));
+    const guest = rtdb(env.unauthenticatedContext());
+    const wrong = rtdb(env.authenticatedContext('wrong', { aliceApp: 'stock', aliceRole: 'staff' }));
+    const staff = rtdb(env.authenticatedContext('staff', { aliceApp: 'preorder', aliceRole: 'staff' }));
+    const manager = rtdb(env.authenticatedContext('manager', { aliceApp: 'preorder', aliceRole: 'manager' }));
+    const approved = rtdb(env.authenticatedContext('approved', { aliceApp: 'preorder', aliceRole: 'staff', aliceCanDelete: true }));
+    const unapprovedManager = rtdb(env.authenticatedContext('unapproved-manager', { aliceApp: 'preorder', aliceRole: 'manager', aliceCanDelete: true }));
+    await assertFails(get(ref(guest, 'reservations')));
+    await assertFails(set(ref(guest, 'reservations/guest'), reservation()));
+    await assertFails(get(ref(wrong, 'reservations')));
+    await assertFails(set(ref(wrong, 'reservations/wrong'), reservation()));
+    await assertFails(get(ref(manager, 'reservations')));
+    await assertFails(get(ref(unapprovedManager, 'reservations')));
+    await assertFails(remove(ref(unapprovedManager, 'reservations/old')));
+    await assertSucceeds(get(ref(staff, 'reservations')));
+    await assertSucceeds(set(ref(staff, 'reservations/new'), reservation()));
+    await assertSucceeds(update(ref(staff, 'reservations/old'), { pickupDate: '2026-10-23' }));
+    await assertFails(remove(ref(staff, 'reservations/old')));
+    await assertFails(update(ref(staff, 'reservations/old'), { phone: null }));
+    await assertFails(set(ref(staff, 'reservations/old'), { id: 1710000000000, customerName: 'Synthetic replacement' }));
+    await assertFails(update(ref(staff), { 'reservations/old': null, 'reservations/new/pickupDate': '2026-10-24' }));
+    await assertFails(remove(ref(approved, 'reservations')));
+    await assertSucceeds(remove(ref(approved, 'reservations/old')));
+  } finally { await env.cleanup(); }
+});
+
+test('缺貨：staff 可查詢與新增但不能編輯或刪除；核准 staff 只可刪除單筆', async () => {
+  const env = await rtdbEnv('demo-alice-stock', 'stock.database.rules.json');
+  try {
+    await env.withSecurityRulesDisabled(async (context) => set(ref(rtdb(context), 'stockItems/old'), stockItem()));
+    const guest = rtdb(env.unauthenticatedContext());
+    const wrong = rtdb(env.authenticatedContext('wrong', { aliceApp: 'preorder', aliceRole: 'staff' }));
+    const staff = rtdb(env.authenticatedContext('staff', { aliceApp: 'stock', aliceRole: 'staff' }));
+    const manager = rtdb(env.authenticatedContext('manager', { aliceApp: 'stock', aliceRole: 'manager' }));
+    const approved = rtdb(env.authenticatedContext('approved', { aliceApp: 'stock', aliceRole: 'staff', aliceCanDelete: true }));
+    const revoked = rtdb(env.authenticatedContext('revoked', { aliceApp: 'stock', aliceRole: 'staff', aliceCanDelete: false }));
+    await assertFails(get(ref(guest, 'stockItems')));
+    await assertFails(set(ref(guest, 'stockItems/guest'), stockItem()));
+    await assertFails(get(ref(wrong, 'stockItems')));
+    await assertFails(set(ref(wrong, 'stockItems/wrong'), stockItem()));
+    await assertFails(get(ref(manager, 'stockItems')));
+    await assertFails(remove(ref(manager, 'stockItems/old')));
+    await assertSucceeds(get(ref(staff, 'stockItems')));
+    await assertSucceeds(set(ref(staff, 'stockItems/new'), stockItem()));
+    await assertFails(remove(ref(staff, 'stockItems/old')));
+    await assertFails(update(ref(staff, 'stockItems/old'), { item: null }));
+    await assertFails(set(ref(staff, 'stockItems/old'), stockItem({ item: 'Replacement' })));
+    await assertFails(update(ref(staff), { 'stockItems/old': null, 'stockItems/new': stockItem() }));
+    await assertFails(remove(ref(revoked, 'stockItems/old')));
+    await assertFails(remove(ref(approved, 'stockItems')));
+    await assertSucceeds(remove(ref(approved, 'stockItems/old')));
+  } finally { await env.cleanup(); }
+});
 
 test('HR：管理者可讀取、建立與更新 salon/main，任何角色均不得刪除整份文件', async () => {
   const env = await initializeTestEnvironment({
