@@ -46,12 +46,12 @@
 1. 私下填妥每位員工的內部辨識代碼、核准信箱、所需系統、角色、設計師代碼（若適用）、主管與離職停用負責人。manager 必須附具體管理工作；無該工作的員工採 designer/staff，HR 不授予帳號除非核准 HR 管理職責。
 2. 業主逐人批准「哪個 Firebase 專案、建立哪個帳號、使用何種登入方式、核發哪些完整 claims」。另外逐專案批准是否開啟 Email/Password provider；這會改變正式 Auth 設定。現有 provider 未啟用，故未經批准不得以現有空帳號或 Console 狀態推定已建立帳號。
 3. 批准後由可信任管理者先建立帳號、驗證信箱，取得該專案 UID；不建立或公開服務帳戶私鑰。用 ADC 對實際 UID 執行 `assign-staff-claim.mjs` 不帶 `--apply` 的 dry run，核對專案、App、角色、信箱驗證狀態與既有 claims。腳本 dry run 只讀 `getUser`，不建立帳號或修改 claims；若帳號不存在、provider 未啟用、IAM 不足或 UID 對不上，停止。
-4. 預購／缺貨另外要求受 ACL 保護的私人逐人核准 JSON，精確列出 `projectId`、`uid`、`aliceApp`、`aliceRole=staff`、`aliceCanDelete`、核准人、核准時間與核准參考；比對專案、UID 或完整權限任一不符即拒絕。跨專案各自核准。撤銷時更新該專案核准表並確保新 Claims 完整移除 `aliceCanDelete`，重新登入／更新 ID token，立即 Emulator 或正式驗收拒絕刪除。
+4. **目前 PR 候選版**的預購／缺貨刪除權使用逐人逐專案 `aliceCanDelete` Custom Claim。撤權須清除該 claim 並要求登出／更新 token；舊的有效 ID token 可能在到期前仍可直接呼叫刪除。第七階段另在 Emulator 驗證了每專案 RTDB 授權列方案：以 `auth.uid` 查詢目前授權列，移除授權列後舊 token 的下一次刪除即遭拒。若業主選用此方案，私人核准紀錄須改為精確列出 `projectId`、`uid`、`aliceApp`、`aliceRole=staff`、刪除旗標、核准人、時間與參考；清單只能由受信任 Admin SDK/ADC 工具維護，客戶端不得讀寫，並須把授權列作為 Rules 的唯一刪除條件。**方案尚未選定，Emulator 驗證不代表正式規則已採用。**
 5. 本階段 claims 工具硬性拒絕 `--apply`。未來若業主另行批准正式核發，先把該 UID 的完整既有 Custom Claims 以排他建立方式備份至私人 ACL 目錄，校驗檔案權限、SHA-256、projectId 與 UID；完成獨立回復演練程序審查後，才可另開正式變更。若套用失敗，使用備份中完整舊 Claims 呼叫 `setCustomUserClaims` 還原，讓員工重新登入／更新 token，再驗證規則拒絕／允許符合原權限。不得從另一專案複製 Claims。這些步驟均未在正式環境執行。
 
-Custom Claims 隨 Firebase ID token 傳送；撤權後必須強制 token refresh，候選刪除按鈕會在每次刪除前刷新 Claims。仍持有效舊 ID token 的直接 API 呼叫可能在 token 到期前沿用舊權限；因此正式撤權須同步要求員工登出並重新登入，並在驗收前核對 token 更新。Emulator 對新 token 的拒絕結果不等於已驗證正式撤權即時生效。
+目前候選 Custom Claims 方案的撤權必須強制 token refresh；刪除按鈕每次操作前刷新 Claims，但舊的有效 ID token 直接 API 呼叫可能在 token 到期前沿用權限。Emulator 對新 token 的拒絕結果不等於正式撤權已即時生效。授權列方案在 Emulator 證明可即時撤權，但尚未替換 PR 候選 Rules；若採用，切換門檻需增加核准名單匯入／UID 對照、授權列建立、讀回驗證、移除授權列的撤權演練及 Admin SDK/ADC 稽核證據。
 
-需業主批准的變更：正式 Authentication provider 設定；每個新帳號的建立與信箱；每一組完整 Custom Claims（包括逐專案的 `aliceCanDelete` 與明確撤權）；必要時停用或移除既有 claims；低寫入窗口與員工通知；Security Rules 與網站的正式切換；若需服務等待時間，接受明確的維護窗口。以上均未執行。
+需業主批准的變更：正式 Authentication provider 設定；每個新帳號的建立與信箱；每一組完整角色與權限；是否採用 RTDB 授權列作為預購／缺貨刪除唯一判斷、授權列核發／撤銷負責人與稽核流程（若選現行 Claims 方案，須明確接受舊 token 撤權延遲）；必要時停用或移除既有 claims；低寫入窗口與員工通知；Security Rules 與網站的正式切換；若需服務等待時間，接受明確的維護窗口。以上均未執行。
 
 ## 四套系統高權限操作檢查
 
