@@ -236,6 +236,34 @@ test('新客、預訂、HR 頁面於本機 Emulator 的員工工作流程', asyn
       window.dispatchEvent(event);
       return event.defaultPrevented;
     }), false);
+
+    await hr.page.locator('.nav-btn[data-tab="leave"]').click();
+    await hr.page.locator('#lNote').fill('Synthetic unsent form switch');
+    await hr.page.evaluate(async () => {
+      const sdk = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+      await sdk.signOut(sdk.getAuth());
+    });
+    await hr.page.locator('#aliceAuthForm').waitFor({ state: 'visible' });
+    await hr.page.locator('#aliceAuthForm input[name="email"]').fill(secondHrEmail);
+    await hr.page.locator('#aliceAuthForm input[name="password"]').fill(password);
+    await hr.page.locator('#aliceAuthForm button').click();
+    await hr.page.locator('#aliceAuthMessage').filter({ hasText: '請使用原帳號重新登入並處理' })
+      .waitFor({ timeout: 15000 });
+    assert.equal(await hr.page.locator('#page').evaluate(element => element.inert), true);
+    await hr.page.locator('#aliceAuthForm input[name="email"]').fill(hrEmail);
+    await hr.page.locator('#aliceAuthForm input[name="password"]').fill(password);
+    await hr.page.locator('#aliceAuthForm button').click();
+    await hr.page.locator('#aliceAuthBar').waitFor({ state: 'visible', timeout: 15000 });
+    assert.equal(await hr.page.locator('#lNote').inputValue(), 'Synthetic unsent form switch');
+    await hr.page.waitForFunction(() => !document.querySelector('#loadingOverlay'), { timeout: 15000 });
+    await hr.page.locator('#aliceAuthBar button').click();
+    await hr.page.locator('#aliceAuthForm').waitFor({ state: 'visible' });
+    await hr.page.locator('#aliceAuthForm input[name="email"]').fill(hrEmail);
+    await hr.page.locator('#aliceAuthForm input[name="password"]').fill(password);
+    await hr.page.locator('#aliceAuthForm button').click();
+    await hr.page.locator('#aliceAuthBar').waitFor({ state: 'visible', timeout: 15000 });
+    assert.equal(await hr.page.locator('#lNote').inputValue(), '');
+
     await hr.page.locator('.nav-btn[data-tab="backup"]').click();
     await hr.page.locator('#bkFile').setInputFiles({
       name: 'synthetic-hr.json', mimeType: 'application/json',

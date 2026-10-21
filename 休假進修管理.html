@@ -906,7 +906,7 @@ const gate = createAuthGate(fbApp, authSdk, {
   access: 'hr', roles: ['manager'],
   onReady() {
     const signedInUid = authSdk.getAuth(fbApp).currentUser?.uid ?? null;
-    if ((pendingWrite || failedOperation) && unsavedOwnerUid && signedInUid !== unsavedOwnerUid) {
+    if ((pendingWrite || failedOperation || formDirty) && unsavedOwnerUid && signedInUid !== unsavedOwnerUid) {
       document.querySelector('#aliceAuthMessage').textContent = '前一帳號有尚未確認的 HR 變更，請先以原帳號處理。';
       void authSdk.signOut(authSdk.getAuth(fbApp));
       return;
@@ -918,15 +918,22 @@ const gate = createAuthGate(fbApp, authSdk, {
       writeMessage('前次操作尚未確認；請重試或下載草稿。', Boolean(failedOperation));
       return;
     }
+    if (formDirty && unsavedOwnerUid === signedInUid) {
+      unsavedOwnerUid = null;
+      setPageBlocked(false);
+      writeMessage('已恢復此帳號尚未送出的表單；請完成或明確放棄後再離開。');
+    }
     startSync();
   },
   onStop() {
     unsubscribeData?.();
     unsubscribeData = null;
-    if (pendingWrite || failedOperation) {
+    const retainDraft = pendingWrite || failedOperation || formDirty;
+    if (retainDraft) {
       if (activeUid && !unsavedOwnerUid) unsavedOwnerUid = activeUid;
       if (activeOperation) failedOperation = activeOperation;
-      document.querySelector('#aliceAuthMessage').textContent = 'HR 變更尚未確認，請使用原帳號重新登入並處理。';
+      setPageBlocked(true);
+      document.querySelector('#aliceAuthMessage').textContent = 'HR 有尚未完成的操作或表單，請使用原帳號重新登入並處理。';
     } else {
       state = defaults();
       savedState = structuredClone(state);
@@ -937,11 +944,13 @@ const gate = createAuthGate(fbApp, authSdk, {
       lastSavedFingerprint = null;
     }
     activeUid = null;
-    page.replaceChildren();
+    if (!retainDraft) page.replaceChildren();
   },
   beforeSignOut() {
     if (!pendingWrite && !failedOperation && formDirty) {
-      return confirm('表單有尚未送出的內容；確定放棄輸入並登出？');
+      const discard = confirm('表單有尚未送出的內容；確定放棄輸入並登出？');
+      if (discard) formDirty = false;
+      return discard;
     }
     if (!pendingWrite && !failedOperation) return true;
     writeMessage('尚有未確認的 HR 變更；請先確認儲存或下載草稿。', Boolean(failedOperation));
@@ -1037,11 +1046,13 @@ function startSync() {
     if (pendingWrite || failedOperation || snap.metadata.hasPendingWrites) return;
     if (snap.metadata.fromCache) {
       setPageBlocked(true);
+      showLoading(false);
       writeMessage('目前是快取資料，等待雲端確認後才能編輯。');
       return;
     }
     if (formDirty) {
       deferredSnapshot = snap;
+      showLoading(false);
       writeMessage('其他裝置有新資料；目前表單保留原輸入，送出時會合併或提示衝突。');
       return;
     }
