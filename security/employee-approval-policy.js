@@ -23,6 +23,30 @@ export function normalizeApprovedEmail(value) {
   return email;
 }
 
+export function overlayOwnerPilotEntries(rows, entries) {
+  const seenProjects = new Set();
+  for (const entry of entries) {
+    const projectId = String(entry.FirebaseProject ?? '').trim();
+    if (!firebaseProjectRoles[projectId] || seenProjects.has(projectId)) {
+      throw new Error('Owner entry sheet must contain one valid row per Firebase project.');
+    }
+    seenProjects.add(projectId);
+    const matches = rows.filter(row => String(row.FirebaseProject ?? '').trim() === projectId &&
+      (String(row.RecordType ?? '').trim() === 'OWNER-PILOT' || String(row.InternalRef ?? '').trim() === 'OWNER-PILOT-TBD'));
+    if (matches.length !== 1) throw new Error('Expected exactly one matching owner pilot row per Firebase project.');
+    const pilot = matches[0];
+    pilot.RecordType = 'OWNER-PILOT';
+    for (const [key, value] of Object.entries(entry)) {
+      if (key === 'FirebaseProject' || key === 'RecordType') continue;
+      if (String(value ?? '').trim()) pilot[key] = value;
+    }
+  }
+  if (seenProjects.size !== Object.keys(firebaseProjectRoles).length) {
+    throw new Error('Owner entry sheet must include every Firebase project.');
+  }
+  return rows;
+}
+
 export function expectedClaims(projectId, role, designerCode = '') {
   const allowed = firebaseProjectRoles[projectId];
   if (!allowed) throw new Error('Unsupported Firebase project.');
@@ -43,7 +67,8 @@ export function expectedClaims(projectId, role, designerCode = '') {
 
 export function summarizeEmployeeRoster(rows) {
   const projects = Object.keys(firebaseProjectRoles);
-  const pilotRows = rows.filter(row => String(row.InternalRef ?? '').trim() === 'OWNER-PILOT-TBD');
+  const pilotRows = rows.filter(row => String(row.RecordType ?? '').trim() === 'OWNER-PILOT' ||
+    String(row.InternalRef ?? '').trim() === 'OWNER-PILOT-TBD');
   const candidates = rows.filter(row => {
     const ref = String(row.InternalRef ?? '').trim();
     return normalizeApprovedEmail(row.ApprovedEmail) !== null || (ref && ref !== 'OWNER-PILOT-TBD' && !placeholderPattern.test(ref));
@@ -78,35 +103,50 @@ export function summarizeEmployeeRoster(rows) {
   const pilotSummary = projects.map(projectId => {
     const row = pilotRows.find(candidate => String(candidate.FirebaseProject ?? '').trim() === projectId);
     if (!row) return { projectId, present: false, missing: ['OWNER-PILOT-TBD row'] };
-    const missing = [];
+    const missingBeforeAccount = [];
+    const pendingAuthorization = [];
+    const missingAfterAccount = [];
     for (const [field, label] of [
       ['ApprovedEmail', '核准登入信箱'],
       ['JobDuties', '實際工作職責'],
       ['MinimumAccess', '最低必要角色'],
-      ['AccountUID', '該專案 UID（帳號建立後）'],
-      ['EmailVerificationStatus', 'Email 驗證狀態（帳號建立後）'],
       ['AccountDisableOwner', '帳號停用負責人']
     ]) {
-      if (!hasConfirmedValue(row[field])) missing.push(label);
+      if (!hasConfirmedValue(row[field])) missingBeforeAccount.push(label);
     }
-    if (!normalizeApprovedEmail(row.ApprovedEmail)) missing.push('有效的 Email 格式');
-    if (!hasConfirmedValue(row.InternalRef) || row.InternalRef === 'OWNER-PILOT-TBD') missing.push('員工識別');
-    if (!isApproved(row.AccountCreationApproval)) missing.push('逐人逐專案帳號建立核准');
-    if (!isApproved(row.OwnerApproval)) missing.push('業主核准紀錄');
+    if (!normalizeApprovedEmail(row.ApprovedEmail)) missingBeforeAccount.push('有效的 Email 格式');
+    if (!hasConfirmedValue(row.InternalRef) || row.InternalRef === 'OWNER-PILOT-TBD') missingBeforeAccount.push('員工識別');
+    if (!hasConfirmedValue(row.FirebaseProject) || !projects.includes(String(row.FirebaseProject).trim())) {
+      missingBeforeAccount.push('有效的 Firebase 專案');
+    }
+    if (!isApproved(row.AccountCreationApproval)) pendingAuthorization.push('逐人逐專案帳號建立核准');
+    if (!isApproved(row.OwnerApproval)) pendingAuthorization.push('業主核准紀錄');
     const role = String(row.SystemRole ?? '').trim().toLowerCase();
-    if (!firebaseProjectRoles[projectId]?.includes(role)) missing.push('經確認且符合專案的角色');
+    if (!firebaseProjectRoles[projectId]?.includes(role)) missingBeforeAccount.push('經確認且符合專案的角色');
     if (role === 'designer' && !knownDesignerCodes.has(String(row.DesignerCode ?? '').trim().toUpperCase())) {
-      missing.push('核准設計師代碼');
+      missingBeforeAccount.push('核准設計師代碼');
     }
     if (role === 'manager' && !hasConfirmedValue(row.ManagerDutiesJustification)) {
-      missing.push('主管權限的實際業務理由');
+      missingBeforeAccount.push('主管權限的實際業務理由');
     }
-    return { projectId, present: true, missing: [...new Set(missing)] };
+    if (!hasConfirmedValue(row.AccountUID)) missingAfterAccount.push('該專案 UID');
+    if (!hasConfirmedValue(row.EmailVerificationStatus) || !/verified/i.test(String(row.EmailVerificationStatus))) {
+      missingAfterAccount.push('Email 驗證狀態');
+    }
+    return {
+      projectId,
+      present: true,
+      role: firebaseProjectRoles[projectId]?.includes(role) ? role : null,
+      missingBeforeAccount: [...new Set(missingBeforeAccount)],
+      pendingAuthorization: [...new Set(pendingAuthorization)],
+      missingAfterAccount: [...new Set(missingAfterAccount)]
+    };
   });
 
   return {
     totalRows: rows.length,
-    roleTemplateRows: rows.filter(row => !String(row.InternalRef ?? '').trim() && !normalizeApprovedEmail(row.ApprovedEmail)).length,
+    roleTemplateRows: rows.filter(row => String(row.RecordType ?? '').trim() !== 'OWNER-PILOT' &&
+      !String(row.InternalRef ?? '').trim() && !normalizeApprovedEmail(row.ApprovedEmail)).length,
     ownerPilotRows: pilotRows.length,
     candidateRows: candidates.length,
     rowsWithValidApprovedEmail: candidates.filter(row => normalizeApprovedEmail(row.ApprovedEmail)).length,
