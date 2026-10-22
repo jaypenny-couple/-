@@ -1,23 +1,23 @@
 # ALICE P0 正式切換演練與最後備份 Runbook
 
-**狀態：僅供 Draft PR #43 審查。這份文件不是正式切換授權。不得依此自行暫停員工、啟用 Auth、改正式規則、合併或部署。**
+**狀態：僅供 Draft PR #43 審查。這份文件不是正式切換授權。不得依此自行暫停員工、修改正式 Security Rules、合併或部署。四專案 Email/Password Provider 已依獨立授權啟用。**
 
-## Authentication Provider 啟用計畫（逐專案批准後才可執行）
+## Authentication Provider 啟用紀錄（四專案完成）
 
-2026-10-22 唯讀檢查：四個 Project ID 均與 Firebase CLI 清單一致，各專案 Console 顯示 Spark；Authentication Console 均顯示初始「開始使用」頁，未顯示已設定 Provider。ADC 沒有 quota project，Identity Toolkit 設定 API 回傳 403；Admin SDK 使用者清單也未能讀取。因此 Provider 設定 API、Auth 使用者數及啟用所需 IAM 角色均標示為**未驗證**。Console 目前可見及 CLI 專案清單只證明可查看專案，不能證明可管理 Auth。沒有更改 quota project、IAM、Auth、Rules 或資料。
+2026-10-22 依業主逐專案核准執行。每個 Firebase Console 頁面均重核 Project ID 與 Spark 免費方案；四專案在執行前均顯示 Authentication 初始「開始使用」頁。逐專案只啟用 Email/Password，保持 Email Link、匿名及其他登入 Provider 關閉，儲存後重新讀取 Provider 清單並確認「已啟用」。四個結果均成功，Spark 方案維持不變。設定執行及重新讀回的時間、專案與結果存於 `%LOCALAPPDATA%\ALICE-P0-PRIVATE-BACKUPS\AUTH-PROVIDER-CHANGES-20261022`；Console 操作者身分由 Google Cloud Admin Activity 稽核記錄保留，不放入公開 PR。
 
-| Firebase Project ID | 目前 Console 可見狀態 | 唯一預計設定 | 預期影響 | 執行前記錄 | 完成驗證 | 停止條件 | 安全回復 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `new-customer-management-system` | Spark；Auth 初始頁；Provider 清單與使用者數未驗證 | 僅啟用 Email/Password | 開啟此專案的 email／密碼登入入口；不建立帳號、不授予 Claims、不改資料庫權限 | 重核 Project ID、Spark、Provider 頁；保存設定前狀態與時間至私人目錄 | 重新讀取同專案 Provider 頁，確認 Email/Password 開啟且其他 Provider 未變；記錄執行者、時間及結果 | 無逐專案批准、Project ID／方案不符、出現未預期 Provider、權限不足、要求計費、設定不能讀回 | 停止帳號建立；在相同 Console 將 Email/Password 恢復為設定前狀態並讀回確認；不刪使用者或改 Rules |
-| `pre-order-registration` | Spark；Auth 初始頁；Provider 清單與使用者數未驗證 | 僅啟用 Email/Password | 同上，限預購專案獨立使用者庫 | 同上 | 同上 | 同上 | 同上 |
-| `restocking-list` | Spark；Auth 初始頁；Provider 清單與使用者數未驗證 | 僅啟用 Email/Password | 同上，限缺貨專案獨立使用者庫 | 同上 | 同上 | 同上 | 同上 |
-| `hr-system-ad937` | Spark；Auth 初始頁；Provider 清單與使用者數未驗證 | 僅啟用 Email/Password | 同上，限 HR 專案獨立使用者庫 | 同上 | 同上 | 同上 | 同上 |
+| Firebase Project ID | 執行前確認 | 唯一設定 | 重新讀回結果 | 執行結果 |
+| --- | --- | --- | --- | --- |
+| `new-customer-management-system` | Project ID 正確；Spark；Authentication 初始頁 | 僅啟用 Email/Password | 已啟用；其他 Provider 未啟用 | 成功 |
+| `pre-order-registration` | Project ID 正確；Spark；Authentication 初始頁 | 僅啟用 Email/Password | 已啟用；其他 Provider 未啟用 | 成功 |
+| `restocking-list` | Project ID 正確；Spark；Authentication 初始頁 | 僅啟用 Email/Password | 已啟用；其他 Provider 未啟用 | 成功 |
+| `hr-system-ad937` | Project ID 正確；Spark；Authentication 初始頁 | 僅啟用 Email/Password | 已啟用；其他 Provider 未啟用 | 成功 |
 
-**Console 操作路徑：**經業主對該專案明確批准後，開啟 Firebase Console 對應 Project ID → Authentication → 開始使用／Sign-in method → 只啟用 Email/Password → Save。若只看到初始頁或無法確認變更狀態，先停止並要求具適當 Auth 管理角色的人員處理，不用未驗證 API 或高權限繞道。Firebase 官方的[密碼登入設定](https://firebase.google.com/docs/auth/web/password-auth)與[計費方案說明](https://firebase.google.com/docs/projects/billing/firebase-pricing-plans)列出可用登入方式；Email/Password Provider 啟用不自動建立員工帳號或修復公開的資料庫 Security Rules。Auth Provider 單獨開啟預期不需 Blaze 或付費資源；遇到任何計費升級提示即停止。
+**完成狀態：4/4 已啟用並重新讀回驗證。**無需變更 ADC quota project，沒有建立服務帳戶金鑰、員工帳號或 Claims；沒有變更 IAM、正式資料庫、Rules、網站或計費方案。Auth 使用者數仍未驗證，因本輪沒有讀取 Auth 使用者清單。啟用 Email/Password 不會自動建立員工帳號或修復仍公開的正式 Security Rules；這項操作不代表整體資安修復或切換完成。
 
-啟用後只能報告該專案 Provider 的重新讀回結果。若在後續建立帳號前需回復，可在同一 Provider 設定頁關閉本次新增的 Email/Password Provider並重新讀回；若屆時已建立任何使用者，禁止刪除帳號，先暫停該專案切換並由業主決定是否接受停用登入造成的使用影響。Provider 啟用不等於整體資安修復完成；正式 Security Rules、帳號、Claims、網站部署各自需要獨立批准與 Gate。
+**異常處理：**若後續發現 Provider 狀態與本紀錄不符、登入出現影響或需要回復，先停止帳號建立與後續切換，核對 Google Cloud Admin Activity 記錄。只有在未建立帳號且業主另行確認回復時，才可在相同專案將 Email/Password 恢復為設定前狀態並重新讀回；若已存在任何使用者，不得刪帳號，須先評估停用登入的影響並取得業主決定。
 
-**核准界線：**每個專案須分別明確批准「是否允許啟用 Email/Password Authentication Provider」。此核准只授權 Provider 設定，不授權建立個人帳號、核發 Custom Claims、修改 Security Rules、合併 PR 或部署網站。本輪四專案均未獲 Provider 寫入核准。
+**授權界線：**業主已核准並完成的只限四專案 Email/Password Provider 開關。個人帳號建立、Custom Claims 核發、Security Rules 修改、正式資料操作、IAM 變更、PR 合併及網站部署仍需各自授權與 G1–G8 門檻。下一步先由業主補妥私人員工確認資料，再逐專案／逐人核准帳號與完整 Claims，並安排試點及實機驗收。
 
 ## 角色與人員確認表
 
@@ -41,9 +41,9 @@
 
 ### 業主候選試點（尚未建立帳號或核准角色）
 
-私人員工權限 CSV 已增加四個 `OWNER-PILOT-TBD` 預填列，分別對應四個 Firebase 專案；私人設備驗收 CSV 也增加四個逐專案試點列。它們只標示「建議業主作第一位試點」，不填入真實信箱、UID、裝置或日期，也不推定業主需要 manager 權限。每個專案的角色與 claims 仍為待批准，Auth Provider、帳號及 claims 都維持未變更。逐專案測試須在未來逐項批准及帳號建立後，使用該專案授權範圍並依最低角色操作；驗收資料需為明確核准的合成項目，不用真實顧客資料。四專案候選順序為：新客 `customer`（管理員或設計師角色待職務判定）、預購 `preorder/staff`、缺貨 `stock/staff`、HR `hr/manager`（僅確認業主實際承擔 HR 管理職責後）。若角色未核准或業務職責不適用，該專案試點不建立帳號、不進行登入測試。
+私人員工權限 CSV 已增加四個 `OWNER-PILOT-TBD` 預填列，分別對應四個 Firebase 專案；私人設備驗收 CSV 也增加四個逐專案試點列。它們只標示「建議業主作第一位試點」，不填入真實信箱、UID、裝置或日期，也不推定業主需要 manager 權限。每個專案的角色與 claims 仍為待批准；Email/Password Provider 已啟用，但帳號及 claims 未變更。逐專案測試須在未來逐人批准及帳號建立後，使用該專案授權範圍並依最低角色操作；驗收資料需為明確核准的合成項目，不用真實顧客資料。四專案候選順序為：新客 `customer`（管理員或設計師角色待職務判定）、預購 `preorder/staff`、缺貨 `stock/staff`、HR `hr/manager`（僅確認業主實際承擔 HR 管理職責後）。若角色未核准或業務職責不適用，該專案試點不建立帳號、不進行登入測試。
 
-正式員工資料仍缺：每位員工的內部識別、核准個人 email、所需專案、職責及最低角色；設計師本人代碼；每個 manager 的實際管理理由；每專案 Provider 核准、帳號建立核准、UID 核對及完整 claims 核准；驗收設備／瀏覽器、可用時段、執行者與監督者。私人表目前有 7 個既有角色範本加 4 個業主候選列；身份與核准信箱仍空白。CSV 僅存受限本機目錄，不提交 GitHub。預購／缺貨的正式刪除操作者不屬本次上線需求。
+正式員工資料仍缺：每位員工的內部識別、核准個人 email、所需專案、職責及最低角色；設計師本人代碼；每個 manager 的實際管理理由；逐人帳號建立核准、UID 核對及完整 claims 核准；驗收設備／瀏覽器、可用時段、執行者與監督者。四專案 Provider 已啟用。私人表目前有 7 個既有角色範本加 4 個業主候選列；身份與核准信箱仍空白。CSV 僅存受限本機目錄，不提交 GitHub。預購／缺貨的正式刪除操作者不屬本次上線需求。
 
 ## 逐人實機驗收清單（每位員工、每個專案各複製一份）
 
@@ -69,8 +69,8 @@
 ### 帳號與 Custom Claims dry-run 計畫（尚未連正式 Auth 執行）
 
 1. 私下填妥每位員工的內部辨識代碼、核准信箱、所需系統、角色、設計師代碼（若適用）、主管與離職停用負責人。manager 必須附具體管理工作；無該工作的員工採 designer/staff，HR 不授予帳號除非核准 HR 管理職責。
-2. 業主逐人批准「哪個 Firebase 專案、建立哪個帳號、使用何種登入方式、核發哪些完整 claims」。另外逐專案批准是否開啟 Email/Password provider；這會改變正式 Auth 設定。現有 provider 未啟用，故未經批准不得以現有空帳號或 Console 狀態推定已建立帳號。
-3. 批准後由可信任管理者先建立帳號、驗證信箱，取得該專案 UID；不建立或公開服務帳戶私鑰。用 ADC 對實際 UID 執行 `assign-staff-claim.mjs` 不帶 `--apply` 的 dry run，核對專案、App、角色、信箱驗證狀態與既有 claims。腳本 dry run 只讀 `getUser`，不建立帳號或修改 claims；若帳號不存在、provider 未啟用、IAM 不足或 UID 對不上，停止。
+2. 業主逐人批准「哪個 Firebase 專案、建立哪個帳號、使用何種登入方式、核發哪些完整 claims」。四個專案的 Email/Password provider 已另行核准並啟用；該核准不建立使用者，也不授權任何個人 claims。
+3. 批准後由可信任管理者先建立帳號、驗證信箱，取得該專案 UID；不建立或公開服務帳戶私鑰。用 ADC 對實際 UID 執行 `assign-staff-claim.mjs` 不帶 `--apply` 的 dry run，核對專案、App、角色、信箱驗證狀態與既有 claims。腳本 dry run 只讀 `getUser`，不建立帳號或修改 claims；若帳號不存在、該專案 Provider 讀回未啟用、IAM 不足或 UID 對不上，停止。
 4. **目前候選版**已完全禁止預購與缺貨 RTDB 的客戶端刪除。任何 staff、主管、舊 manager、舊 `aliceCanDelete=true` token 或殘留授權列都不能由網頁、SDK 或 REST 刪除資料。舊 `/deletionAuthorizations` 根節點不在候選 Rules 中；快照差異工具若看見該根節點會標示未知並停下人工檢查，不會自動移除。
 5. `delete-single-record-local.mjs` 只接受白名單專案與一個紀錄 ID，強制連 localhost RTDB Emulator；程式沒有正式環境 `--apply` 選項。操作者須出現在本機私人 `DELETE-OPERATORS-APPROVAL.json`，以 Windows 身分逐專案列明 `store-manager` 或 `approved-supervisor`、核准人、時間與參考。缺少核准即停止。操作時先讀取紀錄，只顯示路徑、ID 與 SHA-256；操作者須再次輸入完整 ID 及 `DELETE`。完整單筆 JSON 先寫入受限私人備份並讀回驗證，再以 RTDB transaction 比對雜湊後刪除，最後確認該 ID 已不存在且同集合其他資料完全未變。正式資料操作仍被工具硬性封鎖；若未來需正式啟用，必須另經業主批准並設計正式 IAM、權限及復原流程。`assign-staff-claim.mjs` 只管理身份 Claims，刪除 claim 已退役；正式 Claims 套用仍停用。
 
@@ -86,7 +86,7 @@ node delete-single-record-local.mjs --project restocking-list --id '<單筆紀�
 
 預購與缺貨網頁不顯示刪除按鈕，也不含直接刪除函式。Emulator 測試工具只允許連 localhost，且不能連正式資料庫。正式切換初期維持完全無刪除能力；正式工具不需要存在，本機工具不得新增正式連線或寫入路徑。日後如要提供正式刪除，必須作為上線後獨立功能重新審查並獲明確批准。
 
-需業主批准的項目僅列於狀態報告的四類：逐專案 Auth Provider、逐人帳號及完整 Claims、試點與員工實機驗收安排、維護窗口與 G1–G8 切換授權。預購／缺貨正式刪除工具不在本次切換授權內，日後若提出須另案批准；本機工具的刪除測試僅限 Emulator。
+仍需業主批准的項目為：逐人帳號及完整 Claims、試點與員工實機驗收安排、維護窗口與 G1–G8 切換授權。四專案 Provider 已啟用。預購／缺貨正式刪除工具不在本次切換授權內，日後若提出須另案批准；本機工具的刪除測試僅限 Emulator。
 
 ### 正式單筆刪除的安全設計（僅設計與 Emulator 驗證）
 
@@ -153,7 +153,7 @@ node security/compare-snapshots.mjs --project hr-system-ad937 --before "<B0-FIRE
 1. **本機／測試環境：**用 Emulator 合成舊格式資料驗證四頁合法角色的新增、查詢、編輯、必要的應用內刪除流程、登入／登出、重整、斷線／恢復；預購／缺貨用戶端刪除必須一律拒絕。HR 以兩個獨立瀏覽器工作階段測不同列並行合併、同列衝突拒絕、寫入拒絕後提示／重試、待寫入時阻止登出、未送出表單避免被遠端更新清空。匿名、錯誤角色、跨設計師與 HR 整份文件刪除必須拒絕。
 2. **舊／新版交接：**目前正式舊頁沒有 Auth；候選新規則生效後，舊分頁會被拒絕。正式切換前須通知員工完成舊頁操作、確認 B2 已涵蓋、關閉舊分頁，再以新版登入。GitHub Pages 快取及開啟中的舊分頁須在現場逐台確認。不得把 Emulator 結果宣稱為正式員工驗收。
 3. **上線前門檻：**四套新的私人快照與正式規則快照的 SHA-256 均通過；B0→B1 每筆新增／修改／刪除均與營運紀錄核對；B1→B2 必須零差異；HR B1、B2 均在 Emulator 還原及內容核對成功；所有相關舊分頁、瀏覽器快取與裝置均由員工逐一關閉並記錄；實際員工帳號與 claims 核對，逐人必要操作通過；HR 沒有 pending write、失敗草稿或未送出表單；業主簽核窗口與 Go。任一項缺證據則 No-Go，不以「解釋了差異」代替 B1→B2 零差異。
-4. **正式切換順序：**先取得四類業主批准；按批准資料逐專案啟用 Provider、建立個人帳號並核對 UID／Claims；排定 G1–G8 窗口與人員；依序執行 G1 停寫、G2 B1、G3 差異核對與 B2 零差異、G4 關閉舊頁與裝置、G5 安全 Rules、G6 網站切換、G7 逐人實機登入與操作、G8 B3 增量核對。每個 Gate 都需當場記錄業主 Go、執行者、獨立核對者、時間與證據；不滿足停止條件即停在當前 Gate，不繼續。
+4. **正式切換順序：**Email/Password Provider 已在四專案啟用；完成逐人帳號與完整 Claims 的業主批准及配置，再排定 G1–G8 窗口與人員；依序執行 G1 停寫、G2 B1、G3 差異核對與 B2 零差異、G4 關閉舊頁與裝置、G5 安全 Rules、G6 網站切換、G7 逐人實機登入與操作、G8 B3 增量核對。每個 Gate 都需當場記錄業主 Go、執行者、獨立核對者、時間與證據；不滿足停止條件即停在當前 Gate，不繼續。
 5. **正式切換 Gate 明細：**
 
    | Gate | 執行者 | 必要證據 | 停止條件 | 安全回復 |
