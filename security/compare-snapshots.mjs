@@ -43,8 +43,7 @@ try {
   if (project === hrProject &&
       (before.sourceProject !== project || after.sourceProject !== project)) throw new Error('Wrong HR project.');
   const result = project === hrProject ? compareFirestore(before, after)
-    : compareRtdb(before, after, rtdbRoots[project],
-      ['pre-order-registration', 'restocking-list'].includes(project) ? ['deletionAuthorizations'] : []);
+    : compareRtdb(before, after, rtdbRoots[project]);
   const ledger = {
     format: 'alice-private-snapshot-diff-v1', project, comparedAtUtc: new Date().toISOString(),
     before: { file: beforePath, sha256: sha256(beforeRaw), bytes: beforeRaw.length },
@@ -55,9 +54,8 @@ try {
   const file = join(outputDir, `snapshot-diff-${project}-${Date.now()}.json`);
   await writeFile(file, JSON.stringify(ledger, null, 2), { flag: 'wx', mode: 0o600 });
   const count = project === hrProject ? result.documents.counts : result.records.counts;
-  const auth = result.deletionAuthorizations?.counts;
   console.log(`PRIVATE_DIFF_OK project=${project} added=${count.added} modified=${count.modified} deleted=${count.deleted} unchanged=${count.unchanged}`);
-  if (auth) console.log(`PRIVATE_AUTHORIZATION_DIFF added=${auth.added} modified=${auth.modified} deleted=${auth.deleted} unchanged=${auth.unchanged}`);
+  if (result.unexpectedRoots.length) console.log(`PRIVATE_UNKNOWN_ROOTS count=${result.unexpectedRoots.length} review_required=true`);
   console.log(`PRIVATE_LEDGER_NAME=${basename(file)}`);
 } catch (error) {
   console.error(`PRIVATE_DIFF_STOPPED type=${error.name}`);

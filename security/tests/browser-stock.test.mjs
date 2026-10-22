@@ -7,7 +7,6 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 import { initializeApp, deleteApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
-import { getDatabase } from 'firebase-admin/database';
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 
 const securityRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -24,10 +23,6 @@ test('缺貨頁：本機 Auth/RTDB 登入、CRUD、重新整理、斷線恢復�
   });
   // The Auth emulator maps unregistered production API keys to its demo project.
   const admin = initializeApp({ projectId: 'demo-alice-p0' }, 'stock-browser-test');
-  const databaseAdmin = initializeApp({ projectId: 'restocking-list',
-    databaseURL: 'https://restocking-list-default-rtdb.asia-southeast1.firebasedatabase.app' }, 'stock-database-browser-test');
-  const adminDb = getDatabase(databaseAdmin);
-  adminDb.useEmulator('127.0.0.1', 9000);
   const email = `synthetic-${Date.now()}@example.invalid`;
   const password = 'Synthetic-password-123!';
   const user = await getAuth(admin).createUser({ email, password, emailVerified: true });
@@ -35,7 +30,6 @@ test('缺貨頁：本機 Auth/RTDB 登入、CRUD、重新整理、斷線恢復�
   const supervisorEmail = `synthetic-supervisor-${Date.now()}@example.invalid`;
   const supervisor = await getAuth(admin).createUser({ email: supervisorEmail, password, emailVerified: true });
   await getAuth(admin).setCustomUserClaims(supervisor.uid, { aliceApp: 'stock', aliceRole: 'staff', aliceCanDelete: true });
-  await adminDb.ref(`deletionAuthorizations/${supervisor.uid}`).set(true);
   const server = createServer(async (req, res) => {
     const path = resolve(siteRoot, '.' + decodeURIComponent(new URL(req.url, 'http://localhost').pathname));
     if (!path.startsWith(siteRoot + sep)) { res.writeHead(403).end(); return; }
@@ -83,13 +77,7 @@ test('缺貨頁：本機 Auth/RTDB 登入、CRUD、重新整理、斷線恢復�
     await page.locator('#aliceAuthForm button').click();
     await page.locator('#aliceAuthBar').waitFor({ state: 'visible', timeout: 30000 });
     await page.waitForTimeout(1000);
-    await page.locator('#result .delete-btn').waitFor({ state: 'visible', timeout: 15000 });
-    await adminDb.ref(`deletionAuthorizations/${supervisor.uid}`).set(false);
-    await page.locator('#result .delete-btn').waitFor({ state: 'detached', timeout: 15000 });
-    await adminDb.ref(`deletionAuthorizations/${supervisor.uid}`).set(true);
-    await page.locator('#result .delete-btn').waitFor({ state: 'visible', timeout: 15000 });
-    await page.locator('#result .delete-btn').first().click();
-    await page.locator('#result .result-item').waitFor({ state: 'detached', timeout: 15000 });
+    assert.equal(await page.locator('#result .delete-btn').count(), 0, '含舊刪除 claim 的主管也不應看到刪除按鈕');
     await page.locator('#aliceAuthBar button').click();
     await page.locator('#aliceAuthForm').waitFor({ state: 'visible' });
     assert.equal(await page.locator('#aliceAuthBar').isVisible(), false);
@@ -99,6 +87,5 @@ test('缺貨頁：本機 Auth/RTDB 登入、CRUD、重新整理、斷線恢復�
     await new Promise(resolve => server.close(resolve));
     await env.cleanup();
     await deleteApp(admin);
-    await deleteApp(databaseAdmin);
   }
 });

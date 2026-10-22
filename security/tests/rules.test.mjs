@@ -61,7 +61,7 @@ const stockItem = (overrides = {}) => ({
   date: '2026/10/20 10:00', ...overrides
 });
 
-test('預購：staff CRUD 相容；即時授權清單控制刪除並覆蓋舊 token claim', async () => {
+test('預購：任何用戶皆不能刪除；新增、查詢與取貨日期更新保持相容', async () => {
   const env = await rtdbEnv('pre-order-registration', 'preorder.database.rules.json');
   try {
     await env.withSecurityRulesDisabled(async context => set(ref(rtdb(context)), {
@@ -70,40 +70,40 @@ test('預購：staff CRUD 相容；即時授權清單控制刪除並覆蓋舊 to
     }));
     const guest = rtdb(env.unauthenticatedContext());
     const staff = rtdb(env.authenticatedContext('staff', { aliceApp: 'preorder', aliceRole: 'staff' }));
-    const approved = rtdb(env.authenticatedContext('approved', { aliceApp: 'preorder', aliceRole: 'staff', aliceCanDelete: true }));
-    const noRow = rtdb(env.authenticatedContext('no-row', { aliceApp: 'preorder', aliceRole: 'staff', aliceCanDelete: true }));
     const wrongApp = rtdb(env.authenticatedContext('wrong-app', { aliceApp: 'stock', aliceRole: 'staff' }));
     const manager = rtdb(env.authenticatedContext('manager', { aliceApp: 'preorder', aliceRole: 'manager', aliceCanDelete: true }));
+    const legacyManager = rtdb(env.authenticatedContext('legacy-manager', { aliceApp: 'preorder', aliceRole: 'manager' }));
     await assertFails(get(ref(guest, 'reservations')));
     await assertFails(set(ref(guest, 'reservations/guest'), reservation()));
     await assertSucceeds(get(ref(staff, 'reservations')));
     await assertSucceeds(set(ref(staff, 'reservations/new'), reservation()));
     await assertSucceeds(update(ref(staff, 'reservations/old'), { pickupDate: '2026-10-23' }));
     await assertFails(remove(ref(staff, 'reservations/old')));
-    await assertFails(remove(ref(noRow, 'reservations/old')));
-    await assertFails(remove(ref(wrongApp, 'reservations/old')));
+    await assertFails(set(ref(staff, 'reservations/old'), null));
     await assertFails(remove(ref(manager, 'reservations/old')));
+    await assertFails(remove(ref(legacyManager, 'reservations/old')));
+    await assertFails(remove(ref(wrongApp, 'reservations/old')));
+    await assertFails(set(ref(manager, 'reservations/old'), null));
+    await assertFails(set(ref(manager, 'reservations/old'), reservation({ product: '覆寫' })));
+    await assertFails(update(ref(staff), { 'reservations/old': null }));
+    await assertFails(update(ref(manager), { 'reservations/old': null, 'reservations/new/pickupDate': '2026-10-24' }));
+    await assertFails(remove(ref(staff, 'reservations')));
+    await assertFails(remove(ref(manager, 'reservations')));
     await assertFails(get(ref(staff, 'deletionAuthorizations/approved')));
-    await assertSucceeds(get(ref(approved, 'deletionAuthorizations/approved')));
-    await assertFails(get(ref(approved, 'deletionAuthorizations/staff')));
-    await assertFails(set(ref(approved, 'deletionAuthorizations/approved'), true));
     await assertFails(set(ref(staff, 'deletionAuthorizations/approved'), false));
-    await assertFails(remove(ref(approved, 'reservations')));
-    await assertFails(update(ref(staff), { 'reservations/old': null, 'reservations/new/pickupDate': '2026-10-24' }));
-    await assertSucceeds(remove(ref(approved, 'reservations/old')));
-
-    await env.withSecurityRulesDisabled(async context => set(ref(rtdb(context), 'reservations/old'), reservation()));
-    await env.withSecurityRulesDisabled(async context => set(ref(rtdb(context), 'deletionAuthorizations/approved'), false));
-    await assertFails(remove(ref(approved, 'reservations/old')));
-    await env.withSecurityRulesDisabled(async context => {
-      await set(ref(rtdb(context), 'reservations/old'), reservation());
-      await set(ref(rtdb(context), 'deletionAuthorizations/approved'), { enabled: true });
-    });
-    await assertFails(remove(ref(approved, 'reservations/old')));
+    const after = await assertSucceeds(get(ref(staff, 'reservations/old')));
+    assert.equal(after.val().customerName, 'Synthetic Customer');
+    const restUrl = new URL(`${ref(manager, 'reservations/old').toString()}.json`);
+    restUrl.searchParams.set('ns', 'pre-order-registration');
+    restUrl.searchParams.set('auth', manager.authToken);
+    const restResponse = await fetch(restUrl, { method: 'DELETE' });
+    const restBody = await restResponse.text();
+    assert.notEqual(restResponse.status, 200, 'RTDB REST DELETE must not succeed for a manager token');
+    assert.match(restBody, /permission|denied|unauthorized|invalid/i, 'REST response should identify authorization rejection');
   } finally { await env.cleanup(); }
 });
 
-test('缺貨：staff 僅可讀取／新增；授權 UID 可單筆刪除且撤權後舊 token 即拒絕', async () => {
+test('缺貨：任何用戶皆不能刪除或更新；staff 查詢與新增保持相容', async () => {
   const env = await rtdbEnv('restocking-list', 'stock.database.rules.json');
   try {
     await env.withSecurityRulesDisabled(async context => set(ref(rtdb(context)), {
@@ -112,36 +112,37 @@ test('缺貨：staff 僅可讀取／新增；授權 UID 可單筆刪除且撤權
     }));
     const guest = rtdb(env.unauthenticatedContext());
     const staff = rtdb(env.authenticatedContext('staff', { aliceApp: 'stock', aliceRole: 'staff' }));
-    const approved = rtdb(env.authenticatedContext('approved', { aliceApp: 'stock', aliceRole: 'staff', aliceCanDelete: true }));
-    const noRow = rtdb(env.authenticatedContext('no-row', { aliceApp: 'stock', aliceRole: 'staff', aliceCanDelete: true }));
-    const crossProject = rtdb(env.authenticatedContext('cross-project', { aliceApp: 'stock', aliceRole: 'staff' }));
-    const wrongApp = rtdb(env.authenticatedContext('wrong-app', { aliceApp: 'preorder', aliceRole: 'staff' }));
     const manager = rtdb(env.authenticatedContext('manager', { aliceApp: 'stock', aliceRole: 'manager', aliceCanDelete: true }));
+    const wrongApp = rtdb(env.authenticatedContext('wrong-app', { aliceApp: 'preorder', aliceRole: 'staff' }));
     await assertFails(get(ref(guest, 'stockItems')));
     await assertFails(set(ref(guest, 'stockItems/guest'), stockItem()));
     await assertSucceeds(get(ref(staff, 'stockItems')));
     await assertSucceeds(set(ref(staff, 'stockItems/new'), stockItem()));
     await assertFails(update(ref(staff, 'stockItems/old'), { item: 'Changed' }));
     await assertFails(remove(ref(staff, 'stockItems/old')));
-    await assertFails(remove(ref(noRow, 'stockItems/old')));
-    await assertFails(remove(ref(crossProject, 'stockItems/old')));
-    await assertFails(remove(ref(wrongApp, 'stockItems/old')));
+    await assertFails(set(ref(staff, 'stockItems/old'), null));
     await assertFails(remove(ref(manager, 'stockItems/old')));
-    await assertFails(get(ref(staff, 'deletionAuthorizations/approved')));
-    await assertSucceeds(get(ref(approved, 'deletionAuthorizations/approved')));
-    await assertFails(get(ref(approved, 'deletionAuthorizations/staff')));
-    await assertFails(set(ref(approved, 'deletionAuthorizations/approved'), true));
-    await assertFails(remove(ref(approved, 'stockItems')));
+    await assertFails(set(ref(manager, 'stockItems/old'), null));
+    await assertFails(update(ref(manager, 'stockItems/old'), stockItem({ item: '覆寫' })));
+    await assertFails(remove(ref(wrongApp, 'stockItems/old')));
     await assertFails(update(ref(staff), { 'stockItems/old': null, 'stockItems/new': null }));
-    await assertSucceeds(remove(ref(approved, 'stockItems/old')));
-
-    await env.withSecurityRulesDisabled(async context => set(ref(rtdb(context), 'stockItems/old'), stockItem()));
-    await env.withSecurityRulesDisabled(async context => set(ref(rtdb(context), 'deletionAuthorizations/approved'), false));
-    await assertFails(remove(ref(approved, 'stockItems/old')));
+    await assertFails(update(ref(manager), { 'stockItems/old': null, 'stockItems/new': null }));
+    await assertFails(remove(ref(staff, 'stockItems')));
+    await assertFails(remove(ref(manager, 'stockItems')));
+    await assertFails(get(ref(staff, 'deletionAuthorizations/approved')));
+    const after = await assertSucceeds(get(ref(staff, 'stockItems/old')));
+    assert.equal(after.val().item, 'Synthetic Item');
+    const restUrl = new URL(`${ref(manager, 'stockItems/old').toString()}.json`);
+    restUrl.searchParams.set('ns', 'restocking-list');
+    restUrl.searchParams.set('auth', manager.authToken);
+    const restResponse = await fetch(restUrl, { method: 'DELETE' });
+    const restBody = await restResponse.text();
+    assert.notEqual(restResponse.status, 200, 'RTDB REST DELETE must not succeed for stock manager token');
+    assert.match(restBody, /permission|denied|unauthorized|invalid/i, 'REST response should identify authorization rejection');
   } finally { await env.cleanup(); }
 });
 
-test('已知阻擋：RTDB Rules 目前允許已授權 UID 以原子多路徑更新刪除多筆', async () => {
+test('預購與缺貨：授權列不能解除任何客戶端刪除限制，根節點多路徑操作遭拒', async () => {
   const env = await rtdbEnv('pre-order-registration', 'preorder.database.rules.json');
   try {
     await env.withSecurityRulesDisabled(async context => set(ref(rtdb(context)), {
@@ -149,9 +150,10 @@ test('已知阻擋：RTDB Rules 目前允許已授權 UID 以原子多路徑更�
       deletionAuthorizations: { approved: true }
     }));
     const approved = rtdb(env.authenticatedContext('approved', { aliceApp: 'preorder', aliceRole: 'staff' }));
-    await assertSucceeds(update(ref(approved), { 'reservations/one': null, 'reservations/two': null }));
+    await assertFails(update(ref(approved), { 'reservations/one': null, 'reservations/two': null }));
+    await assertFails(set(ref(approved), null));
     const remaining = await assertSucceeds(get(ref(approved, 'reservations')));
-    assert.equal(remaining.val(), null);
+    assert.equal(Object.keys(remaining.val()).length, 2);
   } finally { await env.cleanup(); }
 });
 

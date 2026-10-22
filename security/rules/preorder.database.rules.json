@@ -2,16 +2,10 @@
   "rules": {
     ".read": false,
     ".write": false,
-    "deletionAuthorizations": {
-      "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
-        ".write": false
-      }
-    },
     "reservations": {
       ".read": "auth != null && auth.token.aliceApp === 'preorder' && auth.token.aliceRole === 'staff'",
       "$reservationId": {
-        ".write": "auth != null && auth.uid != null && auth.token.aliceApp === 'preorder' && auth.token.aliceRole === 'staff' && ((!data.exists() && newData.exists()) || (data.exists() && newData.exists()) || (data.exists() && !newData.exists() && root.child('deletionAuthorizations').child(auth.uid).val() === true))",
+        ".write": "auth != null && auth.uid != null && auth.token.aliceApp === 'preorder' && auth.token.aliceRole === 'staff' && ((!data.exists() && newData.exists()) || (data.exists() && newData.exists()))",
         ".validate": "newData.hasChildren(['id', 'reservationDate', 'customerName', 'contactPlatform', 'product', 'quantity', 'phone', 'pickupDate', 'createdAt'])",
         "id": { ".validate": "(!data.exists() && newData.isNumber()) || (data.exists() && newData.val() === data.val())" },
         "reservationDate": { ".validate": "(!data.exists() && newData.isString()) || (data.exists() && newData.val() === data.val())" },

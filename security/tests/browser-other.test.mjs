@@ -7,7 +7,6 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 import { initializeApp, deleteApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
-import { getDatabase } from 'firebase-admin/database';
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
@@ -34,7 +33,6 @@ test('新客、預訂、HR 頁面於本機 Emulator 的員工工作流程', asyn
   await new Promise(resolve => server.listen(8766, '127.0.0.1', resolve));
   const browser = await chromium.launch({ executablePath: edge, headless: true });
   const password = 'Synthetic-password-123!';
-  let preorderDatabaseAdmin;
   async function addAccount(claims) {
     const email = `synthetic-${claims.aliceApp}-${Date.now()}@example.invalid`;
     const user = await getAuth(admin).createUser({ email, password, emailVerified: true });
@@ -97,10 +95,6 @@ test('新客、預訂、HR 頁面於本機 Emulator 的員工工作流程', asyn
 
     const preorderRules = await readFile(join(securityRoot, 'rules/preorder.database.rules.json'), 'utf8');
     environments.push(await initializeTestEnvironment({ projectId: 'pre-order-registration', database: { ...ports, rules: preorderRules } }));
-    preorderDatabaseAdmin = initializeApp({ projectId: 'pre-order-registration',
-      databaseURL: 'https://pre-order-registration-default-rtdb.asia-southeast1.firebasedatabase.app' }, 'preorder-browser-database-test');
-    const preorderAdminDb = getDatabase(preorderDatabaseAdmin);
-    preorderAdminDb.useEmulator('127.0.0.1', 9000);
     const preorderEmail = await addAccount({ aliceApp: 'preorder', aliceRole: 'staff' });
     const preorder = await openAndLogin('Product Pre-Order.html', preorderEmail);
     await preorder.page.locator('#submitBtn').waitFor({ state: 'visible' });
@@ -117,21 +111,11 @@ test('新客、預訂、HR 頁面於本機 Emulator 的員工工作流程', asyn
     await preorder.page.locator('#aliceAuthBar button').click();
     await preorder.page.locator('#aliceAuthForm').waitFor({ state: 'visible' });
     const preorderSupervisorEmail = await addAccount({ aliceApp: 'preorder', aliceRole: 'staff', aliceCanDelete: true });
-    const preorderSupervisor = await getAuth(admin).getUserByEmail(preorderSupervisorEmail);
-    await preorderAdminDb.ref(`deletionAuthorizations/${preorderSupervisor.uid}`).set(true);
     await preorder.page.locator('#aliceAuthForm input[name="email"]').fill(preorderSupervisorEmail);
     await preorder.page.locator('#aliceAuthForm input[name="password"]').fill(password);
     await preorder.page.locator('#aliceAuthForm button').click();
     await preorder.page.locator('#aliceAuthBar').waitFor({ state: 'visible', timeout: 30000 });
-    await preorder.page.locator('#reservationList .delete-btn').waitFor({ state: 'visible', timeout: 15000 });
-    await preorderAdminDb.ref(`deletionAuthorizations/${preorderSupervisor.uid}`).set(false);
-    await preorder.page.locator('#reservationList .delete-btn').waitFor({ state: 'detached', timeout: 15000 });
-    await preorderAdminDb.ref(`deletionAuthorizations/${preorderSupervisor.uid}`).set(true);
-    await preorder.page.locator('#reservationList .delete-btn').waitFor({ state: 'visible', timeout: 15000 });
-    await preorder.page.locator('#reservationList .delete-btn').click();
-    await preorder.page.locator('#reservationList .confirm-delete-btn').waitFor({ state: 'visible', timeout: 15000 });
-    await preorder.page.locator('#reservationList .confirm-delete-btn').click();
-    await preorder.page.locator('#reservationList').getByText('Synthetic Customer').waitFor({ state: 'detached', timeout: 15000 });
+    assert.equal(await preorder.page.locator('#reservationList .delete-btn').count(), 0, '含舊刪除 claim 的主管也不應看到刪除按鈕');
     await preorder.page.locator('#aliceAuthBar button').click();
     await preorder.page.locator('#aliceAuthForm').waitFor({ state: 'visible' });
     await preorder.context.close();
@@ -312,7 +296,6 @@ test('新客、預訂、HR 頁面於本機 Emulator 的員工工作流程', asyn
     await browser.close();
     await new Promise(resolve => server.close(resolve));
     for (const env of environments) await env.cleanup();
-    if (preorderDatabaseAdmin) await deleteApp(preorderDatabaseAdmin);
     await deleteApp(admin);
   }
 });

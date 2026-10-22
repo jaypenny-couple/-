@@ -11,12 +11,13 @@ test('最後備份比較：RTDB 新增、修改、刪除與未知根節點分開
   assert.equal(diff.rootChanges.counts.added, 1);
 });
 
-test('預購／缺貨差異核對會辨識授權清單且不列為未知資料', () => {
+test('棄用授權清單會被標示為未知根節點並保留供人工核對', () => {
   const before = { reservations: { a: { x: 1 } }, deletionAuthorizations: { uidA: { enabled: true } } };
   const after = { reservations: { a: { x: 1 } }, deletionAuthorizations: { uidA: { enabled: false }, uidB: { enabled: true } } };
-  const diff = compareRtdb(before, after, 'reservations', ['deletionAuthorizations']);
-  assert.deepEqual(diff.unexpectedRoots, []);
-  assert.deepEqual(diff.deletionAuthorizations.counts, { added: 1, modified: 1, deleted: 0, unchanged: 0 });
+  const diff = compareRtdb(before, after, 'reservations');
+  assert.deepEqual(diff.unexpectedRoots, ['deletionAuthorizations']);
+  assert.deepEqual(diff.rootChanges.counts, { added: 0, modified: 1, deleted: 0, unchanged: 1 });
+  assert.deepEqual(diff.records.counts, { added: 0, modified: 0, deleted: 0, unchanged: 1 });
 });
 
 test('最後備份比較：Firestore 文件與 HR 陣列逐項辨識變更', () => {
