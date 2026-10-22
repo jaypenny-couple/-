@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>染劑濃度查詢</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ee; --surface:#ffffff; --surface-2:#efebe5; --text:#1c1a18; --muted:#6f6862;
+  --line:#e2ddd5; --ink:#1c1a18; --ink-contrast:#ffffff;
+  --warn-bg:#fff5dc; --warn-line:#efd38a; --warn-text:#6a4c00;
+  --radius:14px; --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#131211; --surface:#1c1b19; --surface-2:#262421; --text:#f1ede8; --muted:#a19a92;
+    --line:#34312d; --ink:#f1ede8; --ink-contrast:#131211;
+    --warn-bg:#2c2412; --warn-line:#5a4719; --warn-text:#f1d48a;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.4);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:"Noto Sans TC",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+  font-size:15px;line-height:1.55}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+
+/* header */
+.top{padding-top:28px;padding-bottom:18px}
+.top h1{margin:0;font-size:26px;font-weight:900;letter-spacing:.02em}
+.top p{margin:4px 0 0;color:var(--muted);font-size:14px}
+
+/* layout */
+.layout{display:grid;grid-template-columns:1fr;gap:20px;padding-bottom:24px}
+@media (min-width:960px){.layout{grid-template-columns:minmax(0,1fr) 380px}}
+
+/* vendor segmented */
+.seg{display:flex;gap:6px;padding:5px;background:var(--surface-2);border-radius:999px;width:100%;max-width:460px}
+.seg button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:700;
+  padding:10px 12px;border-radius:999px;cursor:pointer;transition:.15s}
+.seg button[aria-selected="true"]{background:var(--ink);color:var(--ink-contrast)}
+.seg button small{display:block;font-weight:500;font-size:11px;opacity:.75}
+
+.controls{display:flex;flex-direction:column;gap:10px;margin:14px 0 8px}
+.search{position:relative}
+.search input{width:100%;font:inherit;padding:12px 14px 12px 40px;border-radius:12px;border:1px solid var(--line);
+  background:var(--surface);color:var(--text);outline:none}
+.search input:focus{border-color:var(--ink)}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);opacity:.5}
+.lines{display:flex;gap:6px;flex-wrap:wrap}
+.lines button{font:inherit;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid var(--line);
+  background:var(--surface);color:var(--text);cursor:pointer}
+.lines button[aria-pressed="true"]{background:var(--ink);color:var(--ink-contrast);border-color:var(--ink)}
+.vnote{margin:6px 0 4px;font-size:13px;color:var(--muted)}
+
+/* list */
+.grp{margin-top:18px}
+.grp h3{display:flex;align-items:baseline;gap:8px;margin:0 0 8px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.grp h3 span{font-weight:500;font-size:12px;opacity:.8}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:6px}
+.chip{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;
+  font:inherit;padding:8px 10px 8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);
+  color:var(--text);cursor:pointer;transition:border-color .12s,transform .12s;min-height:52px;overflow:hidden}
+.chip:hover{border-color:var(--muted)}
+.chip:active{transform:scale(.98)}
+.chip i{position:absolute;left:0;top:0;bottom:0;width:4px}
+.chip b{font-weight:700;font-size:14px;line-height:1.25;word-break:break-word}
+.chip small{font-size:12px;color:var(--muted)}
+.chip .w{position:absolute;top:6px;right:7px;width:7px;height:7px;border-radius:50%;background:#e2a500}
+.chip.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.empty{padding:40px 0;text-align:center;color:var(--muted)}
+
+/* detail */
+.detail{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+@media (min-width:960px){.detail{position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto}}
+@media (max-width:959px){
+  .detail{position:fixed;left:0;right:0;bottom:0;z-index:30;border-radius:20px 20px 0 0;
+    max-height:86vh;overflow:auto;transform:translateY(105%);transition:transform .25s ease;
+    padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+  .detail.open{transform:none}
+  .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20;opacity:0;pointer-events:none;transition:.2s}
+  .backdrop.open{opacity:1;pointer-events:auto}
+  .detail .grab{width:40px;height:4px;border-radius:4px;background:var(--line);margin:-8px auto 12px}
+}
+@media (min-width:960px){.backdrop,.detail .grab,.detail .close{display:none}}
+.placeholder{color:var(--muted);text-align:center;padding:48px 8px;font-size:14px}
+.d-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.d-code{font-size:30px;font-weight:900;line-height:1.1;word-break:break-word}
+.d-meta{color:var(--muted);font-size:13px;margin-top:4px}
+.close{border:0;background:var(--surface-2);color:var(--text);width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;flex:none}
+.d-val{margin:18px 0 2px;display:flex;align-items:baseline;gap:6px}
+.d-val .n{font-size:44px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.d-val .u{font-size:18px;color:var(--muted)}
+.d-vlabel{font-size:12px;color:var(--muted)}
+.sys{margin-top:16px;padding:12px 14px;border-radius:12px;background:var(--surface-2)}
+.sys .k{font-size:12px;color:var(--muted)}
+.sys .v{font-size:18px;font-weight:700;margin-top:2px}
+.tone{margin-top:10px;font-size:14px}
+.tone span{color:var(--muted)}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;margin:18px 0 10px;background:var(--surface-2)}
+.bar div{height:100%}
+table.cmp{width:100%;border-collapse:collapse;font-size:14px}
+table.cmp th{font-size:12px;font-weight:500;color:var(--muted);text-align:left;padding:4px 0;border-bottom:1px solid var(--line)}
+table.cmp td{padding:8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+table.cmp td.r,table.cmp th.r{text-align:right}
+.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px;vertical-align:-1px}
+.tag{display:inline-block;font-size:11px;padding:1px 6px;border-radius:6px;background:var(--surface-2);color:var(--muted);margin-left:6px}
+.inci{display:block;font-size:11px;color:var(--muted);margin-left:18px}
+.typechips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.typechips span{display:inline-flex;align-items:center;font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--surface-2)}
+.hint{font-size:12px;color:var(--muted);margin-top:8px}
+.warn{margin-top:16px;padding:12px 14px;border-radius:12px;background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn-text);font-size:13px}
+.warn b{display:block;margin-bottom:4px}
+.warn ul{margin:0;padding-left:18px}
+
+/* footer */
+.foot{padding:12px 16px 48px;color:var(--muted);font-size:13px}
+.foot h2{font-size:14px;color:var(--text);margin:24px 0 8px}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px 18px}
+.legend div{display:flex;gap:8px;align-items:baseline}
+.legend b{color:var(--text);min-width:64px}
+</style>
+</head>
+<body>
+<header class="top wrap">
+  <h1>染劑濃度查詢</h1>
+  <p>選擇廠商 → 點選色號 → 查看中間體濃度與主要系統</p>
+</header>
+
+<main class="wrap layout">
+  <section>
+    <nav id="vendors" class="seg" role="tablist" aria-label="廠商"></nav>
+    <div class="controls">
+      <label class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="搜尋色號、色調或中間體（例：7NA、灰、AHP）" autocomplete="off">
+      </label>
+      <div id="lines" class="lines"></div>
+    </div>
+    <p id="vnote" class="vnote"></p>
+    <div id="list"></div>
+  </section>
+  <aside id="detail" class="detail" aria-live="polite"></aside>
+</main>
+<div id="backdrop" class="backdrop"></div>
+
+<footer class="wrap foot" id="foot"></footer>
+
+<script src="data.js"></script>
+<script>
+(function () {
+  const DATA = window.DYE_DATA;
+
+  /* 中間體資訊（AHP、BHP 為中間體，INCI 待補；CPPDS 未知） */
+  const INFO = {
+    'TDS':          { inci: 'Toluene-2,5-Diamine Sulfate', cls: '中間體', color: '#7a7ef0' },
+    'PPD':          { inci: 'p-Phenylenediamine', cls: '中間體', color: '#3c38b5' },
+    'TDS/BHP':      { inci: 'Fiole 原表欄位為 TDS 或 BHP（待確認）', cls: '中間體', color: '#8f95e8' },
+    'BHP':          { inci: 'INCI 待補', cls: '中間體', color: '#1d9bd6' },
+    'AHP':          { inci: 'INCI 待補', cls: '中間體', color: '#e0245e' },
+    'PAP':          { inci: 'p-Aminophenol', cls: '中間體', color: '#f0883a' },
+    '4A3MP':        { inci: '4-Amino-m-Cresol', cls: '中間體', color: '#c99a1c' },
+    'CPPDS':        { inci: '成分未確認', cls: '未確認', color: '#8d8d8d' },
+    'Basic Red':    { inci: '鹽基性紅', cls: '直接染料', color: '#d42c2c' },
+    'Basic Yellow': { inci: '鹽基性黃', cls: '直接染料', color: '#e3b20b' },
+    '未標示':       { inci: '原表未標示中間體種類', cls: '未確認', color: '#a8a29e' },
+    '未確認':       { inci: '欄位歸屬無法判定', cls: '未確認', color: '#a8a29e' },
+  };
+  const info = k => INFO[k] || { inci: '', cls: '', color: '#a8a29e' };
+
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  const fmt = v => {
+    if (v == null || isNaN(v)) return '—';
+    const r = Math.round(v * 1000) / 1000;
+    return Math.abs(r * 100 - Math.round(r * 100)) < 1e-9 ? r.toFixed(2) : String(r);
+  };
+
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  };
+
+  const state = {
+    vendorId: store.get('dye.vendor') || DATA.vendors[0].id,
+    line: '全部',
+    q: '',
+    sel: null,
+  };
+  if (!DATA.vendors.some(v => v.id === state.vendorId)) state.vendorId = DATA.vendors[0].id;
+  const vendor = () => DATA.vendors.find(v => v.id === state.vendorId);
+
+  /* ---------- 計算 ---------- */
+  function comps(it) {
+    return it.c ? Object.entries(it.c).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]) : [];
+  }
+  function value(v, it) {
+    if (v.id === 'fiole') return it.v1;
+    if (v.id === 'milbon') return it.total;
+    const cs = comps(it);
+    return cs.length ? cs.reduce((s, [, x]) => s + x, 0) : null;
+  }
+  function isUnsplit(it) { return !it.c && it.types && it.types.length > 1; }
+  function system(it) {
+    if (isUnsplit(it)) return it.types.join(' + ') + '（未分項）';
+    const cs = comps(it);
+    if (!cs.length) return (it.types && it.types.length === 0) ? '無色料' : '—';
+    const keys = cs.map(([k]) => k);
+    if (keys.every(k => info(k).cls === '直接染料')) return keys.join(' + ') + '（直接染料）';
+    const [p, ...rest] = keys;
+    return rest.length ? `${p}（帶 ${rest.join('、')}）` : p;
+  }
+  function primaryKey(it) {
+    const cs = comps(it);
+    if (cs.length) return cs[0][0];
+    if (it.types && it.types.length) return it.types[0];
+    return null;
+  }
+  function warnings(v, it) {
+    const w = [];
+    if (it.sheet != null) w.push(`總表濃度欄為 ${fmt(it.sheet)}，與分項加總 ${fmt(value(v, it))} 不符`);
+    (it.notes || []).forEach(n => w.push(n));
+    const keys = it.c ? Object.keys(it.c) : (it.types || []);
+    if (keys.includes('CPPDS')) w.push('CPPDS 成分尚未確認');
+    return w;
+  }
+
+  /* ---------- 排序 ---------- */
+  const famKey = code => code.replace(/[\d.]+/g, '').replace(/[\s\-@+]/g, '').toLowerCase();
+  const lvl = code => { const m = code.match(/\d+(\.\d+)?/); return m ? parseFloat(m[0]) : 999; };
+  const byCode = (a, b) => famKey(a.it.code).localeCompare(famKey(b.it.code)) || lvl(a.it.code) - lvl(b.it.code) || a.it.code.localeCompare(b.it.code);
+
+  /* ---------- 篩選 ---------- */
+  function matches(it, q) {
+    if (!q) return true;
+    const hay = [it.code, it.tone, it.group, it.line, it.alias,
+      ...(it.c ? Object.keys(it.c) : []), ...(it.types || [])].filter(Boolean).join(' ').toLowerCase();
+    return q.toLowerCase().split(/\s+/).filter(Boolean).every(t => hay.includes(t));
+  }
+
+  /* ---------- 繪製 ---------- */
+  function renderVendors() {
+    $('#vendors').innerHTML = DATA.vendors.map(v =>
+      `<button role="tab" data-v="${v.id}" aria-selected="${v.id === state.vendorId}">${esc(v.name)}<small>${v.items.length} 色</small></button>`
+    ).join('');
+  }
+  function renderLines() {
+    const v = vendor();
+    const lines = [...new Set(v.items.map(it => it.line))];
+    if (lines.length < 2) { $('#lines').innerHTML = ''; return; }
+    $('#lines').innerHTML = ['全部', ...lines].map(l =>
+      `<button data-l="${esc(l)}" aria-pressed="${l === state.line}">${esc(l)}</button>`).join('');
+  }
+  function renderList() {
+    const v = vendor();
+    $('#vnote').textContent = v.note;
+    const multiLine = new Set(v.items.map(it => it.line)).size > 1;
+    const rows = v.items.map((it, i) => ({ it, i }))
+      .filter(({ it }) => (state.line === '全部' || it.line === state.line) && matches(it, state.q));
+    if (!rows.length) { $('#list').innerHTML = '<div class="empty">找不到符合的色號</div>'; return; }
+
+    const groups = new Map();
+    rows.forEach(r => {
+      const key = (multiLine ? r.it.line + '・' : '') + r.it.group;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(r);
+    });
+    let html = '';
+    groups.forEach((arr, key) => {
+      arr.sort(byCode);
+      html += `<section class="grp"><h3>${esc(key)}<span>${arr.length}</span></h3><div class="chips">`;
+      arr.forEach(({ it, i }) => {
+        const pk = primaryKey(it);
+        const val = value(v, it);
+        const warn = warnings(v, it).length > 0;
+        html += `<button class="chip${state.sel === i ? ' on' : ''}" data-i="${i}">
+          <i style="background:${pk ? info(pk).color : 'transparent'}"></i>
+          ${warn ? '<span class="w" title="有待確認事項"></span>' : ''}
+          <b>${esc(it.code)}</b><small class="mono">${val == null ? '無數值' : fmt(val) + '%'}</small></button>`;
+      });
+      html += '</div></section>';
+    });
+    $('#list').innerHTML = html;
+  }
+
+  function renderDetail() {
+    const v = vendor();
+    const el = $('#detail');
+    const it = state.sel != null ? v.items[state.sel] : null;
+    if (!it) {
+      el.innerHTML = '<div class="placeholder">點選左側色號<br>查看濃度與中間體系統</div>';
+      return;
+    }
+    const val = value(v, it);
+    const cs = comps(it);
+    const all = cs.reduce((s, [, x]) => s + x, 0);
+    const w = warnings(v, it);
+
+    let body = '';
+    if (isUnsplit(it)) {
+      body += `<div class="typechips">${it.types.map(k =>
+        `<span><i class="dot" style="background:${info(k).color}"></i>${esc(k)}</span>`).join('')}</div>
+        <p class="hint">原表只提供總濃度，未分項。</p>`;
+    } else if (cs.length) {
+      body += '<div class="bar">' + cs.map(([k, x]) =>
+        `<div title="${esc(k)}" style="width:${(x / all * 100).toFixed(2)}%;background:${info(k).color}"></div>`).join('') + '</div>';
+      body += '<table class="cmp"><thead><tr><th>成分</th><th class="r">濃度 %</th><th class="r">占比</th></tr></thead><tbody>';
+      cs.forEach(([k, x]) => {
+        const excl = v.id === 'fiole' && k === 'PAP';
+        body += `<tr><td><i class="dot" style="background:${info(k).color}"></i>${esc(k)}${excl ? '<span class="tag">不計入 V1</span>' : ''}
+          <span class="inci">${esc(info(k).inci)}${info(k).cls && info(k).cls !== '中間體' ? '・' + esc(info(k).cls) : ''}</span></td>
+          <td class="r mono">${fmt(x)}</td><td class="r mono">${(x / all * 100).toFixed(0)}%</td></tr>`;
+      });
+      body += '</tbody></table>';
+    }
+
+    el.innerHTML = `
+      <div class="grab"></div>
+      <div class="d-head">
+        <div>
+          <div class="d-code">${esc(it.code)}</div>
+          <div class="d-meta">${esc(v.name)}・${esc(it.line === v.name ? it.group : it.line + '・' + it.group)}</div>
+        </div>
+        <button class="close" aria-label="關閉">×</button>
+      </div>
+      <div class="d-val"><span class="n mono">${val == null ? '—' : fmt(val)}</span><span class="u">${val == null ? '' : '%'}</span></div>
+      <div class="d-vlabel">${val == null ? '原表無數值' : esc(v.valueLabel)}</div>
+      <div class="sys"><div class="k">主要中間體系統</div><div class="v">${esc(system(it))}</div></div>
+      ${it.tone ? `<div class="tone"><span>色調：</span>${esc(it.tone)}</div>` : ''}
+      ${body}
+      ${w.length ? `<div class="warn"><b>⚠ 待確認</b><ul>${w.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
+    `;
+  }
+
+  function renderFoot() {
+    const keys = ['TDS', 'PPD', 'BHP', 'AHP', 'PAP', '4A3MP', 'CPPDS', 'TDS/BHP', 'Basic Red', 'Basic Yellow'];
+    $('#foot').innerHTML = `
+      <h2>縮寫對照</h2>
+      <div class="legend">${keys.map(k =>
+        `<div><i class="dot" style="background:${info(k).color}"></i><b>${esc(k)}</b><span>${esc(info(k).cls)}・${esc(info(k).inci)}</span></div>`).join('')}</div>
+      <h2>資料說明</h2>
+      ${DATA.vendors.map(v => `<p><b>${esc(v.name)}</b>：${esc(v.note)}</p>`).join('')}
+      <p>數值為各廠總表原始數值（%）。色號右上角有黃點者，代表原表有數字不一致或待確認事項。資料整理日期：${esc(DATA.updated)}</p>`;
+  }
+
+  /* ---------- 互動 ---------- */
+  const mq = window.matchMedia('(max-width: 959px)');
+  function openSheet() { if (mq.matches) { $('#detail').classList.add('open'); $('#backdrop').classList.add('open'); } }
+  function closeSheet() { $('#detail').classList.remove('open'); $('#backdrop').classList.remove('open'); }
+
+  $('#vendors').addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]'); if (!b) return;
+    state.vendorId = b.dataset.v; state.line = '全部'; state.sel = null;
+    store.set('dye.vendor', state.vendorId);
+    closeSheet(); renderAll();
+  });
+  $('#lines').addEventListener('click', e => {
+    const b = e.target.closest('button[data-l]'); if (!b) return;
+    state.line = b.dataset.l; renderLines(); renderList();
+  });
+  $('#q').addEventListener('input', e => { state.q = e.target.value.trim(); renderList(); });
+  $('#list').addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    state.sel = +b.dataset.i;
+    document.querySelectorAll('.chip.on').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    renderDetail(); openSheet();
+  });
+  $('#detail').addEventListener('click', e => { if (e.target.closest('.close')) closeSheet(); });
+  $('#backdrop').addEventListener('click', closeSheet);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+
+  function renderAll() { renderVendors(); renderLines(); renderList(); renderDetail(); }
+  renderAll(); renderFoot();
+})();
+</script>
+</body>
+</html>
