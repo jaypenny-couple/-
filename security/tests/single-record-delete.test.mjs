@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { initializeApp, deleteApp } from 'firebase-admin/app';
 import { getDatabase } from 'firebase-admin/database';
 import {
-  assertApprovedLocalOperator, canonicalJson, parseSingleDeleteArgs, performSingleRecordDelete, sha256, validateDeleteTarget
+  assertApprovedLocalOperator, assertNoUnresolvedDeleteAttempt, canonicalJson, parseSingleDeleteArgs, performSingleRecordDelete, sha256, validateDeleteTarget
 } from '../single-record-delete.js';
 
 const urls = {
@@ -84,12 +84,14 @@ test('本機管理流程先備份並核雜湊，再交易式刪除單筆且核�
   assert.equal(adapter.state.reservations.target, undefined);
   assert.deepEqual(adapter.state.reservations.other, syntheticStock);
   assert.equal(persistence.backups.get(result.backup.fileName).toString(), `${JSON.stringify(syntheticPreorder, null, 2)}\n`);
-  assert.equal(persistence.audits.length, 1);
-  const audit = JSON.parse(persistence.audits[0].toString());
+  assert.equal(persistence.audits.length, 2);
+  const audit = JSON.parse(persistence.audits.at(-1).toString());
   assert.equal(audit.projectId, 'pre-order-registration');
   assert.equal(audit.recordId, 'target');
   assert.equal(audit.result, 'DELETED_AND_VERIFIED');
   assert.match(result.backup.recordSha256, /^[a-f0-9]{64}$/);
+  assert.deepEqual(persistence.audits.map(bytes => JSON.parse(bytes.toString()).result), ['DELETE_ATTEMPTING', 'DELETED_AND_VERIFIED']);
+  assert.throws(() => assertNoUnresolvedDeleteAttempt([audit], { projectId: 'pre-order-registration', recordId: 'target' }), /ALREADY_DELETED_VERIFIED/);
 });
 
 test('拒絕未確認、紀錄不存在、刪除前變更、備份失敗及備份雜湊不符', async () => {
@@ -109,9 +111,13 @@ test('拒絕未確認、紀錄不存在、刪除前變更、備份失敗及備�
       store: persistence, adapter
     }), error => error.message === item.expected);
     assert.equal(adapter.state.stockItems.one === undefined, !!item.absent, `${item.name} must preserve initial state`);
-    assert.equal(persistence.audits.length, 1, `${item.name} should leave a private failure audit`);
-    assert.equal(JSON.parse(persistence.audits[0].toString()).result, 'STOPPED');
+    assert.ok(persistence.audits.length >= 1, `${item.name} should leave a private failure audit`);
+    assert.equal(JSON.parse(persistence.audits.at(-1).toString()).result, 'DELETE_NOT_EXECUTED');
   }
+  assert.doesNotThrow(() => assertNoUnresolvedDeleteAttempt([
+    { operationId: 'resolved-operation', projectId: 'restocking-list', recordId: 'one', result: 'DELETE_ATTEMPTING' },
+    { operationId: 'resolved-operation', projectId: 'restocking-list', recordId: 'one', result: 'DELETE_NOT_EXECUTED' }
+  ], { projectId: 'restocking-list', recordId: 'one' }));
 });
 
 test('刪除後核對異常會明確停止並保留先前備份', async () => {
@@ -126,7 +132,9 @@ test('刪除後核對異常會明確停止並保留先前備份', async () => {
   }), error => error.message === 'POST_DELETE_COLLECTION_MISMATCH');
   assert.equal(adapter.state.stockItems.one, undefined);
   assert.equal(persistence.backups.size, 1);
-  assert.equal(JSON.parse(persistence.audits[0].toString()).result, 'STOPPED');
+  const audits = persistence.audits.map(bytes => JSON.parse(bytes.toString()));
+  assert.deepEqual(audits.map(audit => audit.result), ['DELETE_ATTEMPTING', 'DELETE_COMMITTED_UNVERIFIED']);
+  assert.throws(() => assertNoUnresolvedDeleteAttempt(audits, { projectId: 'restocking-list', recordId: 'one' }), /PRIOR_DELETE_REQUIRES_RECONCILIATION/);
 });
 
 test('資料庫讀取或交易刪除失敗時停止且留下私人稽核', async () => {
@@ -138,7 +146,7 @@ test('資料庫讀取或交易刪除失敗時停止且留下私人稽核', async
     store: readStore, adapter: readAdapter
   }), error => error.message === 'NETWORK_READ_FAILED');
   assert.equal(readStore.backups.size, 0);
-  assert.equal(JSON.parse(readStore.audits[0].toString()).result, 'STOPPED');
+  assert.equal(JSON.parse(readStore.audits[0].toString()).result, 'DELETE_NOT_EXECUTED');
 
   const transactionStore = store();
   const transactionAdapter = memory({ rows: { stockItems: { one: syntheticStock } } });
@@ -146,10 +154,11 @@ test('資料庫讀取或交易刪除失敗時停止且留下私人稽核', async
   await assert.rejects(performSingleRecordDelete({
     projectId: 'restocking-list', recordId: 'one', actor: 'local-operator', confirmed: true,
     store: transactionStore, adapter: transactionAdapter
-  }), error => error.message === 'NETWORK_DELETE_FAILED');
+  }), error => error.message === 'DELETE_OUTCOME_UNKNOWN');
   assert.notEqual(transactionAdapter.state.stockItems.one, undefined);
   assert.equal(transactionStore.backups.size, 1);
-  assert.equal(JSON.parse(transactionStore.audits[0].toString()).result, 'STOPPED');
+  assert.deepEqual(transactionStore.audits.map(bytes => JSON.parse(bytes.toString()).result), ['DELETE_ATTEMPTING', 'DELETE_OUTCOME_UNKNOWN']);
+  assert.throws(() => assertNoUnresolvedDeleteAttempt(transactionStore.audits.map(bytes => JSON.parse(bytes.toString())), { projectId: 'restocking-list', recordId: 'one' }), /PRIOR_DELETE_REQUIRES_RECONCILIATION/);
 });
 
 test('本機 RTDB Emulator 可逐筆刪除兩套系統；重複執行遭拒', async t => {

@@ -1,13 +1,13 @@
 // Emulator-only trusted local deletion tool. No production apply mode exists.
 import { randomUUID } from 'node:crypto';
-import { mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, realpath, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { join, resolve } from 'node:path';
 import readline from 'node:readline/promises';
 import { stdin, stdout } from 'node:process';
 import { initializeApp, deleteApp } from 'firebase-admin/app';
 import { getDatabase } from 'firebase-admin/database';
-import { assertApprovedLocalOperator, canonicalJson, parseSingleDeleteArgs, performSingleRecordDelete, sha256 } from './single-record-delete.js';
+import { assertApprovedLocalOperator, assertNoUnresolvedDeleteAttempt, canonicalJson, parseSingleDeleteArgs, performSingleRecordDelete, sha256 } from './single-record-delete.js';
 
 const DATABASES = Object.freeze({
   'pre-order-registration': { url: 'https://pre-order-registration-default-rtdb.asia-southeast1.firebasedatabase.app', collection: 'reservations' },
@@ -49,6 +49,20 @@ function privateStore(directory) {
       const hashName = `${fileName}.sha256`;
       await writeFile(join(directory, hashName), `${sha256(bytes)}  ${fileName}\n`, { flag: 'wx', mode: 0o600 });
       return { fileName, auditSha256: sha256(bytes), result: details.result };
+    },
+    async readAudits() {
+      const names = await readdir(directory);
+      const audits = [];
+      for (const name of names.filter(name => /^audit-.*\.json$/.test(name))) {
+        try {
+          const bytes = await readFile(join(directory, name));
+          const sidecar = await readFile(join(directory, `${name}.sha256`), 'utf8');
+          const match = sidecar.match(/^([a-f0-9]{64})  [^\r\n]+\r?\n?$/);
+          if (!match || sha256(bytes) !== match[1]) throw new Error('PRIVATE_AUDIT_HASH_INVALID');
+          audits.push(JSON.parse(bytes.toString('utf8')));
+        } catch { throw new Error('PRIVATE_AUDIT_INVALID'); }
+      }
+      return audits;
     }
   };
 }
@@ -59,11 +73,13 @@ async function main() {
   const emulator = requireLocalEmulator();
   const database = DATABASES[projectId];
   const directory = await privateDirectory();
+  const store = privateStore(directory);
   const actor = execFileSync('whoami', [], { encoding: 'utf8' }).trim();
   const operatorApprovalFile = join(directory, 'DELETE-OPERATORS-APPROVAL.json');
   const operatorApproval = JSON.parse(await readFile(operatorApprovalFile, 'utf8'));
   const operator = assertApprovedLocalOperator(operatorApproval, { actor, projectId });
   const operatorApprovalSha256 = sha256(await readFile(operatorApprovalFile));
+  assertNoUnresolvedDeleteAttempt(await store.readAudits(), { projectId, recordId });
   const app = initializeApp({ projectId, databaseURL: database.url }, `alice-single-delete-${process.pid}`);
   const prompt = readline.createInterface({ input: stdin, output: stdout });
   try {
@@ -107,7 +123,7 @@ async function main() {
     const result = await performSingleRecordDelete({
       projectId, recordId, actor: `${actor} (${operator.role})`, approvalRef: operator.approvalRef,
       approvalSha256: operatorApprovalSha256, confirmed: true, expectedRecordSha256,
-      store: privateStore(directory), adapter
+      store, adapter
     });
     stdout.write(`操作核准紀錄 SHA-256=${operatorApprovalSha256}\n`);
     stdout.write(`完成：單筆刪除並核對成功。結果=${result.result}，備份 SHA-256=${result.backup.fileSha256}\n`);

@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 
 export const DELETE_TARGETS = Object.freeze({
   'pre-order-registration': Object.freeze({ collection: 'reservations', app: 'preorder' }),
@@ -43,10 +43,36 @@ export function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
 }
 
+const UNRESOLVED_DELETE_RESULTS = new Set([
+  'DELETE_ATTEMPTING',
+  'DELETE_OUTCOME_UNKNOWN',
+  'DELETE_COMMITTED_UNVERIFIED',
+  'STOPPED'
+]);
+
+export function assertNoUnresolvedDeleteAttempt(audits, { projectId, recordId }) {
+  const previous = (audits ?? []).filter(audit => audit?.projectId === projectId && audit?.recordId === recordId);
+  const byOperation = new Map();
+  for (const [index, audit] of previous.entries()) {
+    const key = audit.operationId ?? `legacy-${index}`;
+    const current = byOperation.get(key) ?? [];
+    current.push(audit);
+    byOperation.set(key, current);
+  }
+  const latestResults = [...byOperation.values()].map(entries => entries.findLast(audit => audit.result !== 'DELETE_ATTEMPTING')?.result ?? 'DELETE_ATTEMPTING');
+  if (latestResults.some(result => UNRESOLVED_DELETE_RESULTS.has(result))) {
+    throw new Error('PRIOR_DELETE_REQUIRES_RECONCILIATION');
+  }
+  if (latestResults.includes('DELETED_AND_VERIFIED')) {
+    throw new Error('ALREADY_DELETED_VERIFIED');
+  }
+}
+
 export async function performSingleRecordDelete({ projectId, recordId, actor, approvalRef, approvalSha256, confirmed, expectedRecordSha256, store, adapter, now = () => new Date() }) {
   const target = validateDeleteTarget(projectId, recordId);
   const startedAt = now().toISOString();
-  const audit = { format: 'alice-single-record-delete-v1', projectId, path: target.path, recordId, actor, approvalRef, approvalSha256, startedAt, result: 'NOT_STARTED' };
+  const audit = { format: 'alice-single-record-delete-v1', operationId: randomUUID(), projectId, path: target.path, recordId, actor, approvalRef, approvalSha256, startedAt, result: 'NOT_STARTED' };
+  let deleteOutcome = 'NOT_ATTEMPTED';
   const finish = async result => {
     audit.result = result;
     audit.finishedAt = now().toISOString();
@@ -73,8 +99,23 @@ export async function performSingleRecordDelete({ projectId, recordId, actor, ap
     audit.backup = { fileName: backup.fileName, fileSha256: sha256(savedBytes), recordSha256: recordHash };
     audit.beforeCollectionSha256 = sha256(canonicalJson(beforeCollection));
 
-    const transaction = await adapter.deleteIfUnchanged(target.collection, recordId, recordHash);
-    if (!transaction.committed) throw new Error(transaction.reason === 'changed' ? 'RECORD_CHANGED' : 'DELETE_NOT_COMMITTED');
+    // Persist intent before contacting RTDB. If the process exits or the response is lost,
+    // a later run can recognize that the result needs reconciliation instead of retrying.
+    audit.result = 'DELETE_ATTEMPTING';
+    audit.attemptedAt = now().toISOString();
+    await store.writeAudit(Buffer.from(JSON.stringify(audit, null, 2)), audit);
+    deleteOutcome = 'OUTCOME_UNKNOWN';
+    let transaction;
+    try {
+      transaction = await adapter.deleteIfUnchanged(target.collection, recordId, recordHash);
+    } catch (error) {
+      throw Object.assign(new Error('DELETE_OUTCOME_UNKNOWN'), { cause: error });
+    }
+    if (!transaction.committed) {
+      deleteOutcome = 'NOT_EXECUTED';
+      throw new Error(transaction.reason === 'changed' ? 'RECORD_CHANGED' : 'DELETE_NOT_COMMITTED');
+    }
+    deleteOutcome = 'COMMITTED';
 
     const afterRecord = await adapter.readRecord(target.collection, recordId);
     const afterCollection = await adapter.readCollection(target.collection);
@@ -89,7 +130,12 @@ export async function performSingleRecordDelete({ projectId, recordId, actor, ap
     return await finish('DELETED_AND_VERIFIED');
   } catch (error) {
     audit.errorCode = String(error?.message ?? 'UNKNOWN_ERROR').replace(/[^A-Z0-9_]/g, '').slice(0, 64) || 'UNKNOWN_ERROR';
-    await finish('STOPPED');
+    const result = deleteOutcome === 'COMMITTED'
+      ? 'DELETE_COMMITTED_UNVERIFIED'
+      : deleteOutcome === 'OUTCOME_UNKNOWN'
+        ? 'DELETE_OUTCOME_UNKNOWN'
+        : 'DELETE_NOT_EXECUTED';
+    await finish(result);
     throw Object.assign(new Error(audit.errorCode), { audit });
   }
 }
