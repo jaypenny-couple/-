@@ -4,11 +4,11 @@
 
 ## Authentication Provider 啟用紀錄（四專案完成）
 
-2026-10-22 依業主逐專案核准執行。每個 Firebase Console 頁面均重核 Project ID 與 Spark 免費方案；四專案在執行前均顯示 Authentication 初始「開始使用」頁。逐專案只啟用 Email/Password，保持 Email Link、匿名及其他登入 Provider 關閉，儲存後重新讀取 Provider 清單並確認「已啟用」。四個結果均成功，Spark 方案維持不變。設定執行及重新讀回的時間、專案與結果存於 `%LOCALAPPDATA%\ALICE-P0-PRIVATE-BACKUPS\AUTH-PROVIDER-CHANGES-20261022`；Console 操作者身分由 Google Cloud Admin Activity 稽核記錄保留，不放入公開 PR。
+2026-10-22 依業主逐專案核准執行。每個 Firebase Console 頁面均重核 Project ID 與 Spark 免費方案；新客專案在本次前已啟用，本次重新讀回確認；預購、缺貨及 HR 在執行前顯示 Authentication 初始「開始使用」頁。只啟用這三個專案的 Email/Password，保持 Email Link、匿名及其他登入 Provider 關閉，儲存後重新讀取 Provider 清單並確認「已啟用」。四個結果均成功，Spark 方案維持不變。執行日、設定前後狀態與重新讀回時間存於 `%LOCALAPPDATA%\ALICE-P0-PRIVATE-BACKUPS\AUTH-PROVIDER-CHANGES-20261022`；Console 操作者及精確設定變更時間由 Google Cloud Admin Activity 稽核記錄保留，不放入公開 PR。
 
 | Firebase Project ID | 執行前確認 | 唯一設定 | 重新讀回結果 | 執行結果 |
 | --- | --- | --- | --- | --- |
-| `new-customer-management-system` | Project ID 正確；Spark；Authentication 初始頁 | 僅啟用 Email/Password | 已啟用；其他 Provider 未啟用 | 成功 |
+| `new-customer-management-system` | Project ID 正確；Spark；Email/Password 已啟用 | 本次只重新讀取，未改設定 | 已啟用；其他 Provider 未啟用 | 重新讀回驗證成功 |
 | `pre-order-registration` | Project ID 正確；Spark；Authentication 初始頁 | 僅啟用 Email/Password | 已啟用；其他 Provider 未啟用 | 成功 |
 | `restocking-list` | Project ID 正確；Spark；Authentication 初始頁 | 僅啟用 Email/Password | 已啟用；其他 Provider 未啟用 | 成功 |
 | `hr-system-ad937` | Project ID 正確；Spark；Authentication 初始頁 | 僅啟用 Email/Password | 已啟用；其他 Provider 未啟用 | 成功 |

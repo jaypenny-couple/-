@@ -6,11 +6,11 @@
 
 ## 第十階段：正式 Authentication Provider 啟用（已完成；員工帳號尚未建立）
 
-**執行與驗證：2026-10-22（臺北時間）；四專案均在 Console 重新確認 Project ID 與 Spark 免費方案，再只啟用 Email/Password，儲存後重新讀取 Provider 頁驗證。**操作員以具專案 Owner 權限的已登入 Console 帳號執行。各專案原本均為 Authentication 初始設定頁；Email Link、匿名登入及其他 Provider 均未啟用。執行結果和時間記於本機受限稽核目錄；操作者識別由 Google Cloud Admin Activity 稽核記錄保留，不複製到公開 repo。
+**執行與驗證：2026-10-22（臺北時間）；四專案均在 Console 重新確認 Project ID 與 Spark 免費方案，再重新讀取 Provider 狀態。**新客專案在本次重讀前已完成核准啟用；預購、缺貨及 HR 原為 Authentication 初始設定頁，本次各只啟用 Email/Password 並於儲存後重新讀回驗證。Email Link、匿名登入及其他 Provider 均未啟用。執行結果和驗證時間記於本機受限稽核目錄；操作者識別及各次設定變更時間由 Google Cloud Admin Activity 稽核記錄保留，不複製到公開 repo。
 
 | 正式專案 | Project ID | 方案 | Provider 狀態（重新讀回） | 執行結果 |
 | --- | --- | --- | --- | --- |
-| 新客管理 | `new-customer-management-system` | Spark | Email/Password 已啟用；其他 Provider 未啟用 | 成功（先前已完成並再次列入核對） |
+| 新客管理 | `new-customer-management-system` | Spark | Email/Password 已啟用；其他 Provider 未啟用 | 先前啟用；本次重新讀回驗證 |
 | 商品預購 | `pre-order-registration` | Spark | Email/Password 已啟用；其他 Provider 未啟用 | 成功 |
 | 缺貨登記 | `restocking-list` | Spark | Email/Password 已啟用；其他 Provider 未啟用 | 成功 |
 | HR | `hr-system-ad937` | Spark | Email/Password 已啟用；其他 Provider 未啟用 | 成功 |
