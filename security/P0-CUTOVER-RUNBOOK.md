@@ -39,7 +39,7 @@
 
 ### 本輪私人名單稽核與 Emulator 證據
 
-私人 CSV 已先保存原始版本與 SHA-256，再新增空白欄位：`DesignerCode`、`AccountUID`、`EmailVerificationStatus`、`AccountDisableOwner`。ACL 只允許本機使用者與 SYSTEM。另有四列本機輸入表 `OWNER-PILOT-LOCAL-ENTRY-PRIVATE.csv` 及說明檔供業主填資料；稽核器只在記憶體中將其與四筆試點列合併供檢查，不寫回、不輸出身分資料。其填寫本身不代表任何授權。稽核顯示 4 筆業主 placeholder、7 個職務範本、0 筆實際員工候選、0 封核准信箱、0 個已核對正式 UID；因此目前無法查重，也沒有足夠資訊核准任何試點角色。OWNER 欄位留白不視作批准。
+私人 CSV 已先保存原始版本與 SHA-256，再新增空白欄位：`DesignerCode`、`AccountUID`、`EmailVerificationStatus`、`AccountDisableOwner`。其後再次先備份並核對雜湊，為四筆試點加入穩定的 `RecordType=OWNER-PILOT` 標記，並把常用欄位移至前方；原有欄位內容逐列核對保留。ACL 只允許本機使用者與 SYSTEM。另有四列本機輸入表 `OWNER-PILOT-LOCAL-ENTRY-PRIVATE.csv` 及說明檔供業主填資料；稽核器只在記憶體中將其與四筆試點列合併供檢查，不寫回、不輸出身分資料。主 CSV 或精簡表單只填一份；其填寫本身不代表任何授權。稽核顯示 4 筆業主 placeholder、7 個職務範本、0 筆實際員工候選、0 封核准信箱、0 個已核對正式 UID；因此目前無法查重，也沒有足夠資訊核准任何試點角色。OWNER 欄位留白不視作批准。
 
 稽核輸出必須分成三類：建帳前必填（內部識別、核准信箱、職責、最低角色、停用負責人、有效專案及條件式設計師代碼／主管理由）；待業主逐人逐專案核准（建立帳號）；以及建帳後才取得（該專案 UID、Email 驗證狀態、實際帳號建立結果）。第三類尚空白時不可判作建帳前資料不合格，但在 Claims 核發與驗收前仍是阻擋。
 

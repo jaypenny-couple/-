@@ -8,7 +8,7 @@
 
 本輪只檢查私人名單、補足私人欄位、建立可重複的規劃檢查及 Auth Emulator 測試。四個正式 Provider 維持已啟用；**未建立正式員工帳號、未核對正式 UID、未核發 Claims，也未連正式 Auth 讀取帳號名單**。沒有變更正式資料、Rules、IAM、網站或計費方案。
 
-私人員工 CSV 位於 `%LOCALAPPDATA%\ALICE-P0-PRIVATE-BACKUPS\EMPLOYEE-ACCESS-ACCEPTANCE\ALICE-P0-EMPLOYEE-ACCESS-PRIVATE.csv`，ACL 檢查僅見本機使用者與 SYSTEM。修改前已在同一私人目錄保存原始 CSV 與 SHA-256，再加入空白欄位 `DesignerCode`、`AccountUID`、`EmailVerificationStatus`、`AccountDisableOwner`；未填入任何人員資料。本輪另建立四列易填寫的 `OWNER-PILOT-LOCAL-ENTRY-PRIVATE.csv` 與本機說明，列出各專案所需角色與欄位；正式名單尚未更新。私人待補摘要 `OWNER-PILOT-PENDING-APPROVAL.md` 不含姓名、信箱或 UID。現有資料稽核：11 列（7 個職務範本、4 個 OWNER-PILOT-TBD）；0 個實際員工候選、0 個核准信箱、0 個正式 UID，沒有可供查重的信箱。四個試點均缺實際職責、最低必要角色、個人信箱、內部識別、停用負責人與逐專案帳號核准。UID 與 Email 驗證狀態屬帳號建立後欄位，不列為建帳前缺漏。未推定業主在任何專案的 manager／HR manager／designer 權限。
+私人員工 CSV 位於 `%LOCALAPPDATA%\ALICE-P0-PRIVATE-BACKUPS\EMPLOYEE-ACCESS-ACCEPTANCE\ALICE-P0-EMPLOYEE-ACCESS-PRIVATE.csv`，ACL 檢查僅見本機使用者與 SYSTEM。修改前已在同一私人目錄保存原始 CSV 與 SHA-256，再加入空白欄位 `DesignerCode`、`AccountUID`、`EmailVerificationStatus`、`AccountDisableOwner`；本輪又先備份並驗證 SHA-256，再為四筆試點加上穩定 `RecordType=OWNER-PILOT` 標記並將常用填寫欄位移前。未填入任何人員資料。另建立四列易填寫的 `OWNER-PILOT-LOCAL-ENTRY-PRIVATE.csv` 與本機說明；只填主 CSV 或精簡表單其中一份。稽核器會在記憶體合併精簡表單，輸出不含身分資訊的結果，不寫回或上傳。私人待補摘要 `OWNER-PILOT-PENDING-APPROVAL.md` 不含姓名、信箱或 UID。現有資料稽核：11 列（7 個職務範本、4 個業主試點）；0 個實際員工候選、0 個核准信箱、0 個正式 UID，沒有可供查重的信箱。四個試點均缺實際職責、最低必要角色、個人信箱、內部識別、停用負責人與逐專案帳號核准。UID 與 Email 驗證狀態屬帳號建立後欄位，不列為建帳前缺漏。未推定業主在任何專案的 manager／HR manager／designer 權限。
 
 私人名單稽核器 `security/employee-approval-audit.mjs` 僅讀取固定本機正式 CSV 與四列輸入表，將輸入表內容以記憶體合併至對應試點列並輸出不含身分資訊的彙總；不會寫回或上傳個資。它檢查信箱格式、同專案重複、專案角色、設計師代碼、manager 理由及必填欄位。輸出分為「建帳前必填」、「逐人逐專案授權」及「建帳後 UID／Email 驗證」，避免將尚未建立帳號才會產生的欄位判為建帳前錯誤。候選政策測試覆蓋上述檢查、CSV 解析及 OWNER 欄位留白。帳號流程的 Auth Emulator 合成測試涵蓋查重、建立、錯誤密碼、Email 驗證、密碼重設、登入、停用、刪除清理與跨專案隔離；沒有輸出驗證連結、密碼或 UID。
 
