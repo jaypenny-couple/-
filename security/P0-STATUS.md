@@ -4,6 +4,27 @@
 
 **業主已核准的營運決策：**預購與缺貨系統在正式安全切換初期不提供任何刪除功能。一般員工、主管及舊 manager 均須由網頁、SDK、REST 遭 Rules 拒絕；取消、重複及誤登紀錄改走人工交班。正式刪除工具列為上線後待獨立批准功能；候選工具只可連 localhost Emulator，不得新增正式刪除路徑。此決策不略過 G1–G8、備份、權限或員工驗收門檻。
 
+## 第十階段：正式 Authentication Provider 啟用準備（唯讀／Emulator；尚未啟用）
+
+**檢查時間：2026-10-22（臺北時間）。**四個 Firebase Project ID 均由本機 Firebase CLI 專案清單核對，且各自的 Firebase Console 顯示 Spark 方案。Console 的 Authentication 頁面均停在「開始使用」初始設定頁，未顯示已設定的登入 Provider；本輪沒有點擊開始設定或儲存任何正式設定。
+
+| 正式專案 | Project ID | 方案 | Console Authentication 狀態 | Email/Password / 其他 Provider | 操作者管理權限 | Auth 使用者數 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 新客管理 | `new-customer-management-system` | Spark，已在 Console 核對 | 初始「開始使用」頁；未見已完成設定 | 頁面未列 Provider；目前狀態未能由設定 API 獨立讀回 | 專案可見及 CLI 可列清單；啟用所需 IAM 角色未驗證 | 未驗證 |
+| 商品預購 | `pre-order-registration` | Spark，已在 Console 核對 | 初始「開始使用」頁；未見已完成設定 | 頁面未列 Provider；目前狀態未能由設定 API 獨立讀回 | 專案可見及 CLI 可列清單；啟用所需 IAM 角色未驗證 | 未驗證 |
+| 缺貨登記 | `restocking-list` | Spark，已在 Console 核對 | 初始「開始使用」頁；未見已完成設定 | 頁面未列 Provider；目前狀態未能由設定 API 獨立讀回 | 專案可見及 CLI 可列清單；啟用所需 IAM 角色未驗證 | 未驗證 |
+| HR | `hr-system-ad937` | Spark，已在 Console 核對 | 初始「開始使用」頁；未見已完成設定 | 頁面未列 Provider；目前狀態未能由設定 API 獨立讀回 | 專案可見及 CLI 可列清單；啟用所需 IAM 角色未驗證 | 未驗證 |
+
+**查核限制與安全影響：**本機 Firebase CLI 可列出四個專案，但不能據此推定有啟用 Authentication 的 IAM 權限。ADC 沒有 quota project；使用它呼叫 Identity Toolkit `projects.getConfig` 時收到要求 quota project 的 403，因此沒有安全地取得設定 API 的 Provider 清單。Admin SDK `listUsers` 也未成功，故四個專案的 Auth 使用者數均標為未驗證；沒有輸出或保存任何帳號身分。Console 初始頁沒有顯示其他 Provider，但這不等於設定 API 的完整 Provider 清單。沒有為了測試權限而執行正式寫入，也沒有設定 quota project、改 IAM 或建立金鑰。
+
+本輪可見的設定衝突是正式 Security Rules 仍為公開規則（見上方正式規則盤點）。只啟用 Provider 不建立帳號、不授予資料權限，也不會修復或收緊 Security Rules；正式安全切換仍須在獨立批准與 G1–G8 程序中完成。Email/Password 單獨啟用不需升級 Blaze 或建立付費資源；官方 Firebase Auth 方案與密碼驗證說明見[方案說明](https://firebase.google.com/docs/projects/billing/firebase-pricing-plans)及[密碼驗證文件](https://firebase.google.com/docs/auth/web/password-auth)。
+
+**候選版測試：**在本機 Auth、RTDB、Firestore Emulator 以合成帳號與資料執行完整 `npm test`。新增真實 Auth Emulator 瀏覽器案例：錯誤密碼登入失敗、無 Claims 帳號即使密碼正確也不能進入受保護資料頁；既有案例涵蓋 Email/Password 登入、登出、重新整理、錯誤 App／角色、設計師資料隔離、預購／缺貨 SDK 與 REST 刪除遭拒、HR 交易式寫入及斷線恢復。2026-10-22 全套結果 **27/27 通過、0 失敗、0 跳過**。全部是 Emulator 證據，非正式帳號驗收。
+
+**逐專案正式啟用準備：**若業主批准單一專案，操作員應先再次核對 Console 專案 ID、Spark 方案、目前 Provider 頁及設定權限，記錄設定前狀態，再於 Firebase Console「Authentication → 開始使用／Sign-in method」只啟用 Email/Password 並儲存。隨即重新開啟該專案的 Provider 設定頁，確認 Email/Password 已啟用，其他 Provider 未變，並記錄時間、操作者與私人證據位置。若出現專案 ID 不符、非 Spark、意外 Provider、IAM 不足、頁面要求啟用付費服務或設定結果無法讀回，立即停止該專案；不以其他 API、CLI 權限捷徑或正式寫入測試替代。若設定後有異常，停止帳號建立，依同一 Console 設定頁將 Email/Password 恢復到變更前狀態並重新讀回核對；不刪除任何使用者，也不改資料庫規則。正式帳號尚未建立，使用者數與設定 API 讀回限制須在操作前重新檢查。
+
+**本次正式操作核准待辦：**只需逐項回答是否允許在以下各 Firebase 正式專案啟用 Email/Password Provider：`new-customer-management-system`、`pre-order-registration`、`restocking-list`、`hr-system-ad937`。這項核准只涵蓋 Provider 開關，不涵蓋建立個人帳號、核發 Custom Claims、修改 Security Rules、合併 PR 或部署網站。業主尚未核准，故本輪沒有正式寫入。
+
 ## 已實際完成並驗證
 
 | 專案 | 正式服務與已知資料路徑 | 正式生效規則（2026-10-20 Console 核對） | 正式備份 |

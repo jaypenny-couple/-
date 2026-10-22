@@ -58,6 +58,20 @@ test('新客、預訂、HR 頁面於本機 Emulator 的員工工作流程', asyn
   try {
     const customerRules = await readFile(join(securityRoot, 'rules/customer.database.rules.json'), 'utf8');
     environments.push(await initializeTestEnvironment({ projectId: 'new-customer-management-system', database: { ...ports, rules: customerRules } }));
+    const noClaimsEmail = await addAccount({});
+    const authFailure = await browser.newContext();
+    const authFailurePage = await authFailure.newPage();
+    await authFailurePage.goto(`http://127.0.0.1:8766/${encodeURIComponent('新客管理.html')}`);
+    await authFailurePage.locator('#aliceAuthForm input[name="email"]').fill(noClaimsEmail);
+    await authFailurePage.locator('#aliceAuthForm input[name="password"]').fill('Wrong-synthetic-password!');
+    await authFailurePage.locator('#aliceAuthForm button').click();
+    await authFailurePage.locator('#aliceAuthMessage').filter({ hasText: '登入失敗' }).waitFor({ timeout: 15000 });
+    assert.equal(await authFailurePage.locator('#aliceAuthBar').isVisible(), false);
+    await authFailurePage.locator('#aliceAuthForm input[name="password"]').fill(password);
+    await authFailurePage.locator('#aliceAuthForm button').click();
+    await authFailurePage.locator('#aliceAuthMessage').filter({ hasText: '沒有本系統的使用權限' }).waitFor({ timeout: 15000 });
+    assert.equal(await authFailurePage.locator('#aliceAuthBar').isVisible(), false);
+    await authFailure.close();
     const customerEmail = await addAccount({ aliceApp: 'customer', aliceRole: 'designer', aliceDesigner: 'JAY' });
     const customer = await openAndLogin('新客管理.html', customerEmail);
     await customer.page.waitForFunction(() => document.querySelector('#currentDesigner')?.value === 'JAY');

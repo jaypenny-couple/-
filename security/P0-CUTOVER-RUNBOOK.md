@@ -2,6 +2,23 @@
 
 **狀態：僅供 Draft PR #43 審查。這份文件不是正式切換授權。不得依此自行暫停員工、啟用 Auth、改正式規則、合併或部署。**
 
+## Authentication Provider 啟用計畫（逐專案批准後才可執行）
+
+2026-10-22 唯讀檢查：四個 Project ID 均與 Firebase CLI 清單一致，各專案 Console 顯示 Spark；Authentication Console 均顯示初始「開始使用」頁，未顯示已設定 Provider。ADC 沒有 quota project，Identity Toolkit 設定 API 回傳 403；Admin SDK 使用者清單也未能讀取。因此 Provider 設定 API、Auth 使用者數及啟用所需 IAM 角色均標示為**未驗證**。Console 目前可見及 CLI 專案清單只證明可查看專案，不能證明可管理 Auth。沒有更改 quota project、IAM、Auth、Rules 或資料。
+
+| Firebase Project ID | 目前 Console 可見狀態 | 唯一預計設定 | 預期影響 | 執行前記錄 | 完成驗證 | 停止條件 | 安全回復 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `new-customer-management-system` | Spark；Auth 初始頁；Provider 清單與使用者數未驗證 | 僅啟用 Email/Password | 開啟此專案的 email／密碼登入入口；不建立帳號、不授予 Claims、不改資料庫權限 | 重核 Project ID、Spark、Provider 頁；保存設定前狀態與時間至私人目錄 | 重新讀取同專案 Provider 頁，確認 Email/Password 開啟且其他 Provider 未變；記錄執行者、時間及結果 | 無逐專案批准、Project ID／方案不符、出現未預期 Provider、權限不足、要求計費、設定不能讀回 | 停止帳號建立；在相同 Console 將 Email/Password 恢復為設定前狀態並讀回確認；不刪使用者或改 Rules |
+| `pre-order-registration` | Spark；Auth 初始頁；Provider 清單與使用者數未驗證 | 僅啟用 Email/Password | 同上，限預購專案獨立使用者庫 | 同上 | 同上 | 同上 | 同上 |
+| `restocking-list` | Spark；Auth 初始頁；Provider 清單與使用者數未驗證 | 僅啟用 Email/Password | 同上，限缺貨專案獨立使用者庫 | 同上 | 同上 | 同上 | 同上 |
+| `hr-system-ad937` | Spark；Auth 初始頁；Provider 清單與使用者數未驗證 | 僅啟用 Email/Password | 同上，限 HR 專案獨立使用者庫 | 同上 | 同上 | 同上 | 同上 |
+
+**Console 操作路徑：**經業主對該專案明確批准後，開啟 Firebase Console 對應 Project ID → Authentication → 開始使用／Sign-in method → 只啟用 Email/Password → Save。若只看到初始頁或無法確認變更狀態，先停止並要求具適當 Auth 管理角色的人員處理，不用未驗證 API 或高權限繞道。Firebase 官方的[密碼登入設定](https://firebase.google.com/docs/auth/web/password-auth)與[計費方案說明](https://firebase.google.com/docs/projects/billing/firebase-pricing-plans)列出可用登入方式；Email/Password Provider 啟用不自動建立員工帳號或修復公開的資料庫 Security Rules。Auth Provider 單獨開啟預期不需 Blaze 或付費資源；遇到任何計費升級提示即停止。
+
+啟用後只能報告該專案 Provider 的重新讀回結果。若在後續建立帳號前需回復，可在同一 Provider 設定頁關閉本次新增的 Email/Password Provider並重新讀回；若屆時已建立任何使用者，禁止刪除帳號，先暫停該專案切換並由業主決定是否接受停用登入造成的使用影響。Provider 啟用不等於整體資安修復完成；正式 Security Rules、帳號、Claims、網站部署各自需要獨立批准與 Gate。
+
+**核准界線：**每個專案須分別明確批准「是否允許啟用 Email/Password Authentication Provider」。此核准只授權 Provider 設定，不授權建立個人帳號、核發 Custom Claims、修改 Security Rules、合併 PR 或部署網站。本輪四專案均未獲 Provider 寫入核准。
+
 ## 角色與人員確認表
 
 四個 Firebase 專案各有獨立 Auth 使用者庫；同一員工若操作兩套系統，需在兩個專案分別有帳號、UID 和 claims。公開 PR 只保留角色設計；正式員工姓名、電子郵件、UID 與在職狀態請保存在私人驗收表。
