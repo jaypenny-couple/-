@@ -27,7 +27,8 @@ export function overlayOwnerPilotEntries(rows, entries) {
   const seenProjects = new Set();
   for (const entry of entries) {
     const projectId = String(entry.FirebaseProject ?? '').trim();
-    if (!firebaseProjectRoles[projectId] || seenProjects.has(projectId)) {
+    const requestStatus = String(entry.AccountRequestStatus ?? 'REQUESTED').trim().toUpperCase();
+    if (!firebaseProjectRoles[projectId] || seenProjects.has(projectId) || !['REQUESTED', 'NOT_REQUESTED'].includes(requestStatus)) {
       throw new Error('Owner entry sheet must contain one valid row per Firebase project.');
     }
     seenProjects.add(projectId);
@@ -36,8 +37,10 @@ export function overlayOwnerPilotEntries(rows, entries) {
     if (matches.length !== 1) throw new Error('Expected exactly one matching owner pilot row per Firebase project.');
     const pilot = matches[0];
     pilot.RecordType = 'OWNER-PILOT';
+    pilot.AccountRequestStatus = requestStatus;
+    if (requestStatus === 'NOT_REQUESTED') continue;
     for (const [key, value] of Object.entries(entry)) {
-      if (key === 'FirebaseProject' || key === 'RecordType') continue;
+      if (key === 'FirebaseProject' || key === 'RecordType' || key === 'AccountRequestStatus') continue;
       if (String(value ?? '').trim()) pilot[key] = value;
     }
   }
@@ -70,6 +73,7 @@ export function summarizeEmployeeRoster(rows) {
   const pilotRows = rows.filter(row => String(row.RecordType ?? '').trim() === 'OWNER-PILOT' ||
     String(row.InternalRef ?? '').trim() === 'OWNER-PILOT-TBD');
   const candidates = rows.filter(row => {
+    if (String(row.AccountRequestStatus ?? 'REQUESTED').trim().toUpperCase() === 'NOT_REQUESTED') return false;
     const ref = String(row.InternalRef ?? '').trim();
     return normalizeApprovedEmail(row.ApprovedEmail) !== null || (ref && ref !== 'OWNER-PILOT-TBD' && !placeholderPattern.test(ref));
   });
@@ -103,6 +107,10 @@ export function summarizeEmployeeRoster(rows) {
   const pilotSummary = projects.map(projectId => {
     const row = pilotRows.find(candidate => String(candidate.FirebaseProject ?? '').trim() === projectId);
     if (!row) return { projectId, present: false, missing: ['OWNER-PILOT-TBD row'] };
+    const requestStatus = String(row.AccountRequestStatus ?? 'REQUESTED').trim().toUpperCase();
+    if (requestStatus === 'NOT_REQUESTED') {
+      return { projectId, present: true, accountRequested: false, role: null, missingBeforeAccount: [], pendingAuthorization: [], missingAfterAccount: [] };
+    }
     const missingBeforeAccount = [];
     const pendingAuthorization = [];
     const missingAfterAccount = [];
@@ -136,6 +144,7 @@ export function summarizeEmployeeRoster(rows) {
     return {
       projectId,
       present: true,
+      accountRequested: true,
       role: firebaseProjectRoles[projectId]?.includes(role) ? role : null,
       missingBeforeAccount: [...new Set(missingBeforeAccount)],
       pendingAuthorization: [...new Set(pendingAuthorization)],

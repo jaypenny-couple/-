@@ -216,3 +216,11 @@ node security/compare-snapshots.mjs --project hr-system-ad937 --before "<B0-FIRE
 - 瀏覽器一般離頁會顯示警示；HR 操作和表單會在帳號切換時保留在原頁並阻止其他帳號進入。但作業系統強制結束、瀏覽器 crash 或裝置斷電可跳過 `beforeunload`，尚未確認的記憶體操作與未送出欄位可能遺失。員工必須等雲端讀回確認後再關頁；如遇離線或寫入失敗，先使用頁面「下載未儲存草稿」並由主管核對。該限制須在正式 HR 實機驗收中確認，未完成不得 Go。
 - 不直接恢復公開舊規則作為長期方案；舊頁在安全規則下不能正常使用。優先回到上一個已驗收、與安全規則相容的 Auth 版本。若沒有可用版本，暫採人工流程並修復候選版本；任何極短應急規則回退也須業主另行確認暴露風險。
 - 不用舊 JSON 覆寫 RTDB 根節點或 `salon/main`。若需補資料，先比較 B2、B3 與離線工作紀錄，只對確認缺失的項目逐筆恢復，再重新備份、雜湊與核對。
+
+## 業主試點帳號建立：2026-10-22 執行前檢查結果
+
+- 業主已批准私人核准清單內四個專案的單一業主試點帳號，Claims 不在授權範圍。執行前私人名單稽核通過 4/4，核准狀態記入受限本機 CSV；CSV 修改前備份及 SHA-256 驗證完成。
+- 四個專案的 Auth 管理 API 唯讀查詢均因 `identitytoolkit.googleapis.com` 回覆 HTTP 403 `PERMISSION_DENIED`、`SERVICE_DISABLED` 而停止；錯誤所指 quota consumer 專案與四個目標專案不符。Firebase CLI 雖能列出目標專案，仍不能據此證明 Auth 管理權限。Google Cloud CLI 本機沒有作用中的帳號，因此計費狀態、Provider 現況、帳號是否已存在及逐專案管理權限均未確認。
+- **不得在此阻擋未解除時建立帳號或重試寫入。** 由授權管理員在本機恢復正確 Google Cloud CLI／ADC 身分，核對 ADC quota project 指向與服務使用權限；逐專案確認 `identitytoolkit.googleapis.com` 可由目標 Firebase 專案正常呼叫、Spark 計費狀態與 Email/Password Provider 狀態，再用唯讀方式查重及核對核准信箱。若需啟用 API、改 quota project 或任何可能影響計費／正式設定的操作，先確認其範圍及業主授權，禁止用其他專案的配額設定來繞過拒絕。
+- 此次正式帳號建立為 0；沒有執行帳號查重，故不能推定目標信箱尚無帳號。沒有建立、覆寫、停用或刪除帳號；UID、Email 驗證及啟用狀態均未讀取。沒有核發 Claims 或修改 Rules、資料、IAM、計費、PR 合併及網站部署。
+- 阻擋解除後，按本 Runbook 原有逐專案流程重新核對私密核准列與 Project ID、Provider、Spark、實際帳號是否存在及權限；若帳號已存在或身份不符，停止該列，不覆寫。新建帳號須由業主本人完成密碼設定及 Email 驗證，再讀回 UID、`emailVerified` 與 `disabled` 狀態並保存私人稽核。四筆全數完成後，另提出逐 UID 完整 Claims 差異及復原計畫申請；本次帳號核准不包含 Claims。

@@ -62,6 +62,19 @@ test('業主識別已填後仍以穩定記錄類型辨識試點列', () => {
   assert.equal(result.projects.find(project => project.projectId === 'pre-order-registration').role, 'staff');
 });
 
+test('不申請帳號明確標記後不視為權限缺漏或帳號候選', () => {
+  const projects = ['new-customer-management-system', 'pre-order-registration', 'restocking-list', 'hr-system-ad937'];
+  const rows = projects.map(FirebaseProject => ({
+    RecordType: 'OWNER-PILOT', InternalRef: 'OWNER-PILOT-TBD', FirebaseProject,
+    AccountRequestStatus: FirebaseProject === 'hr-system-ad937' ? 'NOT_REQUESTED' : 'REQUESTED'
+  }));
+  const result = summarizeEmployeeRoster(rows);
+  const hr = result.projects.find(project => project.projectId === 'hr-system-ad937');
+  assert.equal(hr.accountRequested, false);
+  assert.deepEqual(hr.missingBeforeAccount, []);
+  assert.equal(result.candidateRows, 0);
+});
+
 test('私人輸入表按專案覆蓋試點列供稽核、拒絕重複或錯誤專案', () => {
   const roster = [
     { InternalRef: 'OWNER-PILOT-TBD', FirebaseProject: 'pre-order-registration', SystemRole: '' },
@@ -76,13 +89,14 @@ test('私人輸入表按專案覆蓋試點列供稽核、拒絕重複或錯誤�
   const completeEntries = [
     ...entries,
     { InternalRef: '', ApprovedEmail: '', FirebaseProject: 'new-customer-management-system', SystemRole: '' },
-    { InternalRef: '', ApprovedEmail: '', FirebaseProject: 'hr-system-ad937', SystemRole: '' }
+    { InternalRef: '', ApprovedEmail: '', FirebaseProject: 'hr-system-ad937', SystemRole: '', AccountRequestStatus: 'NOT_REQUESTED' }
   ];
   const result = overlayOwnerPilotEntries(roster, completeEntries);
   assert.equal(result[0].RecordType, 'OWNER-PILOT');
   assert.equal(result[0].InternalRef, 'synthetic-staff');
   assert.equal(result[0].ApprovedEmail, 'pilot@example.invalid');
   assert.equal(result[1].RecordType, 'OWNER-PILOT');
+  assert.equal(result.find(row => row.FirebaseProject === 'hr-system-ad937').AccountRequestStatus, 'NOT_REQUESTED');
   assert.throws(() => overlayOwnerPilotEntries([...roster], [...completeEntries, entries[0]]), /one valid row per Firebase project/);
   assert.throws(() => overlayOwnerPilotEntries([...roster], [{ ...completeEntries[0], FirebaseProject: 'unknown' }]), /one valid row per Firebase project/);
 });
