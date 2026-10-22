@@ -4,6 +4,31 @@
 
 **業主已核准的營運決策：**預購與缺貨系統在正式安全切換初期不提供任何刪除功能。一般員工、主管及舊 manager 均須由網頁、SDK、REST 遭 Rules 拒絕；取消、重複及誤登紀錄改走人工交班。正式刪除工具列為上線後待獨立批准功能；候選工具只可連 localhost Emulator，不得新增正式刪除路徑。此決策不略過 G1–G8、備份、權限或員工驗收門檻。
 
+## 第十一階段：員工帳號與 Custom Claims 準備（僅候選／Emulator）
+
+本輪只檢查私人名單、補足私人欄位、建立可重複的規劃檢查及 Auth Emulator 測試。四個正式 Provider 維持已啟用；**未建立正式員工帳號、未核對正式 UID、未核發 Claims，也未連正式 Auth 讀取帳號名單**。沒有變更正式資料、Rules、IAM、網站或計費方案。
+
+私人員工 CSV 位於 `%LOCALAPPDATA%\ALICE-P0-PRIVATE-BACKUPS\EMPLOYEE-ACCESS-ACCEPTANCE\ALICE-P0-EMPLOYEE-ACCESS-PRIVATE.csv`，ACL 檢查僅見本機使用者與 SYSTEM。修改前已在同一私人目錄保存原始 CSV 與 SHA-256，再加入空白欄位 `DesignerCode`、`AccountUID`、`EmailVerificationStatus`、`AccountDisableOwner`；未填入任何人員資料。私人待補摘要 `OWNER-PILOT-PENDING-APPROVAL.md` 不含姓名、信箱或 UID。稽核結果：11 列（7 個職務範本、4 個 OWNER-PILOT-TBD）；0 個實際員工候選、0 個核准信箱、0 個正式 UID，沒有可供查重的信箱。四個試點均缺實際職責、最低必要角色、個人信箱、內部識別、停用負責人與逐專案帳號核准；UID 與 email 驗證只可在帳號建立後補齊。未推定業主在任何專案的 manager／HR manager／designer 權限。
+
+私人名單稽核器 `security/employee-approval-audit.mjs` 僅讀取固定本機 CSV 並輸出不含身分資訊的彙總；候選政策測試覆蓋 Email／核准欄位、每專案角色白名單、重複信箱、設計師代碼、管理理由、CSV 欄位解析及 OWNER 欄位留白。帳號流程的 Auth Emulator 合成測試涵蓋查重、建立、錯誤密碼、Email 驗證、密碼重設、登入、停用、刪除清理與跨專案隔離；沒有輸出驗證連結、密碼或 UID。
+
+### 候選角色與完整 Claims
+
+| 專案 | 最低候選角色（須依個別職責核准） | Claims | 管理權限門檻 |
+| --- | --- | --- | --- |
+| `new-customer-management-system` | 設計師或管理員 | `customer/designer` + 核准 `aliceDesigner`；或 `customer/manager` | 設計師代碼必須與授權資料一致；manager 必須有具體管理職責與理由 |
+| `pre-order-registration` | staff | `preorder/staff` | 不配置 manager；一般客戶端刪除持續禁止 |
+| `restocking-list` | staff | `stock/staff` | 不配置 manager；一般客戶端刪除持續禁止 |
+| `hr-system-ad937` | HR manager | `hr/manager` | 只在業主確認該人實際負責 HR 管理時核准 |
+
+所有一般員工不得自動升為 manager；不核發 `aliceCanDelete`。各專案 Auth 使用者庫和 UID 分開核對，同一信箱跨專案的使用必須逐專案核准。`buildStaffClaimsPlan` 是純規劃函式，要求精確 UID、該 UID 帳號未停用、Email 已驗證且與核准信箱相符、approval project/UID/ref 精確匹配；manager 要有業務理由。它保留完整原 Claims、列出前後差異、提供回復前態及 SHA-256，並移除舊 `aliceCanDelete`。它不呼叫 Firebase、不寫 Claims；`assign-staff-claim.mjs --apply` 仍硬性停用。任何未來正式核發仍須第二次逐 UID 批准，並先將完整前態與雜湊存入受限私人稽核目錄。
+
+帳號建立候選程序：再次確認該專案 Email/Password 狀態及個別批准；以核准信箱查重；只建立獲批帳號；不記錄初始密碼，使用驗證信箱及安全密碼重設流程；重新讀取並核對專案、UID、停用狀態與 `emailVerified`；所有連結、身分及稽核證據只存私人目錄。發現既有帳號、信箱不符、IAM／Provider 異常即停止該人該專案，不改用其他帳號。此程序尚未對正式 Auth 執行。
+
+**全套 Emulator 測試：34/34 通過、0 失敗、0 跳過。**涵蓋 Auth 合成帳號生命週期、Claims 逐 UID 規劃與回復、現有四系統功能、權限隔離、禁止刪除及 HR 並行寫入。過程中發現的 Auth Emulator 合成專案識別問題已修正，並重新跑完整套件。此結果僅為本機合成資料測試，不代表正式員工驗收。
+
+**帳號建立前阻擋：**四筆試點及七個範本皆沒有真實員工識別與核准信箱；逐人逐專案職責／最低角色／建立核准／停用負責人未齊。帳號建立後才可獨立核對每專案 UID 和 Email 驗證。Claims 需第二次依實際 UID、完整前後差異及回復資料核准。PR #43 仍為 Draft，不合併、不部署。
+
 ## 第十階段：正式 Authentication Provider 啟用（已完成；員工帳號尚未建立）
 
 **執行與驗證：2026-10-22（臺北時間）；四專案均在 Console 重新確認 Project ID 與 Spark 免費方案，再重新讀取 Provider 狀態。**新客專案在本次重讀前已完成核准啟用；預購、缺貨及 HR 原為 Authentication 初始設定頁，本次各只啟用 Email/Password 並於儲存後重新讀回驗證。Email Link、匿名登入及其他 Provider 均未啟用。執行結果和驗證時間記於本機受限稽核目錄；操作者識別及各次設定變更時間由 Google Cloud Admin Activity 稽核記錄保留，不複製到公開 repo。

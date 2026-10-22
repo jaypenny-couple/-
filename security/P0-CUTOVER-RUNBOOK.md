@@ -19,6 +19,30 @@
 
 **授權界線：**業主已核准並完成的只限四專案 Email/Password Provider 開關。個人帳號建立、Custom Claims 核發、Security Rules 修改、正式資料操作、IAM 變更、PR 合併及網站部署仍需各自授權與 G1–G8 門檻。下一步先由業主補妥私人員工確認資料，再逐專案／逐人核准帳號與完整 Claims，並安排試點及實機驗收。
 
+## 員工帳號與 Claims 建立程序（候選版；正式操作尚未核准）
+
+四個 Provider 已啟用，但目前沒有正式帳號建立或 Claims 核發授權。先在受 ACL 限制的私人目錄補妥每一筆實際員工資料：內部識別、核准個人信箱、Project ID、職責、最低角色、設計師代碼（如適用）、主管理由（如適用）、帳號停用負責人。業主作為試點人員仍是四個 `OWNER-PILOT-TBD`，尚未提供足以識別本人的資料；不得推定其 manager、designer 或 HR 權限。
+
+### 第一核准門檻：逐人逐專案建立帳號
+
+1. 業主在私人 CSV 對明確員工與單一 Project ID 記錄 `OwnerApproval=APPROVED`、`AccountCreationApproval=APPROVED` 及私人 approval reference。任何未明確核准的列不處理。
+2. 執行者重新確認 Project ID、Email/Password 已啟用、Spark 方案及管理權限；以該專案核准信箱查詢 Auth，確認不存在重複帳號。已存在或資料不符即停止，不重設他人帳號。
+3. 由有權管理該專案 Auth 的可信任管理者建立個人帳號；不共用帳號、不建立服務帳戶私鑰。初始密碼以高熵隨機值只在記憶體中處理，不寫入程式、CSV、終端、Issue 或日誌；建帳後透過 Firebase Auth Email Verification 與 Password Reset 流程，交由員工自行驗證信箱並設定個人密碼。驗證連結／oobCode 視同秘密，只透過業主核准的私下渠道交付，不能放 PR 或一般日誌。
+4. 重新由該專案讀取使用者記錄，私下核對 Project ID、核准 email、唯一 UID、`disabled=false`、`emailVerified=true`。只將必要身分證據和時間寫入受限私人稽核記錄。無法核實就停止該人，不核發 Claims。
+
+### 第二核准門檻：逐 UID 核發完整 Custom Claims
+
+1. 帳號建立與信箱驗證完成後，先以 Auth 重新取得正確專案中的 UID 和完整既有 `customClaims`。不得假設 UID 跨專案相同或已完成核對。
+2. 由 `buildStaffClaimsPlan` 純函式建立候選差異：含完整 `before`、完整 `after`、移除／新增欄位、回復前態、前後 SHA-256。執行前將受限私人稽核副本寫入本機 ACL 保護目錄並驗證雜湊；絕不保存密碼或驗證 token。業主審核實際 UID、專案、核准信箱、職責理由與完整 Claims 後，另行明確批准該 UID 的 Claims。
+3. 候選角色僅依上方矩陣：設計師 `customer/designer` + 經核准的 `aliceDesigner`；新客管理員 `customer/manager`；預購 `preorder/staff`；缺貨 `stock/staff`；HR `hr/manager`。主管角色必須有實際工作理由。沒有核准紀錄、專案／UID 不符、Email 未驗證、帳號停用、Claims 差異異常或權限不足，全部停止。
+4. 正式套用工具目前仍停用；不得因 dry-run、既有 ADC 或 Provider 已開啟而套用。未來獲第二次批准後才可啟用經審核的核發操作；寫入後重新讀取完整 claims，核對 SHA-256 與預期一致，再要求該員重新登入／刷新 ID token。若錯誤，使用保存的 `before` 完整 Claims 回復並讀回驗證；若回復不確定，停止切換並保持 G1–G8 No-Go。
+
+### 本輪私人名單稽核與 Emulator 證據
+
+私人 CSV 已先保存原始版本與 SHA-256，再新增空白欄位：`DesignerCode`、`AccountUID`、`EmailVerificationStatus`、`AccountDisableOwner`。ACL 只允許本機使用者與 SYSTEM。稽核顯示 4 筆業主 placeholder、7 個職務範本、0 筆實際員工候選、0 封核准信箱、0 個已核對正式 UID；因此目前無法查重，也沒有足夠資訊核准任何試點角色。OWNER 欄位留白不視作批准。
+
+Auth Emulator 的合成生命週期測試驗證查重、建立、錯誤密碼、Email 驗證、重設密碼、重新登入、停用拒絕、合成專案隔離及清理。Claims 規劃測試驗證逐專案白名單、exact UID/approval 綁定、已驗證信箱、主管理由、完整原 Claims 保存、SHA-256、回復前態及移除舊 `aliceCanDelete`；沒有正式 Firebase 呼叫或寫入。本輪完整 `npm test` 為 **34/34 通過、0 失敗、0 跳過**；Emulator 通過不能替代現場員工驗收。
+
 ## 角色與人員確認表
 
 四個 Firebase 專案各有獨立 Auth 使用者庫；同一員工若操作兩套系統，需在兩個專案分別有帳號、UID 和 claims。公開 PR 只保留角色設計；正式員工姓名、電子郵件、UID 與在職狀態請保存在私人驗收表。
