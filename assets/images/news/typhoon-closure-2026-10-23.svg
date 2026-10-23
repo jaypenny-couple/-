@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img" aria-labelledby="t d">
+<title id="t">ALICE Hair Salon 2026年10月23日颱風休業公告</title><desc id="d">因颱風來襲，10月23日星期五暫停營業一天；已預約顧客將個別聯繫，協助更改服務時間。</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ecdbcd"/><stop offset=".47" stop-color="#fff9f3"/><stop offset="1" stop-color="#d7c4b8"/></linearGradient><linearGradient id="box" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#bc806f"/><stop offset="1" stop-color="#a76b5e"/></linearGradient><linearGradient id="light" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fffefa" stop-opacity=".98"/><stop offset="1" stop-color="#fffefa" stop-opacity=".86"/></linearGradient></defs>
+<rect width="1080" height="1350" fill="url(#bg)"/>
+<path d="M815 0H1080V1350H940V0Z" fill="#d3dbdc" opacity=".45"/><g stroke="#f8fbfb" stroke-width="5" opacity=".7"><path d="M870 -20L790 280 M940 -20L850 305 M1010 -20L930 350 M1090 -20L980 420 M1070 250L970 650 M1050 530L950 945 M1080 805L970 1300"/></g>
+<rect x="52" y="45" width="965" height="1250" rx="22" fill="url(#light)"/>
+<g font-family="Georgia,serif" fill="#bb846f" text-anchor="middle"><text x="535" y="129" font-size="64" letter-spacing="18">ALICE</text><text x="535" y="167" font-size="22" letter-spacing="10">HAIR SALON</text></g>
+<path d="M338 156H440 M637 156H739" stroke="#c79c88" stroke-width="2"/>
+<g font-family="'Noto Serif TC','PingFang TC','Microsoft JhengHei',serif" text-anchor="middle" fill="#55382f"><text x="535" y="309" font-size="91" font-weight="700" letter-spacing="3">颱風休業公告</text></g>
+<text x="153" y="375" font-size="38" fill="#bc9481" font-family="Georgia,serif" font-style="italic">Notice</text>
+<g font-family="'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif" fill="#654f44" font-size="29"><text x="158" y="442">親愛的顧客您好：</text><text x="158" y="493">因颱風來襲，考量顧客與員工的安全，</text></g>
+<rect x="118" y="531" width="842" height="206" rx="35" fill="url(#box)"/>
+<path d="M356 563L311 707" stroke="#e8c2b3" stroke-width="3"/><text x="227" y="649" fill="#fff4ed" text-anchor="middle" font-family="Georgia,serif" font-size="28" letter-spacing="6">CLOSED</text>
+<g fill="#fffaf6" text-anchor="middle" font-family="'Noto Serif TC','PingFang TC','Microsoft JhengHei',serif"><text x="649" y="629" font-size="64">今日 10/23（五）</text><text x="649" y="704" font-size="62" font-weight="600">暫停營業一天。</text></g>
+<g font-family="'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif" fill="#604b42" font-size="30">
+<circle cx="178" cy="810" r="51" fill="#e8d5c9"/><text x="178" y="824" text-anchor="middle" font-size="44">◷</text><text x="271" y="797">今日已預約的顧客，</text><text x="271" y="838">我們將個別聯繫，協助重新安排服務時間。</text>
+<path d="M158 887H912" stroke="#d8beb1" stroke-width="2"/>
+<circle cx="178" cy="952" r="51" fill="#e8d5c9"/><text x="178" y="968" text-anchor="middle" font-size="48">♡</text><text x="271" y="939">造成您的不便，敬請見諒！</text><text x="271" y="980">感謝您的理解與體諒。</text>
+<path d="M158 1021H912" stroke="#d8beb1" stroke-width="2"/>
+<circle cx="178" cy="1087" r="51" fill="#e8d5c9"/><text x="178" y="1100" text-anchor="middle" font-size="45">☂</text><text x="271" y="1074">颱風期間，請大家注意安全，</text><text x="271" y="1115">減少不必要的外出。</text></g>
+<text x="537" y="1201" text-anchor="middle" fill="#966653" font-size="35" font-family="'Noto Serif TC','PingFang TC','Microsoft JhengHei',serif">期待天氣穩定後，很快再為您服務！</text>
+<text x="537" y="1257" text-anchor="middle" fill="#a47460" letter-spacing="6" font-size="24" font-family="Georgia,serif">ALICE HAIR SALON</text>
+</svg>
