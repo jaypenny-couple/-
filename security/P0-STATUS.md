@@ -1,6 +1,13 @@
-# ALICE P0 修復狀態（2026-10-22）
+# ALICE P0 修復狀態（2026-10-23）
 
 **Draft PR #43 僅供審查。禁止合併、部署官網、修改正式 Security Rules 或正式資料。HR 自管備份已完成本機還原；候選交易式寫入已在 Emulator 驗證。最後備份窗口、實際員工帳號與正式切換驗收未完成，正式切換維持阻擋。** 本輪未升級 Blaze、未建立付費雲端資源。
+
+## OWNER-PILOT 正式帳號 Users／UID／Email 驗證查核（2026-10-23）
+
+- 依既有四筆 OWNER-PILOT 帳號建立授權，逐一開啟四個正式 Firebase Console 的 Authentication → Users。四個頁面均確認 Project ID 相符、Spark 方案、Users 清單已載入且明確顯示目前沒有使用者；帳號數 **0/4**。本輪未建立帳號，亦未重試 Admin SDK、修改 ADC quota project、API、IAM、計費或任何 Firebase 設定。Admin SDK quota consumer 403 仍為獨立阻擋。
+- 四個帳號尚未出現在 Console，故可讀回 UID **0/4**、Email 驗證完成 **0/4**；沒有以空值或合成值填充 UID／驗證欄位，也未修改私人 CSV。尚無實際 UID，不能建立真實 UID 綁定的 Claims 差異。完成帳號建立與本人 Email 驗證後，才可另行準備該 UID 的 Claims 前後差異及回復計畫。
+- 新增本機 `security/email-verification-local.mjs` 與純 Auth 流程 `security/email-verification-flow.mjs`。工具限定四個 Project ID，並在本機從受限員工 CSV 核對該專案已核准信箱；只提供既有帳號 Email/Password 登入、`sendEmailVerification`、`reload`、`signOut`。密碼以不回顯的互動輸入，只用記憶體持久性，不建立／刪除帳號、不讀寫資料庫、不讀寫 Claims，不輸出 Token、密碼或驗證連結。寄信動作須在本機再次輸入 `SEND VERIFY`；狀態查核使用 `--action check`。任何 Firebase Auth 錯誤只顯示安全錯誤代碼；不自動修改 Authorized Domains、API、IAM 或計費。
+- 使用合成帳號在 localhost Auth Emulator 驗證登入、錯誤密碼拒絕、要求寄送驗證信、`reload` 讀回已驗證狀態、登出及錯誤專案拒絕；完整 `npm test` 通過 **38/38**。未以正式帳號測試或寄出正式驗證信，也未將此工具發布至網站。正式頁面 Authorized Domains/API/IAM/計費未變更。
 
 ## 正式業主試點帳號建立授權檢查（2026-10-22）
 

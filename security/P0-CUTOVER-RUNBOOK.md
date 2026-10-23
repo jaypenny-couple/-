@@ -2,6 +2,14 @@
 
 **狀態：僅供 Draft PR #43 審查。這份文件不是正式切換授權。不得依此自行暫停員工、修改正式 Security Rules、合併或部署。四專案 Email/Password Provider 已依獨立授權啟用。**
 
+## OWNER-PILOT 帳號建立後驗收狀態（2026-10-23）
+
+本機受限核准表已有四筆逐專案帳號建立授權；本次從四個正式 Console Users 頁重新查核，四個頁面皆為 Spark、Project ID 相符，並明確顯示目前沒有任何使用者。因此帳號建立尚未由業主提交，狀態為 0/4；無 UID 可核對或回寫，Email 驗證完成數 0/4。不得將空白 UID 填入合成值，也不得重複建帳。業主完成 Console 建帳後，須重新逐專案查核核准信箱、UID、`disabled` 與 `emailVerified`；異常或既有帳號即停止該專案。
+
+本機 Email 驗證程序位於 `security/email-verification-local.mjs`，僅使用 Firebase Client SDK Auth，不呼叫 Admin SDK，亦不連資料庫或 Claims。執行方式為指定白名單專案與 `send` 或 `check` 動作；程式從受限私人員工 CSV 讀取該專案核准信箱並比對本機輸入，憑證僅在記憶體中使用，結束即 `signOut`。寄送驗證信須在本機明確輸入 `SEND VERIFY`，由帳號本人操作及點擊信中連結；點擊後使用 `check` 重新登入並 `reload` 確認狀態。工具沒有註冊、刪除、資料存取或 Claims 操作，且不輸出密碼、Token、Email、UID 或驗證連結。Auth Emulator 合成資料測試及完整 `npm test` 已通過 38/38；尚未對正式帳號登入或寄信。若未來執行回報 `auth/unauthorized-domain` 或其他需變更 Authorized Domains、API、IAM、計費的狀態，立即停止，不修改正式設定並另行取得批准。
+
+帳號／驗證均完成後，才可用已核對的實際 UID 執行 Claims dry-run；保存各 UID 完整既有 Claims、核准信箱與角色依據、前後差異、SHA-256 和完整回復方案至私人目錄。業主須在看到每個 UID 的完整差異後，另行逐 UID 批准，未批准不得核發。Admin SDK quota consumer 403 仍獨立保留；不得透過改 ADC quota project 或 IAM 繞過。
+
 ## Authentication Provider 啟用紀錄（四專案完成）
 
 2026-10-22 依業主逐專案核准執行。每個 Firebase Console 頁面均重核 Project ID 與 Spark 免費方案；新客專案在本次前已啟用，本次重新讀回確認；預購、缺貨及 HR 在執行前顯示 Authentication 初始「開始使用」頁。只啟用這三個專案的 Email/Password，保持 Email Link、匿名及其他登入 Provider 關閉，儲存後重新讀取 Provider 清單並確認「已啟用」。四個結果均成功，Spark 方案維持不變。執行日、設定前後狀態與重新讀回時間存於 `%LOCALAPPDATA%\ALICE-P0-PRIVATE-BACKUPS\AUTH-PROVIDER-CHANGES-20261022`；Console 操作者及精確設定變更時間由 Google Cloud Admin Activity 稽核記錄保留，不放入公開 PR。
