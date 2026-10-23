@@ -1,0 +1,18 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "stockItems": {
+      ".read": "auth != null && auth.token.aliceApp === 'stock' && auth.token.aliceRole === 'staff'",
+      "$itemId": {
+        ".write": "auth != null && auth.uid != null && auth.token.aliceApp === 'stock' && auth.token.aliceRole === 'staff' && !data.exists() && newData.exists()",
+        ".validate": "newData.hasChildren(['vendor', 'item', 'timestamp', 'date'])",
+        "vendor": { ".validate": "newData.isString()" },
+        "item": { ".validate": "newData.isString()" },
+        "timestamp": { ".validate": "newData.isNumber()" },
+        "date": { ".validate": "newData.isString()" },
+        "$other": { ".validate": "false" }
+      }
+    }
+  }
+}
