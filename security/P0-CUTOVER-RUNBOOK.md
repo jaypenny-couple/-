@@ -224,3 +224,11 @@ node security/compare-snapshots.mjs --project hr-system-ad937 --before "<B0-FIRE
 - **不得在此阻擋未解除時建立帳號或重試寫入。** 由授權管理員在本機恢復正確 Google Cloud CLI／ADC 身分，核對 ADC quota project 指向與服務使用權限；逐專案確認 `identitytoolkit.googleapis.com` 可由目標 Firebase 專案正常呼叫、Spark 計費狀態與 Email/Password Provider 狀態，再用唯讀方式查重及核對核准信箱。若需啟用 API、改 quota project 或任何可能影響計費／正式設定的操作，先確認其範圍及業主授權，禁止用其他專案的配額設定來繞過拒絕。
 - 此次正式帳號建立為 0；沒有執行帳號查重，故不能推定目標信箱尚無帳號。沒有建立、覆寫、停用或刪除帳號；UID、Email 驗證及啟用狀態均未讀取。沒有核發 Claims 或修改 Rules、資料、IAM、計費、PR 合併及網站部署。
 - 阻擋解除後，按本 Runbook 原有逐專案流程重新核對私密核准列與 Project ID、Provider、Spark、實際帳號是否存在及權限；若帳號已存在或身份不符，停止該列，不覆寫。新建帳號須由業主本人完成密碼設定及 Email 驗證，再讀回 UID、`emailVerified` 與 `disabled` 狀態並保存私人稽核。四筆全數完成後，另提出逐 UID 完整 Claims 差異及復原計畫申請；本次帳號核准不包含 Claims。
+
+## Auth 403 診斷與 Console 業主操作（2026-10-23）
+
+- **根因：**本機 ADC 為 `authorized_user` 且沒有 `quota_project_id`。`gcloud auth list` 成功但沒有 active CLI 身分；ADC 可取短效權杖，兩種登入不可混為一談。403 的 `consumer` 對應 ADC OAuth 用戶端專案，並非四個目標 Firebase 專案。四個目標的 Cloud Console API 詳細頁均顯示 Identity Toolkit API 已啟用；不得為了解決此錯誤而啟用錯誤 consumer 上的 API。
+- Console 唯讀檢查已逐一確認四個目標 Project ID、Spark 方案、Email/Password 已啟用、Users 表格可讀且資料列 0 筆；四個「新增使用者」入口均能開啟表單。表單要求 Email 及密碼，尚未提交，故實際寫入權限尚未驗證。無需升級 Blaze 或修改正式 API、IAM、Rules、資料。
+- **業主需在本機 Console 完成帳號建立：**從 Firebase Console 專案選擇器逐一選 `new-customer-management-system`、`pre-order-registration`、`restocking-list`、`hr-system-ad937`；確認頁首 Project ID。進入 Authentication → Users，確認清單仍為空；按「新增使用者」，從私人核准 CSV 取得該專案核准 Email，在密碼管理工具產生唯一強密碼並直接輸入 Console，最後按「新增使用者」。不得將密碼複製到 CSV、聊天、終端或 GitHub；任何頁面顯示既有帳號、身分不符、計費提示或權限錯誤時，停止該專案，不覆寫或重試。Firebase Console 頁面已留在第一個專案 Users 頁。
+- 建立後由業主本人使用官方 Email/Password 流程設定或確認密碼並完成驗證；不可人工將 `emailVerified` 設為 true。完成後通知維護者進行唯讀 UID、Email 驗證與 `disabled` 狀態核對，結果只存私人目錄。未驗證前狀態記為「已建立／待驗證」。Claims 尚未核准；四筆 UID 與 Email 驗證均核對完成後，另提出逐 UID Claims 差異、完整前態備份與回復計畫供業主批准。
+- 若要重新使用 Admin SDK，必須先另行取得設定本機 ADC quota project 的明確核准；選定前確認 quota 專案、`serviceusage.services.use` 權限及不會啟用付費服務。此次未修改 ADC quota project。

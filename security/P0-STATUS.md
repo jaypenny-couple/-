@@ -8,6 +8,14 @@
 - **正式建帳阻擋：四個專案均未建立帳號。** ADC 可取得短效權杖、Firebase CLI 可列出四個目標專案，但 Auth 管理 API 的四次唯讀查詢皆回覆 HTTP 403 `PERMISSION_DENIED`／`SERVICE_DISABLED`，服務為 `identitytoolkit.googleapis.com`，錯誤指向的 quota consumer 專案並非四個目標專案。Google Cloud CLI 沒有作用中的使用者帳號；因此查重、帳號管理權限、目前計費狀態及本次 Provider 狀態重讀都未能確認。未繞過錯誤、未啟用 API 或更改 quota project。
 - 建帳、UID 讀回、Email 驗證、Claims、Rules、資料、IAM、計費與網站變更均為 0；帳號是否已存在屬**未查明**，不是「不存在」。本次核准只記錄在本機受限目錄；無 UID、密碼或信箱資料寫入公開報告。私人嘗試紀錄與核准 CSV 備份位於受限目錄，正式帳號建立待 API／配額專案狀況與權限由授權管理員釐清後再重試。
 
+## Auth 403 後續診斷與 Console 查核（2026-10-23）
+
+- Google Cloud CLI 590.0.0 可執行，但 `gcloud auth list` 沒有作用中的 CLI 登入身分；ADC 是 `authorized_user`，可取得短效權杖，未設定 `quota_project_id`。`GOOGLE_APPLICATION_CREDENTIALS`、`GOOGLE_CLOUD_QUOTA_PROJECT`、`CLOUDSDK_CORE_PROJECT`、`CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE`、`CLOUDSDK_CONFIG`、`FIREBASE_TOKEN` 均未設定。CLI 登入與 ADC 登入狀態分開記錄。
+- Identity Toolkit 403 的 consumer 對應 ADC OAuth 用戶端所屬專案，且不是四個目標 Firebase 專案。**不得據此推定目標專案 API 停用**；Firebase Console 的 Cloud API 頁面在四個目標專案均顯示 Identity Toolkit API 已啟用。沒有啟用錯誤 consumer 的 API、改 quota project、IAM 或計費設定。
+- Firebase Console 對四專案逐一核對：Email/Password Provider 顯示「已啟用」；Usage and billing 顯示 Spark；Authentication → Users 清單載入正常、每個清單均為 0 筆資料列；「新增使用者」表單均可開啟，沒有權限錯誤。這證明 Console UI 可讀取清單並提供新增入口；未提交表單，實際建帳寫入權限未測。
+- 四個空清單使逐專案查重結果為 0 個既有 Auth 使用者；未有重複帳號需要覆寫或停用。Console 表單要求 Email 與密碼。依本機電腦操作安全規範，密碼欄位及最終新增操作須由業主本人在 Console 完成；沒有任何帳號建立、Email 發送、UID 讀回或 Email 驗證操作。本次核准仍只涵蓋四筆帳號建立，不涵蓋 Claims。
+- 若日後要恢復 Admin SDK 路徑，先由業主明確核准是否設定本機 ADC quota project，再做唯讀查詢；本次未修改本機 ADC。Console 操作路徑無須改動 Firebase 專案設定。
+
 **業主已核准的營運決策：**預購與缺貨系統在正式安全切換初期不提供任何刪除功能。一般員工、主管及舊 manager 均須由網頁、SDK、REST 遭 Rules 拒絕；取消、重複及誤登紀錄改走人工交班。正式刪除工具列為上線後待獨立批准功能；候選工具只可連 localhost Emulator，不得新增正式刪除路徑。此決策不略過 G1–G8、備份、權限或員工驗收門檻。
 
 ## 第十一階段：員工帳號與 Custom Claims 準備（僅候選／Emulator）
