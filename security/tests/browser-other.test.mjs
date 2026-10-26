@@ -12,7 +12,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const securityRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const siteRoot = resolve(securityRoot, '..');
-const edge = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
+const edge = process.env.ALICE_TEST_BROWSER ?? 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
 const ports = { host: '127.0.0.1', port: 9000 };
 
 test('新客、預訂、HR 頁面於本機 Emulator 的員工工作流程', async () => {

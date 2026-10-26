@@ -53,3 +53,26 @@ export function checkEmailVerification({ auth, projectId, email, password, sdk }
     return Object.freeze({ emailVerified: Boolean(user.emailVerified), verificationRequested: false });
   });
 }
+
+const standardTokenClaims = new Set([
+  'iss', 'aud', 'auth_time', 'user_id', 'sub', 'iat', 'exp', 'email', 'email_verified', 'firebase',
+  'name', 'picture', 'phone_number'
+]);
+
+// Reads the signed-in account's own UID, verification state and current custom claims (the claims "before" state).
+// The caller must keep these values local and private; nothing here prints or stores them.
+export function inspectSignedInAccount({ auth, projectId, email, password, sdk }) {
+  if (!sdk || typeof sdk.getIdTokenResult !== 'function') throw new Error('Firebase ID token inspection is unavailable.');
+  return withSignedInUser({ auth, projectId, email, password, sdk }, async user => {
+    await sdk.reload(user);
+    const token = await sdk.getIdTokenResult(user, true);
+    const customClaims = Object.fromEntries(Object.entries(token?.claims ?? {})
+      .filter(([key]) => !standardTokenClaims.has(key)));
+    return Object.freeze({
+      uid: String(user.uid),
+      signedInEmail: String(user.email ?? ''),
+      emailVerified: Boolean(user.emailVerified),
+      customClaims
+    });
+  });
+}

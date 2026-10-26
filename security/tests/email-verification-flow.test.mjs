@@ -2,12 +2,12 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { initializeApp as initializeClientApp, deleteApp as deleteClientApp } from 'firebase/app';
 import {
-  connectAuthEmulator, inMemoryPersistence, initializeAuth, reload,
+  connectAuthEmulator, getIdTokenResult, inMemoryPersistence, initializeAuth, reload,
   sendEmailVerification, signInWithEmailAndPassword, signOut
 } from 'firebase/auth';
 import { initializeApp as initializeAdminApp, deleteApp as deleteAdminApp } from 'firebase-admin/app';
 import { getAuth as getAdminAuth } from 'firebase-admin/auth';
-import { checkEmailVerification, requestEmailVerification } from '../email-verification-flow.mjs';
+import { checkEmailVerification, inspectSignedInAccount, requestEmailVerification } from '../email-verification-flow.mjs';
 
 test('本機 Email 驗證流程只對既有 Emulator 帳號登入、寄送、reload 並登出', async () => {
   const emulatorHost = process.env.FIREBASE_AUTH_EMULATOR_HOST;
@@ -37,6 +37,16 @@ test('本機 Email 驗證流程只對既有 Emulator 帳號登入、寄送、rel
     const checked = await checkEmailVerification({ auth, projectId, email, password, sdk });
     assert.deepEqual(checked, { emailVerified: true, verificationRequested: false });
     assert.equal(auth.currentUser, null, 'flow signs out after checking');
+
+    await adminAuth.setCustomUserClaims(uid, { legacyFlag: true });
+    const inspected = await inspectSignedInAccount({ auth, projectId, email, password, sdk: { ...sdk, getIdTokenResult } });
+    assert.equal(inspected.uid, uid);
+    assert.equal(inspected.emailVerified, true);
+    assert.deepEqual(inspected.customClaims, { legacyFlag: true }, 'only custom claims are captured as the before state');
+    assert.equal(auth.currentUser, null, 'flow signs out after inspection');
+    await adminAuth.updateUser(uid, { disabled: true });
+    await assert.rejects(() => inspectSignedInAccount({ auth, projectId, email, password, sdk: { ...sdk, getIdTokenResult } }), /user-disabled/);
+    await adminAuth.updateUser(uid, { disabled: false });
 
     await assert.rejects(() => requestEmailVerification({ auth, projectId, email, password: 'wrong synthetic password', sdk }));
     assert.equal(auth.currentUser, null, 'failed sign-in does not leave an Auth session');

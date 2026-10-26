@@ -69,3 +69,36 @@ export function buildStaffClaimsPlan(before, assignment) {
     containsAliceCanDelete: Object.hasOwn(next, 'aliceCanDelete')
   };
 }
+
+// Dry-run only: same diff/hash/rollback structure as buildStaffClaimsPlan, but it is produced BEFORE the
+// owner's per-UID approval exists, so it is always marked as not applicable until that approval is recorded.
+export function buildStaffClaimsDryRun(before, assignment) {
+  if (!assignment?.uid || !/^[a-zA-Z0-9:_-]{1,128}$/.test(assignment.uid)) {
+    throw new Error('Claims dry run requires the exact Firebase UID for this project.');
+  }
+  const blockers = [];
+  if (assignment.accountEnabled !== true) blockers.push('account-not-confirmed-enabled');
+  if (assignment.emailVerified !== true) blockers.push('email-not-verified');
+  if (assignment.role === 'manager' && !assignment.managerDutiesJustification?.trim()) blockers.push('manager-justification-missing');
+  const snapshot = structuredClone(before ?? {});
+  const { app, next } = buildStaffClaims(snapshot, assignment);
+  const keys = new Set([...Object.keys(snapshot), ...Object.keys(next)]);
+  const changes = [...keys].sort().filter(key => canonicalJson(snapshot[key]) !== canonicalJson(next[key]))
+    .map(key => ({ key, before: snapshot[key], after: next[key] }));
+  return {
+    mode: 'DRY-RUN-NOT-APPLIED',
+    ownerUidApproval: 'PENDING',
+    projectId: assignment.projectId,
+    uid: assignment.uid,
+    app,
+    role: assignment.role,
+    before: snapshot,
+    after: next,
+    changes,
+    rollbackClaims: structuredClone(snapshot),
+    beforeSha256: sha256(snapshot),
+    afterSha256: sha256(next),
+    containsAliceCanDelete: Object.hasOwn(next, 'aliceCanDelete'),
+    blockers
+  };
+}

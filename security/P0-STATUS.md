@@ -2,6 +2,15 @@
 
 **Draft PR #43 僅供審查。禁止合併、部署官網、修改正式 Security Rules 或正式資料。HR 自管備份已完成本機還原；候選交易式寫入已在 Emulator 驗證。最後備份窗口、實際員工帳號與正式切換驗收未完成，正式切換維持阻擋。** 本輪未升級 Blaze、未建立付費雲端資源。
 
+## Claude 接手：私人 CSV 路徑根因與 UID 寫回工具（2026-10-26）
+
+- **根因已確認：**先前 Codex 為 Microsoft Store（MSIX）封裝程式，其對 `%LOCALAPPDATA%` 的寫入被 Windows 重新導向至 `%LOCALAPPDATA%\Packages\OpenAI.Codex_<id>\LocalCache\Local\`。業主在一般 `cmd.exe` 執行時看到的是真實 `%LOCALAPPDATA%`，因此兩支工具都 `ENOENT`；`email-verification-local.mjs` 把 ENOENT 包成通用理由 `check-private-approval-and-local-account-state`，並非密碼或 Firebase 問題。上方「私人 CSV 位於 `%LOCALAPPDATA%`…」的敘述實際是 Codex 套件視角。
+- 私人資料夾（含 B0 RTDB/HR 備份）目前**只存在 Codex 套件快取**，解除安裝或重設 Codex 會一併刪除。修復方式：經業主同意後，以本機工具複製（來源保留）到真實 `%LOCALAPPDATA%`，逐檔 SHA-256 比對並套用來源 DACL；不修改程式路徑、不接受替代路徑參數。
+- `email-verification-local.mjs` 失敗理由改為可分辨的安全代碼（`private-approval-files-not-found`、`project-not-approved-in-private-csv`、`email-does-not-match-approved-email` 等），不輸出 Email／UID。
+- 新增 `--action record`：業主本人以 Client SDK 登入後，讀回該專案真實 UID、`emailVerified` 與現有 Custom Claims（作為 Claims 前態），經輸入 `RECORD UID` 後只改私人主 CSV 該專案試點列的 `AccountUID`、`AccountStatus`、`EmailVerificationStatus` 三欄；先寫入逐位元組備份並核 SHA-256，原檔就地重寫以保留 ACL，往返核對失敗即還原。登入成功即證明帳號未停用；不需 Admin SDK，因此不受 ADC 403 影響、不需變更 IAM／quota project。
+- 新增 `claims-dry-run-local.mjs` 與 `buildStaffClaimsDryRun`：只產生私人計畫檔（完整前態、後態、差異、回復值、雜湊），**不呼叫 Firebase、不核發 Claims**；需另行取得業主逐 UID 核准。
+- 測試：完整 Emulator `npm test` **42 項**（原 38 + 新 4）。雲端環境因無法連到 gstatic，瀏覽器測試以同版 npm 套件代替 CDN 執行；`ALICE_TEST_BROWSER` 可指定瀏覽器路徑（預設仍為 Windows Edge）。HR 頁「新增後顯示已儲存確認訊息」在原版與新版皆偶發逾時（資料列已出現，確認訊息未在 15 秒內出現），列入 G7 HR 實機驗收風險。
+
 ## OWNER-PILOT 正式帳號 Users／UID／Email 驗證查核（2026-10-23）
 
 - 依既有四筆 OWNER-PILOT 帳號建立授權，逐一開啟四個正式 Firebase Console 的 Authentication → Users。四個頁面均確認 Project ID 相符、Spark 方案、Users 清單已載入且明確顯示目前沒有使用者；帳號數 **0/4**。本輪未建立帳號，亦未重試 Admin SDK、修改 ADC quota project、API、IAM、計費或任何 Firebase 設定。Admin SDK quota consumer 403 仍為獨立阻擋。

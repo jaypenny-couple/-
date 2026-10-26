@@ -12,7 +12,7 @@ import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 const securityRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const siteRoot = resolve(securityRoot, '..');
 const rules = await readFile(join(securityRoot, 'rules/stock.database.rules.json'), 'utf8');
-const edge = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
+const edge = process.env.ALICE_TEST_BROWSER ?? 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
 
 test('缺貨頁：本機 Auth/RTDB 登入、CRUD、重新整理、斷線恢復與登出', async () => {
   for (const key of ['FIREBASE_AUTH_EMULATOR_HOST', 'FIREBASE_DATABASE_EMULATOR_HOST']) {

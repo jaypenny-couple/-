@@ -4,13 +4,14 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { deleteApp, initializeApp } from 'firebase/app';
 import {
-  initializeAuth, inMemoryPersistence, reload, sendEmailVerification,
+  getIdTokenResult, initializeAuth, inMemoryPersistence, reload, sendEmailVerification,
   signInWithEmailAndPassword, signOut
 } from 'firebase/auth';
 import {
-  checkEmailVerification, EMAIL_VERIFICATION_PROJECTS, requestEmailVerification
+  checkEmailVerification, EMAIL_VERIFICATION_PROJECTS, inspectSignedInAccount, requestEmailVerification
 } from './email-verification-flow.mjs';
 import { isApproved, normalizeApprovedEmail, overlayOwnerPilotEntries, parseCsv } from './employee-approval-policy.js';
+import { recordAccount, SafeError } from './email-verification-record.mjs';
 
 const projectConfigs = Object.freeze({
   'new-customer-management-system': {
@@ -36,15 +37,16 @@ const projectConfigs = Object.freeze({
 });
 const { stdin, stdout, env, argv } = process;
 
+
 function parseArgs(args) {
   const options = {};
   for (let i = 2; i < args.length; i += 2) {
     const name = args[i];
     const value = args[i + 1];
-    if (!['--project', '--action'].includes(name) || !value || options[name]) throw new Error('Usage: node security/email-verification-local.mjs --project <projectId> --action <send|check>');
+    if (!['--project', '--action'].includes(name) || !value || options[name]) throw new Error('Usage: node security/email-verification-local.mjs --project <projectId> --action <send|check|record>');
     options[name] = value;
   }
-  if (!EMAIL_VERIFICATION_PROJECTS.includes(options['--project']) || !['send', 'check'].includes(options['--action'])) {
+  if (!EMAIL_VERIFICATION_PROJECTS.includes(options['--project']) || !['send', 'check', 'record'].includes(options['--action'])) {
     throw new Error('Project or action is not allowed.');
   }
   return { projectId: options['--project'], action: options['--action'] };
@@ -88,7 +90,14 @@ async function main() {
     const readline = createInterface({ input: stdin, output: stdout });
     try {
       const approval = await readline.question('寄送驗證信會聯絡此帳號本人。輸入 SEND VERIFY 繼續：');
-      if (approval !== 'SEND VERIFY') throw new Error('Cancelled.');
+      if (approval !== 'SEND VERIFY') throw new SafeError('cancelled');
+    } finally { readline.close(); }
+  }
+  if (action === 'record') {
+    const readline = createInterface({ input: stdin, output: stdout });
+    try {
+      const approval = await readline.question('將本人登入取得的 UID 與驗證狀態寫回本機私人 CSV（先自動備份）。輸入 RECORD UID 繼續：');
+      if (approval !== 'RECORD UID') throw new SafeError('cancelled');
     } finally { readline.close(); }
   }
 
@@ -97,22 +106,38 @@ async function main() {
   try { email = (await readline.question('核准帳號登入 Email（不會回顯於結果）：')).trim(); }
   finally { readline.close(); }
   const privateRoot = env.LOCALAPPDATA;
-  if (!privateRoot) throw new Error('Private approval records are unavailable.');
+  if (!privateRoot) throw new SafeError('private-approval-files-not-found');
   const privateFolder = join(privateRoot, 'ALICE-P0-PRIVATE-BACKUPS', 'EMPLOYEE-ACCESS-ACCEPTANCE');
-  const approvedRows = parseCsv(await readFile(join(privateFolder, 'ALICE-P0-EMPLOYEE-ACCESS-PRIVATE.csv'), 'utf8'));
-  const ownerEntries = parseCsv(await readFile(join(privateFolder, 'OWNER-PILOT-LOCAL-ENTRY-PRIVATE.csv'), 'utf8'));
-  overlayOwnerPilotEntries(approvedRows, ownerEntries);
+  const mainCsvPath = join(privateFolder, 'ALICE-P0-EMPLOYEE-ACCESS-PRIVATE.csv');
+  let mainCsvBuffer;
+  let ownerEntryText;
+  try {
+    mainCsvBuffer = await readFile(mainCsvPath);
+    ownerEntryText = await readFile(join(privateFolder, 'OWNER-PILOT-LOCAL-ENTRY-PRIVATE.csv'), 'utf8');
+  } catch (error) {
+    throw new SafeError(error?.code === 'ENOENT' ? 'private-approval-files-not-found' : 'private-approval-files-unreadable');
+  }
+  const approvedRows = parseCsv(mainCsvBuffer.toString('utf8'));
+  overlayOwnerPilotEntries(approvedRows, parseCsv(ownerEntryText));
   const approved = approvedRows.filter(row => row.FirebaseProject === projectId && row.RecordType === 'OWNER-PILOT');
-  if (approved.length !== 1 || !isApproved(approved[0].AccountCreationApproval) || !isApproved(approved[0].OwnerApproval) ||
-      normalizeApprovedEmail(approved[0].ApprovedEmail) !== normalizeApprovedEmail(email)) {
-    throw new Error('The selected email is not the privately approved account for this project.');
+  if (approved.length !== 1 || !isApproved(approved[0].AccountCreationApproval) || !isApproved(approved[0].OwnerApproval)) {
+    throw new SafeError('project-not-approved-in-private-csv');
+  }
+  if (normalizeApprovedEmail(approved[0].ApprovedEmail) !== normalizeApprovedEmail(email)) {
+    throw new SafeError('email-does-not-match-approved-email');
   }
   let password = await readSecret('密碼（不回顯）：');
 
   const app = initializeApp(projectConfigs[projectId], `alice-local-email-check-${Date.now()}`);
   const auth = initializeAuth(app, { persistence: inMemoryPersistence });
-  const sdk = { signInWithEmailAndPassword, sendEmailVerification, reload, signOut };
+  const sdk = { signInWithEmailAndPassword, sendEmailVerification, reload, signOut, getIdTokenResult };
   try {
+    if (action === 'record') {
+      const account = await inspectSignedInAccount({ auth, projectId, email, password, sdk });
+      const outcome = await recordAccount({ privateFolder, mainCsvPath, mainCsvBuffer, projectId, mergedRow: approved[0], account });
+      stdout.write(JSON.stringify({ projectId, action, ...outcome }) + '\n');
+      return;
+    }
     const outcome = action === 'send'
       ? await requestEmailVerification({ auth, projectId, email, password, sdk })
       : await checkEmailVerification({ auth, projectId, email, password, sdk });
@@ -126,6 +151,11 @@ async function main() {
 }
 
 main().catch(error => {
+  if (error?.safeReason) {
+    stdout.write(JSON.stringify({ status: 'not-completed', reason: error.safeReason }) + '\n');
+    process.exitCode = 1;
+    return;
+  }
   const safeCode = typeof error?.code === 'string' && /^auth\/[a-z-]+$/.test(error.code) ? error.code : undefined;
   stdout.write(JSON.stringify({ status: 'not-completed', reason: safeCode ?? 'check-private-approval-and-local-account-state' }) + '\n');
   process.exitCode = 1;

@@ -197,3 +197,62 @@ export function parseCsv(text) {
   }
   return data.map(values => Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ''])));
 }
+
+function csvField(value, quoteAll) {
+  const text = String(value ?? '');
+  return quoteAll || /[",\r\n]/.test(text) || /^\s|\s$/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+// Serializes rows using the exact header order of the original file so unrelated columns are untouched.
+export function serializeCsv(headers, rows, { bom = false, quoteAll = false } = {}) {
+  if (!Array.isArray(headers) || !headers.length || new Set(headers).size !== headers.length) {
+    throw new Error('CSV headers must be non-empty and unique.');
+  }
+  const lines = [headers.map(header => csvField(header, quoteAll)).join(',')];
+  for (const row of rows) lines.push(headers.map(header => csvField(row[header], quoteAll)).join(','));
+  return `${bom ? '﻿' : ''}${lines.join('\r\n')}\r\n`;
+}
+
+// Returns the header order and BOM flag so a rewrite can keep the original file layout.
+export function parseCsvDocument(text) {
+  const source = String(text ?? '');
+  const bom = source.startsWith('\uFEFF');
+  const quoteAll = source.replace(/^\uFEFF/, '').startsWith('"');
+  const headerOnly = parseCsv(`${source.replace(/^\uFEFF/, '').split(/\r?\n/, 1)[0]}\n\n`);
+  const rows = parseCsv(source);
+  const headers = rows.length ? Object.keys(rows[0]) : Object.keys(headerOnly[0] ?? {});
+  return { headers, rows, bom, quoteAll };
+}
+
+const recordFields = Object.freeze(['AccountUID', 'AccountStatus', 'EmailVerificationStatus']);
+
+// Pure update of exactly one owner pilot row with values observed from the signed-in account.
+// Approval is checked on the in-memory merged view (main CSV + owner entry sheet); only the three account
+// columns of the main CSV row change. An existing different UID is never overwritten.
+export function applyOwnerPilotAccountRecord(rows, { projectId, mergedRow, signedInEmail, uid, emailVerified, checkedOn }) {
+  if (!firebaseProjectRoles[projectId]) throw new Error('Unsupported Firebase project.');
+  if (!/^[A-Za-z0-9_-]{10,128}$/.test(String(uid ?? ''))) throw new Error('UID format is invalid.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(checkedOn ?? ''))) throw new Error('checkedOn must be YYYY-MM-DD.');
+  if (!mergedRow || String(mergedRow.FirebaseProject ?? '').trim() !== projectId) throw new Error('Approved row is missing.');
+  if (!isApproved(mergedRow.AccountCreationApproval) || !isApproved(mergedRow.OwnerApproval)) throw new Error('Owner pilot row is not approved.');
+  const approvedEmail = normalizeApprovedEmail(mergedRow.ApprovedEmail);
+  if (approvedEmail === null || approvedEmail !== normalizeApprovedEmail(signedInEmail)) {
+    throw new Error('Signed-in email does not match the approved email.');
+  }
+  const matches = rows.filter(row => String(row.FirebaseProject ?? '').trim() === projectId &&
+    (String(row.RecordType ?? '').trim() === 'OWNER-PILOT' || String(row.InternalRef ?? '').trim() === 'OWNER-PILOT-TBD'));
+  if (matches.length !== 1) throw new Error('Expected exactly one owner pilot row for this project.');
+  const row = matches[0];
+  for (const field of recordFields) if (!(field in row)) throw new Error(`Private CSV is missing column ${field}.`);
+  const existing = String(row.AccountUID ?? '').trim();
+  if (existing && existing !== uid) throw new Error('A different UID is already recorded; manual review is required.');
+  const duplicate = rows.some(other => other !== row && String(other.FirebaseProject ?? '').trim() === projectId &&
+    String(other.AccountUID ?? '').trim() === uid);
+  if (duplicate) throw new Error('This UID is already recorded on another row of the same project.');
+  const before = Object.fromEntries(recordFields.map(field => [field, row[field]]));
+  row.AccountUID = uid;
+  row.AccountStatus = 'ENABLED';
+  row.EmailVerificationStatus = emailVerified ? `VERIFIED-CLIENT-SDK-${checkedOn}` : 'PENDING-EMAIL-LINK';
+  const changedFields = recordFields.filter(field => before[field] !== row[field]);
+  return { changed: changedFields.length > 0, changedFields, rowIndex: rows.indexOf(row) };
+}
