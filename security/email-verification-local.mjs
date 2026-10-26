@@ -64,6 +64,7 @@ async function readSecret(label) {
         if (key === '\u0003') {
           stdin.off('data', onData);
           stdin.setRawMode(false);
+          stdin.pause();
           stdout.write('\n');
           reject(new Error('Cancelled.'));
           return;
@@ -71,6 +72,7 @@ async function readSecret(label) {
         if (key === '\r' || key === '\n') {
           stdin.off('data', onData);
           stdin.setRawMode(false);
+          stdin.pause();
           stdout.write('\n');
           resolve(value);
           return;
@@ -154,7 +156,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+main().then(() => { process.exitCode ??= 0; }, error => {
   if (error?.safeReason) {
     stdout.write(JSON.stringify({ status: 'not-completed', reason: error.safeReason }) + '\n');
     process.exitCode = 1;
@@ -163,4 +165,7 @@ main().catch(error => {
   const safeCode = typeof error?.code === 'string' && /^auth\/[a-z-]+$/.test(error.code) ? error.code : undefined;
   stdout.write(JSON.stringify({ status: 'not-completed', reason: safeCode ?? 'check-private-approval-and-local-account-state' }) + '\n');
   process.exitCode = 1;
+}).finally(() => {
+  // Firebase SDK timers or a held console handle must never leave the terminal hanging.
+  setTimeout(() => process.exit(process.exitCode ?? 0), 300);
 });
