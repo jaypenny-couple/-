@@ -75,8 +75,12 @@ async function readSecret(label) {
           resolve(value);
           return;
         }
-        if (key === '\u007f' || key === '\b') value = value.slice(0, -1);
-        else if (key >= ' ') value += key;
+        if (key === '\u007f' || key === '\b') {
+          if (value.length) { value = value.slice(0, -1); stdout.write('\b \b'); }
+        } else if (key >= ' ') {
+          value += key;
+          stdout.write(key.charCodeAt(0) > 0x7e ? '?' : '*');
+        }
       }
     };
     stdin.on('data', onData);
@@ -90,14 +94,14 @@ async function main() {
     const readline = createInterface({ input: stdin, output: stdout });
     try {
       const approval = await readline.question('寄送驗證信會聯絡此帳號本人。輸入 SEND VERIFY 繼續：');
-      if (approval !== 'SEND VERIFY') throw new SafeError('cancelled');
+      if (approval.trim() !== 'SEND VERIFY') throw new SafeError('cancelled');
     } finally { readline.close(); }
   }
   if (action === 'record') {
     const readline = createInterface({ input: stdin, output: stdout });
     try {
       const approval = await readline.question('將本人登入取得的 UID 與驗證狀態寫回本機私人 CSV（先自動備份）。輸入 RECORD UID 繼續：');
-      if (approval !== 'RECORD UID') throw new SafeError('cancelled');
+      if (approval.trim() !== 'RECORD UID') throw new SafeError('cancelled');
     } finally { readline.close(); }
   }
 
