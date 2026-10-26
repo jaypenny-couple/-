@@ -20,6 +20,13 @@
 - Claims dry run：4/4 計畫、`claimsChanged=0`、無阻擋、無 `aliceCanDelete`；前態雜湊 `44136fa355b3`（空物件），後態與雲端獨立重算一致。**Claims 仍為 0/4，待業主逐 UID 核准。**
 - 工具修正：密碼輸入顯示 `*`（非 ASCII 顯示 `?` 提示輸入法）、確認字串容許前後空白、程式輸出結果後一定結束。
 
+### 2026-10-26 傍晚：業主核准並本機核發 4 組 Custom Claims
+
+- 業主於對話中明確核准四個業主試點 UID 的 Claims（customer/manager、preorder/staff、stock/staff、hr/manager）及核發方式：業主本人 ADC 取得短效權杖、Identity Toolkit REST 以目標專案為 `X-Goog-User-Project`；未變更 ADC 設定、IAM、API 或計費。
+- 業主本機以 `claims-apply-local.mjs` 逐專案執行，順序：restocking-list → pre-order-registration → new-customer-management-system → hr-system-ad937。四次皆 `applied`，前態皆為空物件（`44136fa355b3`），讀回後態雜湊分別為 `e804a3072a75`、`563b3b4109cd`、`3161adf4d7b3`、`47e99c3827e7`，與 dry run 及雲端獨立重算一致；均不含 `aliceCanDelete`。
+- 每次核發前已於私人目錄保存前態備份與操作紀錄；可用 `--action rollback` 僅在現況等於核發後態時回復為核發前狀態。
+- **Claims 4/4 完成。** 正式 Rules 與網站仍為舊版，Claims 目前不改變任何存取；匿名讀寫風險仍待 G1–G8 正式切換解除。
+
 ## OWNER-PILOT 正式帳號 Users／UID／Email 驗證查核（2026-10-23）
 
 - 依既有四筆 OWNER-PILOT 帳號建立授權，逐一開啟四個正式 Firebase Console 的 Authentication → Users。四個頁面均確認 Project ID 相符、Spark 方案、Users 清單已載入且明確顯示目前沒有使用者；帳號數 **0/4**。本輪未建立帳號，亦未重試 Admin SDK、修改 ADC quota project、API、IAM、計費或任何 Firebase 設定。Admin SDK quota consumer 403 仍為獨立阻擋。
