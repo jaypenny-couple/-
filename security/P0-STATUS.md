@@ -11,6 +11,15 @@
 - 新增 `claims-dry-run-local.mjs` 與 `buildStaffClaimsDryRun`：只產生私人計畫檔（完整前態、後態、差異、回復值、雜湊），**不呼叫 Firebase、不核發 Claims**；需另行取得業主逐 UID 核准。
 - 測試：完整 Emulator `npm test` **42 項**（原 38 + 新 4）。雲端環境因無法連到 gstatic，瀏覽器測試以同版 npm 套件代替 CDN 執行；`ALICE_TEST_BROWSER` 可指定瀏覽器路徑（預設仍為 Windows Edge）。HR 頁「新增後顯示已儲存確認訊息」在原版與新版皆偶發逾時（資料列已出現，確認訊息未在 15 秒內出現），列入 G7 HR 實機驗收風險。
 
+### 2026-10-26 下午：業主本機執行結果（只記數量與雜湊，不含 Email／UID）
+
+- 唯讀盤點：私人資料夾僅 1 份（Codex 快取，48 檔），使用者目錄內無其他副本；資料夾 ACL 僅本機使用者與 SYSTEM（繼承已保護）；主 CSV 11 列（7 範本＋4 試點），4 筆試點均 APPROVED 且有核准信箱，與精簡輸入表 0 衝突。
+- 經業主同意，以 `02-migrate-private-to-localappdata.ps1` 複製到真實 `%LOCALAPPDATA%`：48/48 檔 SHA-256 一致、ACL 未放寬，Codex 快取來源保留未動。
+- 業主本人以 `send` 寄出 4 封驗證信並點擊完成；以 `record` 寫回：**UID 4/4、Email 驗證 4/4、帳號啟用 4/4**，四次寫回均先備份並核雜湊，雜湊鏈連續（起點與盤點雜湊相同）；四帳號現有 Custom Claims 皆為空。
+- 員工核准稽核：四專案 `missingBeforeAccount`、`pendingAuthorization`、`missingAfterAccount` 全為空。
+- Claims dry run：4/4 計畫、`claimsChanged=0`、無阻擋、無 `aliceCanDelete`；前態雜湊 `44136fa355b3`（空物件），後態與雲端獨立重算一致。**Claims 仍為 0/4，待業主逐 UID 核准。**
+- 工具修正：密碼輸入顯示 `*`（非 ASCII 顯示 `?` 提示輸入法）、確認字串容許前後空白、程式輸出結果後一定結束。
+
 ## OWNER-PILOT 正式帳號 Users／UID／Email 驗證查核（2026-10-23）
 
 - 依既有四筆 OWNER-PILOT 帳號建立授權，逐一開啟四個正式 Firebase Console 的 Authentication → Users。四個頁面均確認 Project ID 相符、Spark 方案、Users 清單已載入且明確顯示目前沒有使用者；帳號數 **0/4**。本輪未建立帳號，亦未重試 Admin SDK、修改 ADC quota project、API、IAM、計費或任何 Firebase 設定。Admin SDK quota consumer 403 仍為獨立阻擋。
