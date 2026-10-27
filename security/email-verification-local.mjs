@@ -10,7 +10,9 @@ import {
 import {
   checkEmailVerification, EMAIL_VERIFICATION_PROJECTS, inspectSignedInAccount, requestEmailVerification
 } from './email-verification-flow.mjs';
-import { isApproved, normalizeApprovedEmail, overlayOwnerPilotEntries, parseCsv } from './employee-approval-policy.js';
+import {
+  isApproved, normalizeApprovedEmail, normalizePersonCode, overlayOwnerPilotEntries, parseCsv, selectAccountRow
+} from './employee-approval-policy.js';
 import { recordAccount, SafeError } from './email-verification-record.mjs';
 
 const projectConfigs = Object.freeze({
@@ -43,13 +45,14 @@ function parseArgs(args) {
   for (let i = 2; i < args.length; i += 2) {
     const name = args[i];
     const value = args[i + 1];
-    if (!['--project', '--action'].includes(name) || !value || options[name]) throw new Error('Usage: node security/email-verification-local.mjs --project <projectId> --action <send|check|record>');
+    if (!['--project', '--action', '--person'].includes(name) || !value || options[name]) throw new Error('Usage: node security/email-verification-local.mjs --project <projectId> --action <send|check|record> [--person <CODE>]');
     options[name] = value;
   }
   if (!EMAIL_VERIFICATION_PROJECTS.includes(options['--project']) || !['send', 'check', 'record'].includes(options['--action'])) {
     throw new Error('Project or action is not allowed.');
   }
-  return { projectId: options['--project'], action: options['--action'] };
+  return { projectId: options['--project'], action: options['--action'],
+    person: options['--person'] ? normalizePersonCode(options['--person']) : '' };
 }
 
 async function readSecret(label) {
@@ -91,7 +94,7 @@ async function readSecret(label) {
 
 async function main() {
   if (env.FIREBASE_AUTH_EMULATOR_HOST) throw new Error('Refusing production workflow while an Auth Emulator override is set.');
-  const { projectId, action } = parseArgs(argv);
+  const { projectId, action, person } = parseArgs(argv);
   if (action === 'send') {
     const readline = createInterface({ input: stdin, output: stdout });
     try {
@@ -125,11 +128,13 @@ async function main() {
   }
   const approvedRows = parseCsv(mainCsvBuffer.toString('utf8'));
   overlayOwnerPilotEntries(approvedRows, parseCsv(ownerEntryText));
-  const approved = approvedRows.filter(row => row.FirebaseProject === projectId && row.RecordType === 'OWNER-PILOT');
-  if (approved.length !== 1 || !isApproved(approved[0].AccountCreationApproval) || !isApproved(approved[0].OwnerApproval)) {
+  let approvedRow;
+  try { approvedRow = selectAccountRow(approvedRows, projectId, person); }
+  catch { throw new SafeError(person ? 'person-not-found-for-project-in-private-csv' : 'project-not-approved-in-private-csv'); }
+  if (!isApproved(approvedRow.AccountCreationApproval) || !isApproved(approvedRow.OwnerApproval)) {
     throw new SafeError('project-not-approved-in-private-csv');
   }
-  if (normalizeApprovedEmail(approved[0].ApprovedEmail) !== normalizeApprovedEmail(email)) {
+  if (normalizeApprovedEmail(approvedRow.ApprovedEmail) !== normalizeApprovedEmail(email)) {
     throw new SafeError('email-does-not-match-approved-email');
   }
   let password = await readSecret('密碼（不回顯）：');
@@ -140,14 +145,14 @@ async function main() {
   try {
     if (action === 'record') {
       const account = await inspectSignedInAccount({ auth, projectId, email, password, sdk });
-      const outcome = await recordAccount({ privateFolder, mainCsvPath, mainCsvBuffer, projectId, mergedRow: approved[0], account });
-      stdout.write(JSON.stringify({ projectId, action, ...outcome }) + '\n');
+      const outcome = await recordAccount({ privateFolder, mainCsvPath, mainCsvBuffer, projectId, person, mergedRow: approvedRow, account });
+      stdout.write(JSON.stringify({ projectId, ...(person ? { person } : {}), action, ...outcome }) + '\n');
       return;
     }
     const outcome = action === 'send'
       ? await requestEmailVerification({ auth, projectId, email, password, sdk })
       : await checkEmailVerification({ auth, projectId, email, password, sdk });
-    stdout.write(JSON.stringify({ projectId, action, ...outcome }) + '\n');
+    stdout.write(JSON.stringify({ projectId, ...(person ? { person } : {}), action, ...outcome }) + '\n');
   } finally {
     password = undefined;
     email = undefined;

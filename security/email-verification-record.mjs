@@ -1,7 +1,7 @@
 import { copyFile, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
-import { applyOwnerPilotAccountRecord, parseCsvDocument, serializeCsv } from './employee-approval-policy.js';
+import { applyAccountRecord, parseCsvDocument, serializeCsv } from './employee-approval-policy.js';
 
 export class SafeError extends Error {
   constructor(code) { super(code); this.safeReason = code; }
@@ -13,27 +13,27 @@ const taipeiDate = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taip
 // Writes only the three account columns of this project's owner pilot row. A byte-identical backup is
 // written and hash-checked first; the main file is rewritten in place so its existing ACL is kept; any
 // round-trip mismatch restores the backup. UID, email and claims are never printed.
-export async function recordAccount({ privateFolder, mainCsvPath, mainCsvBuffer, projectId, mergedRow, account, checkedOn }) {
+export async function recordAccount({ privateFolder, mainCsvPath, mainCsvBuffer, projectId, person, mergedRow, account, checkedOn }) {
   const current = await readFile(mainCsvPath);
   if (sha256(current) !== sha256(mainCsvBuffer)) throw new SafeError('private-csv-changed-during-run');
   const doc = parseCsvDocument(current.toString('utf8'));
   let result;
   try {
-    result = applyOwnerPilotAccountRecord(doc.rows, {
-      projectId, mergedRow, signedInEmail: account.signedInEmail, uid: account.uid,
+    result = applyAccountRecord(doc.rows, {
+      projectId, person, mergedRow, signedInEmail: account.signedInEmail, uid: account.uid,
       emailVerified: account.emailVerified, checkedOn: checkedOn ?? taipeiDate()
     });
   } catch { throw new SafeError('private-csv-row-not-updatable-manual-review'); }
   const runStamp = stamp();
-  const claimsBeforePath = join(privateFolder, `CLAIMS-BEFORE-${projectId}-${runStamp}-PRIVATE.json`);
-  await writeFile(claimsBeforePath, JSON.stringify({ projectId, capturedAt: new Date().toISOString(),
+  const claimsBeforePath = join(privateFolder, `CLAIMS-BEFORE-${projectId}-${person ? `${person}-` : ''}${runStamp}-PRIVATE.json`);
+  await writeFile(claimsBeforePath, JSON.stringify({ projectId, person: person || 'OWNER-PILOT', uid: account.uid, capturedAt: new Date().toISOString(),
     source: 'client-sdk-id-token', customClaims: account.customClaims }, null, 2) + '\n', { flag: 'wx' });
   if (!result.changed) {
     return { status: 'unchanged', emailVerified: account.emailVerified, accountEnabled: true,
       existingClaimKeys: Object.keys(account.customClaims).length };
   }
   const originalHash = sha256(current);
-  const backupPath = `${mainCsvPath}.pre-record-${projectId}-${runStamp}.csv`;
+  const backupPath = `${mainCsvPath}.pre-record-${projectId}-${person ? `${person}-` : ''}${runStamp}.csv`;
   await writeFile(backupPath, current, { flag: 'wx' });
   if (sha256(await readFile(backupPath)) !== originalHash) throw new SafeError('backup-hash-mismatch-no-change-made');
   const next = Buffer.from(serializeCsv(doc.headers, doc.rows, { bom: doc.bom, quoteAll: doc.quoteAll }), 'utf8');

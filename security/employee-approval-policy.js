@@ -163,7 +163,8 @@ export function summarizeEmployeeRoster(rows) {
     roleConflictCount: roleConflictCount.size,
     managerReasonIssueCount: managerReasonIssueCount.size,
     designerCodeIssueCount: designerCodeIssueCount.size,
-    projects: pilotSummary
+    projects: pilotSummary,
+    employees: summarizeEmployeeRows(rows)
   };
 }
 
@@ -226,10 +227,28 @@ export function parseCsvDocument(text) {
 
 const recordFields = Object.freeze(['AccountUID', 'AccountStatus', 'EmailVerificationStatus']);
 
+export function normalizePersonCode(value) {
+  const code = String(value ?? '').trim().toUpperCase();
+  if (!/^[A-Z][A-Z0-9_-]{1,31}$/.test(code)) throw new Error('Person code is invalid.');
+  return code;
+}
+
+// Selects exactly one account row: the owner pilot row when no person is given, otherwise the
+// EMPLOYEE row whose InternalRef equals the person code for that Firebase project.
+export function selectAccountRow(rows, projectId, person) {
+  if (!firebaseProjectRoles[projectId]) throw new Error('Unsupported Firebase project.');
+  const code = person ? normalizePersonCode(person) : '';
+  const matches = rows.filter(row => String(row.FirebaseProject ?? '').trim() === projectId && (code
+    ? String(row.RecordType ?? '').trim() === 'EMPLOYEE' && String(row.InternalRef ?? '').trim().toUpperCase() === code
+    : String(row.RecordType ?? '').trim() === 'OWNER-PILOT' || String(row.InternalRef ?? '').trim() === 'OWNER-PILOT-TBD'));
+  if (matches.length !== 1) throw new Error(code ? 'Expected exactly one employee row for this person and project.' : 'Expected exactly one owner pilot row for this project.');
+  return matches[0];
+}
+
 // Pure update of exactly one owner pilot row with values observed from the signed-in account.
 // Approval is checked on the in-memory merged view (main CSV + owner entry sheet); only the three account
 // columns of the main CSV row change. An existing different UID is never overwritten.
-export function applyOwnerPilotAccountRecord(rows, { projectId, mergedRow, signedInEmail, uid, emailVerified, checkedOn }) {
+export function applyAccountRecord(rows, { projectId, person, mergedRow, signedInEmail, uid, emailVerified, checkedOn }) {
   if (!firebaseProjectRoles[projectId]) throw new Error('Unsupported Firebase project.');
   if (!/^[A-Za-z0-9_-]{10,128}$/.test(String(uid ?? ''))) throw new Error('UID format is invalid.');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(checkedOn ?? ''))) throw new Error('checkedOn must be YYYY-MM-DD.');
@@ -239,10 +258,16 @@ export function applyOwnerPilotAccountRecord(rows, { projectId, mergedRow, signe
   if (approvedEmail === null || approvedEmail !== normalizeApprovedEmail(signedInEmail)) {
     throw new Error('Signed-in email does not match the approved email.');
   }
-  const matches = rows.filter(row => String(row.FirebaseProject ?? '').trim() === projectId &&
-    (String(row.RecordType ?? '').trim() === 'OWNER-PILOT' || String(row.InternalRef ?? '').trim() === 'OWNER-PILOT-TBD'));
-  if (matches.length !== 1) throw new Error('Expected exactly one owner pilot row for this project.');
-  const row = matches[0];
+  const row = selectAccountRow(rows, projectId, person);
+  // The approval view and the row being written must describe the same account.
+  // (Owner rows may take InternalRef from the owner entry sheet overlay, so only employees compare it.)
+  if ((person && String(row.RecordType ?? '').trim() !== String(mergedRow.RecordType ?? '').trim()) ||
+      (person && String(row.InternalRef ?? '').trim().toUpperCase() !== String(mergedRow.InternalRef ?? '').trim().toUpperCase())) {
+    throw new Error('Approved row does not match the row being updated.');
+  }
+  if (String(row.ApprovedEmail ?? '').trim() && normalizeApprovedEmail(row.ApprovedEmail) !== approvedEmail) {
+    throw new Error('Signed-in email does not match the approved email in the main CSV row.');
+  }
   for (const field of recordFields) if (!(field in row)) throw new Error(`Private CSV is missing column ${field}.`);
   const existing = String(row.AccountUID ?? '').trim();
   if (existing && existing !== uid) throw new Error('A different UID is already recorded; manual review is required.');
@@ -255,4 +280,62 @@ export function applyOwnerPilotAccountRecord(rows, { projectId, mergedRow, signe
   row.EmailVerificationStatus = emailVerified ? `VERIFIED-CLIENT-SDK-${checkedOn}` : 'PENDING-EMAIL-LINK';
   const changedFields = recordFields.filter(field => before[field] !== row[field]);
   return { changed: changedFields.length > 0, changedFields, rowIndex: rows.indexOf(row) };
+}
+
+export const applyOwnerPilotAccountRecord = applyAccountRecord;
+
+const employeeDuties = Object.freeze({
+  'new-customer-management-system': 'Designer: look up and update own customer records only',
+  'pre-order-registration': 'Register and look up customer product pre-orders; update pickup date',
+  'restocking-list': 'Register and look up out-of-stock items'
+});
+const employeeRoles = Object.freeze({
+  'new-customer-management-system': 'designer', 'pre-order-registration': 'staff', 'restocking-list': 'staff'
+});
+
+// Builds the owner-approved EMPLOYEE rows. Login emails are Gmail "+alias" addresses of the owner's
+// approved Gmail address, so every verification email reaches the owner's own inbox.
+export function buildEmployeeRows({ ownerEmail, persons, approvedOn, disableOwner = 'JAY' }) {
+  const owner = normalizeApprovedEmail(ownerEmail);
+  const match = owner && owner.match(/^([^+@]+)@(gmail\.com|googlemail\.com)$/);
+  if (!match) throw new Error('Owner email must be a plain Gmail address to derive +alias logins.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(approvedOn ?? ''))) throw new Error('approvedOn must be YYYY-MM-DD.');
+  const rows = [];
+  for (const raw of persons) {
+    const person = normalizePersonCode(raw);
+    if (!knownDesignerCodes.has(person)) throw new Error('Employee must use an approved designer code.');
+    const email = `${match[1]}+${person.toLowerCase()}@${match[2]}`;
+    for (const projectId of Object.keys(employeeRoles)) {
+      const role = employeeRoles[projectId];
+      rows.push({
+        RecordType: 'EMPLOYEE', InternalRef: person, FirebaseProject: projectId, SystemRole: role,
+        DesignerCode: role === 'designer' ? person : '', ApprovedEmail: email,
+        JobDuties: employeeDuties[projectId], MinimumAccess: role, AccountDisableOwner: disableOwner,
+        AccountCreationApproval: 'APPROVED', OwnerApproval: 'APPROVED', AccountRequestStatus: 'REQUESTED',
+        ManagerDutiesJustification: '', AccountUID: '', AccountStatus: '', EmailVerificationStatus: '',
+        OwnerApprovalNote: `Owner approved in chat on ${approvedOn}`
+      });
+    }
+  }
+  return rows;
+}
+
+// Lists approval/account gaps per EMPLOYEE row without identity values.
+export function summarizeEmployeeRows(rows) {
+  return rows.filter(row => String(row.RecordType ?? '').trim() === 'EMPLOYEE').map(row => {
+    const projectId = String(row.FirebaseProject ?? '').trim();
+    const role = String(row.SystemRole ?? '').trim().toLowerCase();
+    const missingBeforeAccount = [];
+    if (!firebaseProjectRoles[projectId]?.includes(role)) missingBeforeAccount.push('role-for-project');
+    if (!normalizeApprovedEmail(row.ApprovedEmail)) missingBeforeAccount.push('approved-email');
+    if (role === 'designer' && !knownDesignerCodes.has(String(row.DesignerCode ?? '').trim().toUpperCase())) missingBeforeAccount.push('designer-code');
+    for (const field of ['JobDuties', 'MinimumAccess', 'AccountDisableOwner']) if (!hasConfirmedValue(row[field])) missingBeforeAccount.push(field);
+    const pendingAuthorization = [];
+    if (!isApproved(row.AccountCreationApproval)) pendingAuthorization.push('AccountCreationApproval');
+    if (!isApproved(row.OwnerApproval)) pendingAuthorization.push('OwnerApproval');
+    const missingAfterAccount = [];
+    if (!hasConfirmedValue(row.AccountUID)) missingAfterAccount.push('AccountUID');
+    if (!/^VERIFIED/.test(String(row.EmailVerificationStatus ?? '').trim())) missingAfterAccount.push('EmailVerificationStatus');
+    return { person: String(row.InternalRef ?? '').trim(), projectId, role, missingBeforeAccount, pendingAuthorization, missingAfterAccount };
+  });
 }
