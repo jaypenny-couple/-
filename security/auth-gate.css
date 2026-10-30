@@ -1,0 +1,16 @@
+body.auth-pending > :not(#aliceAuthGate):not(script) { display: none !important; }
+#aliceAuthGate { box-sizing: border-box; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #f7f4ef; color: #292526; font: 16px system-ui, sans-serif; }
+#aliceAuthGate[hidden] { display: none; }
+#aliceAuthGate form { box-sizing: border-box; width: min(100%, 380px); padding: 28px; background: white; border: 1px solid #d9d0c3; border-radius: 12px; box-shadow: 0 8px 30px #0001; }
+#aliceAuthGate h1 { font-size: 22px; margin: 0 0 18px; }
+#aliceAuthGate label { display: block; margin: 12px 0; }
+#aliceAuthGate input { box-sizing: border-box; display: block; width: 100%; margin-top: 6px; padding: 10px; font: inherit; }
+#aliceAuthGate button { width: 100%; margin-top: 12px; padding: 11px; border: 0; border-radius: 6px; background: #186c68; color: white; font: inherit; cursor: pointer; }
+#aliceAuthGate button:disabled { opacity: .6; cursor: wait; }
+#aliceAuthGate p { min-height: 1.5em; color: #a12424; }
+#aliceAuthBar { position: fixed; z-index: 10000; top: 8px; right: 8px; background: white; color: #292526; border: 1px solid #d9d0c3; border-radius: 6px; padding: 5px 9px; font: 13px system-ui, sans-serif; }
+#aliceAuthBar[hidden] { display: none; }
+#aliceAuthBar button { margin-left: 8px; }
+#aliceNetworkStatus { display: none; position: fixed; z-index: 10001; left: 8px; bottom: 8px; max-width: 90vw; padding: 10px 14px; background: #8a2020; color: white; border-radius: 6px; font: 14px system-ui, sans-serif; }
+body.alice-offline #aliceNetworkStatus { display: block; }
+body.alice-offline > :not(#aliceAuthGate):not(#aliceAuthBar):not(#aliceNetworkStatus):not(script) { pointer-events: none; }

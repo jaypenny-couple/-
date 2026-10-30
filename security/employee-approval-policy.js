@@ -1,0 +1,341 @@
+export const firebaseProjectRoles = Object.freeze({
+  'new-customer-management-system': Object.freeze(['designer', 'manager']),
+  'pre-order-registration': Object.freeze(['staff']),
+  'restocking-list': Object.freeze(['staff']),
+  'hr-system-ad937': Object.freeze(['manager'])
+});
+
+const knownDesignerCodes = new Set(['JAY', 'IRIS', 'SHERRY', 'CINDY']);
+const placeholderPattern = /(?:OWNER-PILOT-TBD|ROLE[-_ ]?TEMPLATE|TBD|PENDING|待填|待確認|待業主|待核准|待批准|請填寫|範本|placeholder)/i;
+
+export function isApproved(value) {
+  return String(value ?? '').trim().toUpperCase() === 'APPROVED';
+}
+
+export function hasConfirmedValue(value) {
+  const text = String(value ?? '').trim();
+  return text.length > 0 && !placeholderPattern.test(text);
+}
+
+export function normalizeApprovedEmail(value) {
+  const email = String(value ?? '').trim().toLowerCase();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return null;
+  return email;
+}
+
+export function overlayOwnerPilotEntries(rows, entries) {
+  const seenProjects = new Set();
+  for (const entry of entries) {
+    const projectId = String(entry.FirebaseProject ?? '').trim();
+    const requestStatus = String(entry.AccountRequestStatus ?? 'REQUESTED').trim().toUpperCase();
+    if (!firebaseProjectRoles[projectId] || seenProjects.has(projectId) || !['REQUESTED', 'NOT_REQUESTED'].includes(requestStatus)) {
+      throw new Error('Owner entry sheet must contain one valid row per Firebase project.');
+    }
+    seenProjects.add(projectId);
+    const matches = rows.filter(row => String(row.FirebaseProject ?? '').trim() === projectId &&
+      (String(row.RecordType ?? '').trim() === 'OWNER-PILOT' || String(row.InternalRef ?? '').trim() === 'OWNER-PILOT-TBD'));
+    if (matches.length !== 1) throw new Error('Expected exactly one matching owner pilot row per Firebase project.');
+    const pilot = matches[0];
+    pilot.RecordType = 'OWNER-PILOT';
+    pilot.AccountRequestStatus = requestStatus;
+    if (requestStatus === 'NOT_REQUESTED') continue;
+    for (const [key, value] of Object.entries(entry)) {
+      if (key === 'FirebaseProject' || key === 'RecordType' || key === 'AccountRequestStatus') continue;
+      if (String(value ?? '').trim()) pilot[key] = value;
+    }
+  }
+  if (seenProjects.size !== Object.keys(firebaseProjectRoles).length) {
+    throw new Error('Owner entry sheet must include every Firebase project.');
+  }
+  return rows;
+}
+
+export function expectedClaims(projectId, role, designerCode = '') {
+  const allowed = firebaseProjectRoles[projectId];
+  if (!allowed) throw new Error('Unsupported Firebase project.');
+  if (!allowed.includes(role)) throw new Error('Role does not match the selected Firebase project.');
+  const app = projectId === 'new-customer-management-system' ? 'customer'
+    : projectId === 'pre-order-registration' ? 'preorder'
+      : projectId === 'restocking-list' ? 'stock' : 'hr';
+  const claims = { aliceApp: app, aliceRole: role };
+  if (role === 'designer') {
+    const code = String(designerCode ?? '').trim().toUpperCase();
+    if (!knownDesignerCodes.has(code)) throw new Error('Designer role requires an approved designer code.');
+    claims.aliceDesigner = code;
+  } else if (designerCode) {
+    throw new Error('Designer code is only valid for a designer role.');
+  }
+  return claims;
+}
+
+export function summarizeEmployeeRoster(rows) {
+  const projects = Object.keys(firebaseProjectRoles);
+  const pilotRows = rows.filter(row => String(row.RecordType ?? '').trim() === 'OWNER-PILOT' ||
+    String(row.InternalRef ?? '').trim() === 'OWNER-PILOT-TBD');
+  const candidates = rows.filter(row => {
+    if (String(row.AccountRequestStatus ?? 'REQUESTED').trim().toUpperCase() === 'NOT_REQUESTED') return false;
+    const ref = String(row.InternalRef ?? '').trim();
+    return normalizeApprovedEmail(row.ApprovedEmail) !== null || (ref && ref !== 'OWNER-PILOT-TBD' && !placeholderPattern.test(ref));
+  });
+  const emailByProject = new Map();
+  const duplicateEmailProjectCount = new Set();
+  const roleConflictCount = new Set();
+  const managerReasonIssueCount = new Set();
+  const designerCodeIssueCount = new Set();
+
+  for (const row of candidates) {
+    const projectId = String(row.FirebaseProject ?? '').trim();
+    const role = String(row.SystemRole ?? '').trim().toLowerCase();
+    const email = normalizeApprovedEmail(row.ApprovedEmail);
+    if (email && projectId) {
+      const key = `${projectId}\u0000${email}`;
+      if (emailByProject.has(key)) duplicateEmailProjectCount.add(projectId);
+      emailByProject.set(key, true);
+    }
+    if (!firebaseProjectRoles[projectId] || !firebaseProjectRoles[projectId].includes(role)) {
+      roleConflictCount.add(projectId || '(missing project)');
+    }
+    const ref = String(row.InternalRef ?? '').trim() || email || '(missing employee identifier)';
+    if (role === 'manager' && !hasConfirmedValue(row.ManagerDutiesJustification)) {
+      managerReasonIssueCount.add(`${projectId}\u0000${ref}`);
+    }
+    if (role === 'designer' && !knownDesignerCodes.has(String(row.DesignerCode ?? '').trim().toUpperCase())) {
+      designerCodeIssueCount.add(`${projectId}\u0000${ref}`);
+    }
+  }
+
+  const pilotSummary = projects.map(projectId => {
+    const row = pilotRows.find(candidate => String(candidate.FirebaseProject ?? '').trim() === projectId);
+    if (!row) return { projectId, present: false, missing: ['OWNER-PILOT-TBD row'] };
+    const requestStatus = String(row.AccountRequestStatus ?? 'REQUESTED').trim().toUpperCase();
+    if (requestStatus === 'NOT_REQUESTED') {
+      return { projectId, present: true, accountRequested: false, role: null, missingBeforeAccount: [], pendingAuthorization: [], missingAfterAccount: [] };
+    }
+    const missingBeforeAccount = [];
+    const pendingAuthorization = [];
+    const missingAfterAccount = [];
+    for (const [field, label] of [
+      ['ApprovedEmail', '核准登入信箱'],
+      ['JobDuties', '實際工作職責'],
+      ['MinimumAccess', '最低必要角色'],
+      ['AccountDisableOwner', '帳號停用負責人']
+    ]) {
+      if (!hasConfirmedValue(row[field])) missingBeforeAccount.push(label);
+    }
+    if (!normalizeApprovedEmail(row.ApprovedEmail)) missingBeforeAccount.push('有效的 Email 格式');
+    if (!hasConfirmedValue(row.InternalRef) || row.InternalRef === 'OWNER-PILOT-TBD') missingBeforeAccount.push('員工識別');
+    if (!hasConfirmedValue(row.FirebaseProject) || !projects.includes(String(row.FirebaseProject).trim())) {
+      missingBeforeAccount.push('有效的 Firebase 專案');
+    }
+    if (!isApproved(row.AccountCreationApproval)) pendingAuthorization.push('逐人逐專案帳號建立核准');
+    if (!isApproved(row.OwnerApproval)) pendingAuthorization.push('業主核准紀錄');
+    const role = String(row.SystemRole ?? '').trim().toLowerCase();
+    if (!firebaseProjectRoles[projectId]?.includes(role)) missingBeforeAccount.push('經確認且符合專案的角色');
+    if (role === 'designer' && !knownDesignerCodes.has(String(row.DesignerCode ?? '').trim().toUpperCase())) {
+      missingBeforeAccount.push('核准設計師代碼');
+    }
+    if (role === 'manager' && !hasConfirmedValue(row.ManagerDutiesJustification)) {
+      missingBeforeAccount.push('主管權限的實際業務理由');
+    }
+    if (!hasConfirmedValue(row.AccountUID)) missingAfterAccount.push('該專案 UID');
+    if (!hasConfirmedValue(row.EmailVerificationStatus) || !/verified/i.test(String(row.EmailVerificationStatus))) {
+      missingAfterAccount.push('Email 驗證狀態');
+    }
+    return {
+      projectId,
+      present: true,
+      accountRequested: true,
+      role: firebaseProjectRoles[projectId]?.includes(role) ? role : null,
+      missingBeforeAccount: [...new Set(missingBeforeAccount)],
+      pendingAuthorization: [...new Set(pendingAuthorization)],
+      missingAfterAccount: [...new Set(missingAfterAccount)]
+    };
+  });
+
+  return {
+    totalRows: rows.length,
+    roleTemplateRows: rows.filter(row => String(row.RecordType ?? '').trim() !== 'OWNER-PILOT' &&
+      !String(row.InternalRef ?? '').trim() && !normalizeApprovedEmail(row.ApprovedEmail)).length,
+    ownerPilotRows: pilotRows.length,
+    candidateRows: candidates.length,
+    rowsWithValidApprovedEmail: candidates.filter(row => normalizeApprovedEmail(row.ApprovedEmail)).length,
+    duplicateEmailProjectCount: duplicateEmailProjectCount.size,
+    roleConflictCount: roleConflictCount.size,
+    managerReasonIssueCount: managerReasonIssueCount.size,
+    designerCodeIssueCount: designerCodeIssueCount.size,
+    projects: pilotSummary,
+    employees: summarizeEmployeeRows(rows)
+  };
+}
+
+export function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let quoted = false;
+  const source = String(text ?? '').replace(/^\uFEFF/, '');
+  for (let i = 0; i < source.length; i++) {
+    const char = source[i];
+    if (quoted) {
+      if (char === '"' && source[i + 1] === '"') { field += '"'; i++; }
+      else if (char === '"') quoted = false;
+      else field += char;
+    } else if (char === '"' && field.length === 0) quoted = true;
+    else if (char === ',') { row.push(field); field = ''; }
+    else if (char === '\n' || char === '\r') {
+      if (char === '\r' && source[i + 1] === '\n') i++;
+      row.push(field); field = '';
+      if (row.some(value => value.length > 0)) rows.push(row);
+      row = [];
+    } else field += char;
+  }
+  if (quoted) throw new Error('CSV contains an unterminated quoted field.');
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  if (!rows.length) return [];
+  const [headers, ...data] = rows;
+  if (headers.some(header => !header.trim()) || new Set(headers).size !== headers.length) {
+    throw new Error('CSV headers must be non-empty and unique.');
+  }
+  return data.map(values => Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ''])));
+}
+
+function csvField(value, quoteAll) {
+  const text = String(value ?? '');
+  return quoteAll || /[",\r\n]/.test(text) || /^\s|\s$/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+// Serializes rows using the exact header order of the original file so unrelated columns are untouched.
+export function serializeCsv(headers, rows, { bom = false, quoteAll = false } = {}) {
+  if (!Array.isArray(headers) || !headers.length || new Set(headers).size !== headers.length) {
+    throw new Error('CSV headers must be non-empty and unique.');
+  }
+  const lines = [headers.map(header => csvField(header, quoteAll)).join(',')];
+  for (const row of rows) lines.push(headers.map(header => csvField(row[header], quoteAll)).join(','));
+  return `${bom ? '﻿' : ''}${lines.join('\r\n')}\r\n`;
+}
+
+// Returns the header order and BOM flag so a rewrite can keep the original file layout.
+export function parseCsvDocument(text) {
+  const source = String(text ?? '');
+  const bom = source.startsWith('\uFEFF');
+  const quoteAll = source.replace(/^\uFEFF/, '').startsWith('"');
+  const headerOnly = parseCsv(`${source.replace(/^\uFEFF/, '').split(/\r?\n/, 1)[0]}\n\n`);
+  const rows = parseCsv(source);
+  const headers = rows.length ? Object.keys(rows[0]) : Object.keys(headerOnly[0] ?? {});
+  return { headers, rows, bom, quoteAll };
+}
+
+const recordFields = Object.freeze(['AccountUID', 'AccountStatus', 'EmailVerificationStatus']);
+
+export function normalizePersonCode(value) {
+  const code = String(value ?? '').trim().toUpperCase();
+  if (!/^[A-Z][A-Z0-9_-]{1,31}$/.test(code)) throw new Error('Person code is invalid.');
+  return code;
+}
+
+// Selects exactly one account row: the owner pilot row when no person is given, otherwise the
+// EMPLOYEE row whose InternalRef equals the person code for that Firebase project.
+export function selectAccountRow(rows, projectId, person) {
+  if (!firebaseProjectRoles[projectId]) throw new Error('Unsupported Firebase project.');
+  const code = person ? normalizePersonCode(person) : '';
+  const matches = rows.filter(row => String(row.FirebaseProject ?? '').trim() === projectId && (code
+    ? String(row.RecordType ?? '').trim() === 'EMPLOYEE' && String(row.InternalRef ?? '').trim().toUpperCase() === code
+    : String(row.RecordType ?? '').trim() === 'OWNER-PILOT' || String(row.InternalRef ?? '').trim() === 'OWNER-PILOT-TBD'));
+  if (matches.length !== 1) throw new Error(code ? 'Expected exactly one employee row for this person and project.' : 'Expected exactly one owner pilot row for this project.');
+  return matches[0];
+}
+
+// Pure update of exactly one owner pilot row with values observed from the signed-in account.
+// Approval is checked on the in-memory merged view (main CSV + owner entry sheet); only the three account
+// columns of the main CSV row change. An existing different UID is never overwritten.
+export function applyAccountRecord(rows, { projectId, person, mergedRow, signedInEmail, uid, emailVerified, checkedOn }) {
+  if (!firebaseProjectRoles[projectId]) throw new Error('Unsupported Firebase project.');
+  if (!/^[A-Za-z0-9_-]{10,128}$/.test(String(uid ?? ''))) throw new Error('UID format is invalid.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(checkedOn ?? ''))) throw new Error('checkedOn must be YYYY-MM-DD.');
+  if (!mergedRow || String(mergedRow.FirebaseProject ?? '').trim() !== projectId) throw new Error('Approved row is missing.');
+  if (!isApproved(mergedRow.AccountCreationApproval) || !isApproved(mergedRow.OwnerApproval)) throw new Error('Owner pilot row is not approved.');
+  const approvedEmail = normalizeApprovedEmail(mergedRow.ApprovedEmail);
+  if (approvedEmail === null || approvedEmail !== normalizeApprovedEmail(signedInEmail)) {
+    throw new Error('Signed-in email does not match the approved email.');
+  }
+  const row = selectAccountRow(rows, projectId, person);
+  // The approval view and the row being written must describe the same account.
+  // (Owner rows may take InternalRef from the owner entry sheet overlay, so only employees compare it.)
+  if ((person && String(row.RecordType ?? '').trim() !== String(mergedRow.RecordType ?? '').trim()) ||
+      (person && String(row.InternalRef ?? '').trim().toUpperCase() !== String(mergedRow.InternalRef ?? '').trim().toUpperCase())) {
+    throw new Error('Approved row does not match the row being updated.');
+  }
+  if (String(row.ApprovedEmail ?? '').trim() && normalizeApprovedEmail(row.ApprovedEmail) !== approvedEmail) {
+    throw new Error('Signed-in email does not match the approved email in the main CSV row.');
+  }
+  for (const field of recordFields) if (!(field in row)) throw new Error(`Private CSV is missing column ${field}.`);
+  const existing = String(row.AccountUID ?? '').trim();
+  if (existing && existing !== uid) throw new Error('A different UID is already recorded; manual review is required.');
+  const duplicate = rows.some(other => other !== row && String(other.FirebaseProject ?? '').trim() === projectId &&
+    String(other.AccountUID ?? '').trim() === uid);
+  if (duplicate) throw new Error('This UID is already recorded on another row of the same project.');
+  const before = Object.fromEntries(recordFields.map(field => [field, row[field]]));
+  row.AccountUID = uid;
+  row.AccountStatus = 'ENABLED';
+  row.EmailVerificationStatus = emailVerified ? `VERIFIED-CLIENT-SDK-${checkedOn}` : 'PENDING-EMAIL-LINK';
+  const changedFields = recordFields.filter(field => before[field] !== row[field]);
+  return { changed: changedFields.length > 0, changedFields, rowIndex: rows.indexOf(row) };
+}
+
+export const applyOwnerPilotAccountRecord = applyAccountRecord;
+
+const employeeDuties = Object.freeze({
+  'new-customer-management-system': 'Designer: look up and update own customer records only',
+  'pre-order-registration': 'Register and look up customer product pre-orders; update pickup date',
+  'restocking-list': 'Register and look up out-of-stock items'
+});
+const employeeRoles = Object.freeze({
+  'new-customer-management-system': 'designer', 'pre-order-registration': 'staff', 'restocking-list': 'staff'
+});
+
+// Builds the owner-approved EMPLOYEE rows. Login emails are Gmail "+alias" addresses of the owner's
+// approved Gmail address, so every verification email reaches the owner's own inbox.
+export function buildEmployeeRows({ ownerEmail, persons, approvedOn, disableOwner = 'JAY' }) {
+  const owner = normalizeApprovedEmail(ownerEmail);
+  const match = owner && owner.match(/^([^+@]+)@(gmail\.com|googlemail\.com)$/);
+  if (!match) throw new Error('Owner email must be a plain Gmail address to derive +alias logins.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(approvedOn ?? ''))) throw new Error('approvedOn must be YYYY-MM-DD.');
+  const rows = [];
+  for (const raw of persons) {
+    const person = normalizePersonCode(raw);
+    if (!knownDesignerCodes.has(person)) throw new Error('Employee must use an approved designer code.');
+    const email = `${match[1]}+${person.toLowerCase()}@${match[2]}`;
+    for (const projectId of Object.keys(employeeRoles)) {
+      const role = employeeRoles[projectId];
+      rows.push({
+        RecordType: 'EMPLOYEE', InternalRef: person, FirebaseProject: projectId, SystemRole: role,
+        DesignerCode: role === 'designer' ? person : '', ApprovedEmail: email,
+        JobDuties: employeeDuties[projectId], MinimumAccess: role, AccountDisableOwner: disableOwner,
+        AccountCreationApproval: 'APPROVED', OwnerApproval: 'APPROVED', AccountRequestStatus: 'REQUESTED',
+        ManagerDutiesJustification: '', AccountUID: '', AccountStatus: '', EmailVerificationStatus: '',
+        OwnerApprovalNote: `Owner approved in chat on ${approvedOn}`
+      });
+    }
+  }
+  return rows;
+}
+
+// Lists approval/account gaps per EMPLOYEE row without identity values.
+export function summarizeEmployeeRows(rows) {
+  return rows.filter(row => String(row.RecordType ?? '').trim() === 'EMPLOYEE').map(row => {
+    const projectId = String(row.FirebaseProject ?? '').trim();
+    const role = String(row.SystemRole ?? '').trim().toLowerCase();
+    const missingBeforeAccount = [];
+    if (!firebaseProjectRoles[projectId]?.includes(role)) missingBeforeAccount.push('role-for-project');
+    if (!normalizeApprovedEmail(row.ApprovedEmail)) missingBeforeAccount.push('approved-email');
+    if (role === 'designer' && !knownDesignerCodes.has(String(row.DesignerCode ?? '').trim().toUpperCase())) missingBeforeAccount.push('designer-code');
+    for (const field of ['JobDuties', 'MinimumAccess', 'AccountDisableOwner']) if (!hasConfirmedValue(row[field])) missingBeforeAccount.push(field);
+    const pendingAuthorization = [];
+    if (!isApproved(row.AccountCreationApproval)) pendingAuthorization.push('AccountCreationApproval');
+    if (!isApproved(row.OwnerApproval)) pendingAuthorization.push('OwnerApproval');
+    const missingAfterAccount = [];
+    if (!hasConfirmedValue(row.AccountUID)) missingAfterAccount.push('AccountUID');
+    if (!/^VERIFIED/.test(String(row.EmailVerificationStatus ?? '').trim())) missingAfterAccount.push('EmailVerificationStatus');
+    return { person: String(row.InternalRef ?? '').trim(), projectId, role, missingBeforeAccount, pendingAuthorization, missingAfterAccount };
+  });
+}
