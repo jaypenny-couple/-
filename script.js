@@ -483,7 +483,7 @@ if (navToggle && siteNav) {
   const openButton = document.querySelector("#holiday-open-button");
   const closeButtons = document.querySelectorAll("[data-holiday-close]");
   const closeButton = modal?.querySelector(".holiday-modal__close");
-  const STORAGE_KEY = "alice-holiday-modal-closed-2026-11";
+  let storageKey;
 
   if (!monthLabel || !dateList || !modal || !openButton) return;
 
@@ -496,22 +496,41 @@ if (navToggle && siteNav) {
     "\u4e94",
     "\u516d",
   ];
-  const year = 2026;
-  const month = 10;
-  const closures = [
-    { date: new Date(year, month, 2), label: "公休" },
-    {
-      date: new Date(year, month, 10),
-      label: "月會，中午 12 點開始營業",
-      isFeatured: true,
+  // 手動公告以年月為鍵；同月的清單會完整取代自動計算的公休日。
+  const manualNotices = {
+    "2026-11": {
+      rule: "2026 年 11 月公休日與 11/10 月會營業時間如下，預約前請先避開公休日；11/10 將於中午 12 點開始營業。",
+      entries: [
+        { day: 2, label: "公休" },
+        { day: 8, label: "公休" },
+        { day: 10, label: "月會，中午 12 點開始營業", isFeatured: true },
+        { day: 16, label: "公休" },
+        { day: 22, label: "公休" },
+      ],
     },
-    { date: new Date(year, month, 8), label: "公休" },
-    { date: new Date(year, month, 16), label: "公休" },
-    { date: new Date(year, month, 22), label: "公休" },
-  ].sort((a, b) => a.date - b.date);
+  };
 
-  monthLabel.textContent = `${year} \u5e74 ${month + 1} \u6708\u4f11\u5047\u516c\u544a`;
-  dateList.replaceChildren(
+  const renderMonth = () => {
+    const parts = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Taipei", year: "numeric", month: "2-digit" }).formatToParts(new Date());
+    const year = Number(parts.find(part => part.type === "year").value);
+    const monthNumber = Number(parts.find(part => part.type === "month").value);
+    const month = monthNumber - 1;
+    const monthKey = `${year}-${String(monthNumber).padStart(2, "0")}`;
+    if (storageKey === `alice-holiday-modal-closed-${monthKey}`) return;
+    storageKey = `alice-holiday-modal-closed-${monthKey}`;
+    const notice = manualNotices[monthKey];
+    const nthWeekday = (weekday, nth) => 1 + (weekday - new Date(year, month, 1).getDay() + 7) % 7 + (nth - 1) * 7;
+    const entries = notice?.entries ?? [
+      { day: nthWeekday(1, 1), label: "公休" },
+      { day: nthWeekday(0, 2), label: "公休" },
+      { day: nthWeekday(1, 3), label: "公休" },
+      { day: nthWeekday(0, 4), label: "公休" },
+    ];
+    const closures = entries.map(entry => ({ ...entry, date: new Date(year, month, entry.day) })).sort((a, b) => a.date - b.date);
+    document.querySelector("#holiday-modal-title").textContent = `ALICE ${monthNumber} 月休假公告`;
+    document.querySelector(".holiday-modal__rule").textContent = notice?.rule ?? "以下為依固定公休規則計算的日期，特殊營業調整請以最新公告為準。";
+    monthLabel.textContent = `${year} 年 ${monthNumber} 月休假公告`;
+    dateList.replaceChildren(
     ...closures.map(({ date, label, isFeatured }) => {
       const item = document.createElement("li");
       const rule = document.createElement("span");
@@ -523,7 +542,12 @@ if (navToggle && siteNav) {
 
       return item;
     })
-  );
+    );
+  };
+  renderMonth();
+  // 長時間開著頁面時，也在跨月後更新內容。
+  setInterval(renderMonth, 60000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) renderMonth(); });
 
   const openModal = () => {
     modal.hidden = false;
@@ -536,7 +560,7 @@ if (navToggle && siteNav) {
     document.body.classList.remove("holiday-modal-open");
 
     try {
-      window.sessionStorage.setItem(STORAGE_KEY, "true");
+      window.sessionStorage.setItem(storageKey, "true");
     } catch (error) {
       // The modal still closes if session storage is unavailable.
     }
@@ -563,7 +587,7 @@ if (navToggle && siteNav) {
   let wasClosed = false;
 
   try {
-    wasClosed = window.sessionStorage.getItem(STORAGE_KEY) === "true";
+    wasClosed = window.sessionStorage.getItem(storageKey) === "true";
   } catch (error) {
     wasClosed = false;
   }
