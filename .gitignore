@@ -1,0 +1,10 @@
+# Production exports, credentials, and local test artifacts must stay private.
+backups/
+private-backups/
+security/private/
+*.local.json
+*service-account*.json
+*credentials*.json
+.env
+.env.*
+*.pem

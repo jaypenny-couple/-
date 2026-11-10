@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /salon/main {
+      function isHrManager() {
+        return request.auth != null
+        && request.auth.token.aliceApp == 'hr'
+        && request.auth.token.aliceRole == 'manager';
+      }
+      allow read, create, update: if isHrManager();
+      allow delete: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -76,26 +76,6 @@
         td { padding: 15px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #555; }
         tr:nth-child(even) { background-color: rgba(102,126,234,0.02); }
         tr:hover { background-color: rgba(102,126,234,0.05); transition: all 0.2s ease; }
-        .delete-btn {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            border: none; padding: 8px 15px; border-radius: 8px;
-            color: #ffffff; cursor: pointer; transition: all 0.3s ease;
-            font-weight: 600; font-size: 12px;
-        }
-        .delete-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,107,107,0.3); }
-        .confirm-delete-btn {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-            border: none; padding: 6px 12px; border-radius: 6px;
-            color: #ffffff; cursor: pointer; transition: all 0.3s ease;
-            font-weight: 600; font-size: 11px; margin-right: 5px;
-        }
-        .cancel-delete-btn {
-            background: linear-gradient(135deg, #6c757d, #5a6268);
-            border: none; padding: 6px 12px; border-radius: 6px;
-            color: #ffffff; cursor: pointer; transition: all 0.3s ease;
-            font-weight: 600; font-size: 11px;
-        }
-        .delete-actions { display: flex; gap: 5px; align-items: center; }
         .edit-date {
             width: 140px; padding: 8px; border: 2px solid #e1e8ed;
             border-radius: 8px; font-size: 13px; transition: all 0.3s ease;
@@ -152,8 +132,9 @@
             .connection-status { position: relative; top: auto; right: auto; margin: 10px auto; display: inline-block; }
         }
     </style>
+    <link rel="stylesheet" href="security/auth-gate.css">
 </head>
-<body>
+<body class="auth-pending">
     <div class="container">
         <div class="connection-status" id="connectionStatus">連接中...</div>
         
@@ -240,8 +221,10 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { 
-            getDatabase, ref, push, onValue, remove, update, serverTimestamp
+            getDatabase, connectDatabaseEmulator, ref, push, onValue, update, serverTimestamp
         } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import * as authSdk from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { createAuthGate } from './security/auth-gate.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyBSCAo9bCzDK0p39STACEg6opiKttrNy4I",
@@ -256,7 +239,25 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+        if (['localhost', '127.0.0.1'].includes(location.hostname)) {
+            connectDatabaseEmulator(database, '127.0.0.1', 9000);
+            authSdk.connectAuthEmulator(authSdk.getAuth(app), 'http://127.0.0.1:9099', { disableWarnings: true });
+        }
         const reservationsRef = ref(database, 'reservations');
+        let unsubscribeReservations = null;
+        const gate = createAuthGate(app, authSdk, {
+            access: 'preorder', roles: ['staff'],
+            onReady() { loadReservations(); },
+            onStop() {
+                unsubscribeReservations?.();
+                unsubscribeReservations = null;
+                reservations = [];
+                renderReservations();
+                document.getElementById('reservationList').replaceChildren();
+                updateStats();
+                document.getElementById('tableContainer').style.display = 'none';
+            }
+        });
 
         let reservations = [];
         let sortColumn = '';
@@ -310,6 +311,7 @@
         }
 
         function loadReservations() {
+            unsubscribeReservations?.();
             const loadingTimeout = setTimeout(() => {
                 const indicator = document.getElementById('loadingIndicator');
                 if (indicator.style.display !== 'none') {
@@ -324,11 +326,11 @@
                 }
             }, 8000);
 
-            onValue(reservationsRef, (snapshot) => {
+            unsubscribeReservations = onValue(reservationsRef, (snapshot) => {
                 clearTimeout(loadingTimeout);
                 const data = snapshot.val();
                 reservations = [];
-                if (data) {
+                    if (data) {
                     Object.keys(data).forEach(key => {
                         reservations.push({ firebaseKey: key, ...data[key] });
                     });
@@ -340,7 +342,8 @@
             }, (error) => {
                 clearTimeout(loadingTimeout);
                 const indicator = document.getElementById('loadingIndicator');
-                indicator.textContent = '載入失敗，請重新整理頁面';
+                indicator.textContent = error.code === 'PERMISSION_DENIED'
+                    ? '權限不足，無法讀取預訂資料' : '載入失敗，請檢查網路後重新整理';
                 indicator.style.color = '#ff6b6b';
                 setTimeout(() => {
                     indicator.style.display = 'none';
@@ -361,16 +364,6 @@
             }
         }
 
-        async function deleteReservation(firebaseKey) {
-            try {
-                await remove(ref(database, `reservations/${firebaseKey}`));
-                return true;
-            } catch (e) {
-                alert('刪除失敗，請檢查網路連線');
-                return false;
-            }
-        }
-
         async function updatePickupDate(firebaseKey, pickupDate) {
             try {
                 await update(ref(database, `reservations/${firebaseKey}`), { pickupDate });
@@ -383,6 +376,7 @@
 
         document.getElementById('reservationForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (!gate.isAuthorized()) { alert('請先登入授權帳號'); return; }
             if (!isConnected) { alert('目前離線，無法新增預訂'); return; }
 
             const btn = document.getElementById('submitBtn');
@@ -442,6 +436,10 @@
             document.getElementById('totalQuantity').textContent = reservations.reduce((sum, r) => sum + (r.quantity || 1), 0);
         }
 
+        const escapeHtml = value => String(value ?? '').replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
         function renderReservations() {
             const list = document.getElementById('reservationList');
             list.innerHTML = '';
@@ -450,28 +448,20 @@
             reservations.forEach(r => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${r.reservationDate}</td>
-                    <td>${r.customerName}</td>
-                    <td>${r.contactPlatform}</td>
-                    <td>${r.product}</td>
-                    <td><span class="quantity-display">${r.quantity || 1}</span></td>
-                    <td>${r.phone}</td>
+                    <td>${escapeHtml(r.reservationDate)}</td>
+                    <td>${escapeHtml(r.customerName)}</td>
+                    <td>${escapeHtml(r.contactPlatform)}</td>
+                    <td>${escapeHtml(r.product)}</td>
+                    <td><span class="quantity-display">${escapeHtml(r.quantity || 1)}</span></td>
+                    <td>${escapeHtml(r.phone)}</td>
                     <td>
                         <input type="date" class="edit-date"
-                            value="${r.pickupDate || r.reservationDate}"
-                            min="${r.reservationDate}" max="${maxDateString}"
-                            data-firebase-key="${r.firebaseKey}"
-                            data-original-value="${r.pickupDate || r.reservationDate}">
+                            value="${escapeHtml(r.pickupDate || r.reservationDate)}"
+                            min="${escapeHtml(r.reservationDate)}" max="${maxDateString}"
+                            data-firebase-key="${escapeHtml(r.firebaseKey)}"
+                            data-original-value="${escapeHtml(r.pickupDate || r.reservationDate)}">
                     </td>
-                    <td>
-                        <div class="delete-actions">
-                            <button class="delete-btn" data-firebase-key="${r.firebaseKey}">刪除</button>
-                            <div class="confirm-actions" style="display:none;" data-firebase-key="${r.firebaseKey}">
-                                <button class="confirm-delete-btn" data-firebase-key="${r.firebaseKey}">確認刪除?</button>
-                                <button class="cancel-delete-btn" data-firebase-key="${r.firebaseKey}">取消</button>
-                            </div>
-                        </div>
-                    </td>`;
+                    <td><span class="muted">由本機管理工具處理</span></td>`;
                 list.appendChild(row);
             });
 
@@ -484,30 +474,6 @@
                 });
             });
 
-            list.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    if (!isConnected) { alert('目前離線，無法刪除預訂'); return; }
-                    btn.style.display = 'none';
-                    btn.parentElement.querySelector(`.confirm-actions[data-firebase-key="${btn.dataset.firebaseKey}"]`).style.display = 'flex';
-                });
-            });
-
-            list.querySelectorAll('.confirm-delete-btn').forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    btn.disabled = true; btn.textContent = '刪除中...';
-                    await deleteReservation(btn.dataset.firebaseKey);
-                });
-            });
-
-            list.querySelectorAll('.cancel-delete-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const actions = btn.closest('.confirm-actions');
-                    const delBtn = actions.parentElement.querySelector(`.delete-btn[data-firebase-key="${btn.dataset.firebaseKey}"]`);
-                    actions.style.display = 'none';
-                    delBtn.style.display = 'inline-block';
-                });
-            });
-
             document.querySelectorAll('.sortable').forEach(th => {
                 th.onclick = () => sortReservations(th.dataset.column);
             });
@@ -515,7 +481,6 @@
 
         // ✅ 修復：補上遺漏的初始化呼叫
         initializeDateInputs();
-        loadReservations();
     </script>
 </body>
 </html>

@@ -1,0 +1,14 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "records": {
+      ".indexOn": ["designer"],
+      ".read": "auth != null && auth.token.aliceApp === 'customer' && (auth.token.aliceRole === 'manager' || (auth.token.aliceRole === 'designer' && auth.token.aliceDesigner != null && query.orderByChild === 'designer' && query.equalTo === auth.token.aliceDesigner))",
+      "$recordId": {
+        ".read": "auth != null && auth.token.aliceApp === 'customer' && (auth.token.aliceRole === 'manager' || (auth.token.aliceRole === 'designer' && data.child('designer').val() === auth.token.aliceDesigner))",
+        ".write": "auth != null && auth.token.aliceApp === 'customer' && (auth.token.aliceRole === 'manager' || (auth.token.aliceRole === 'designer' && auth.token.aliceDesigner != null && (!data.exists() || data.child('designer').val() === auth.token.aliceDesigner) && (!newData.exists() || newData.child('designer').val() === auth.token.aliceDesigner)))"
+      }
+    }
+  }
+}
